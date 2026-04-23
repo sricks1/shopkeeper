@@ -25,41 +25,32 @@ export default async function NewRepairPage({
 
   if (!tool) notFound();
 
-  // Fetch consumable types linked to this tool with their inventory levels
+  // Fetch consumable types linked to this tool, joining through consumable_types to inventory_items
   const { data: toolConsumables } = await supabase
     .from("tool_consumables")
     .select(`
       consumable_type_id,
-      consumable_types (id, name, category),
-      inventory_items!inner (quantity_on_hand)
+      consumable_types (
+        id,
+        name,
+        category,
+        inventory_items (quantity_on_hand)
+      )
     `)
     .eq("tool_id", tool.id);
 
-  // Also fetch consumables that have no inventory_items yet (left join workaround)
-  const { data: allToolConsumables } = await supabase
-    .from("tool_consumables")
-    .select("consumable_type_id, consumable_types (id, name, category)")
-    .eq("tool_id", tool.id);
-
-  // Build consumable options, defaulting quantity to 0 if no inventory row exists
-  const inventoryMap = new Map(
-    (toolConsumables ?? []).map((tc) => [
-      tc.consumable_type_id,
-      // @ts-expect-error Supabase join typing
-      tc.inventory_items?.quantity_on_hand ?? 0,
-    ]),
-  );
-
-  const consumables: ConsumableOption[] = (allToolConsumables ?? [])
+  const consumables: ConsumableOption[] = (toolConsumables ?? [])
     .filter((tc) => tc.consumable_types)
     .map((tc) => {
-      const ct = tc.consumable_types as { id: string; name: string; category: string };
+      // @ts-expect-error Supabase nested join typing
+      const ct = tc.consumable_types as { id: string; name: string; category: string; inventory_items: { quantity_on_hand: number }[] };
+      const onHand = ct.inventory_items?.[0]?.quantity_on_hand ?? 0;
       return {
         id: ct.id,
         name: ct.name,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         category: ct.category as any,
-        quantityOnHand: inventoryMap.get(tc.consumable_type_id) ?? 0,
+        quantityOnHand: onHand,
       };
     });
 
