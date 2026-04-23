@@ -25,32 +25,36 @@ export default async function NewRepairPage({
 
   if (!tool) notFound();
 
-  // Fetch consumable types linked to this tool, joining through consumable_types to inventory_items
+  // Fetch consumable types linked to this tool
   const { data: toolConsumables } = await supabase
     .from("tool_consumables")
-    .select(`
-      consumable_type_id,
-      consumable_types (
-        id,
-        name,
-        category,
-        inventory_items (quantity_on_hand)
-      )
-    `)
+    .select("consumable_type_id, consumable_types (id, name, category)")
     .eq("tool_id", tool.id);
+
+  const consumableTypeIds = (toolConsumables ?? []).map((tc) => tc.consumable_type_id);
+
+  // Fetch inventory separately — nested joins through consumable_types are unreliable
+  const { data: inventoryItems } = consumableTypeIds.length
+    ? await supabase
+        .from("inventory_items")
+        .select("consumable_type_id, quantity_on_hand")
+        .in("consumable_type_id", consumableTypeIds)
+    : { data: [] };
+
+  const inventoryMap = new Map(
+    (inventoryItems ?? []).map((ii) => [ii.consumable_type_id, ii.quantity_on_hand]),
+  );
 
   const consumables: ConsumableOption[] = (toolConsumables ?? [])
     .filter((tc) => tc.consumable_types)
     .map((tc) => {
-      // @ts-expect-error Supabase nested join typing
-      const ct = tc.consumable_types as { id: string; name: string; category: string; inventory_items: { quantity_on_hand: number }[] };
-      const onHand = ct.inventory_items?.[0]?.quantity_on_hand ?? 0;
+      const ct = tc.consumable_types as { id: string; name: string; category: string };
       return {
         id: ct.id,
         name: ct.name,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         category: ct.category as any,
-        quantityOnHand: onHand,
+        quantityOnHand: inventoryMap.get(tc.consumable_type_id) ?? 0,
       };
     });
 
