@@ -31,7 +31,7 @@ export default async function IssueDetailPage({
       .from("shopkeeper")
       .createSignedUrls(issue.photo_urls, 3600);
     if (signed) {
-      signedUrls.push(...signed.map((s) => s.signedUrl));
+      signedUrls.push(...signed.map((s) => s.signedUrl).filter((u): u is string => u !== null));
     }
   }
 

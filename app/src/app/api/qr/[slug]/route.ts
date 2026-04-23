@@ -18,7 +18,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
       color: { dark: "#0a112a", light: "#ffffff" }, // deepNavy on white
     });
 
-    return new NextResponse(png, {
+    return new NextResponse(new Uint8Array(png), {
       headers: {
         "Content-Type": "image/png",
         "Content-Disposition": `attachment; filename="qr-${slug}.png"`,
