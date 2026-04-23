@@ -1,10 +1,24 @@
-// Session 4: Add Tool form (owner/shop_master only).
+import AppShell from "@/components/AppShell";
+import ToolForm from "@/components/tools/ToolForm";
+import { canManageTools, getCurrentStaff } from "@/lib/auth";
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
-export default function NewToolPage() {
+export default async function NewToolPage() {
+  const staff = await getCurrentStaff();
+  if (!canManageTools(staff?.role)) notFound();
+
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-semibold text-zinc-900">Add Tool</h1>
-      <p className="mt-2 text-sm text-zinc-500">Form coming in Session 4.</p>
-    </main>
+    <AppShell>
+      <div className="px-4 pb-4 pt-6">
+        <Link href="/tools" className="mb-4 flex items-center gap-1 text-sm text-zinc-500">
+          <ChevronRight size={14} className="rotate-180" />
+          All Tools
+        </Link>
+        <h1 className="mb-6 text-xl font-bold text-zinc-900">Add Tool</h1>
+        <ToolForm />
+      </div>
+    </AppShell>
   );
 }
