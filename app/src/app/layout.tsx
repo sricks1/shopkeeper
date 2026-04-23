@@ -1,3 +1,4 @@
+import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
@@ -16,13 +17,16 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#32416800",
+  themeColor: "#324168",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${geist.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col bg-zinc-50 font-sans text-zinc-900">{children}</body>
+      <body className="flex min-h-full flex-col bg-zinc-50 font-sans text-zinc-900">
+          <ServiceWorkerRegistrar />
+          {children}
+        </body>
     </html>
   );
 }
