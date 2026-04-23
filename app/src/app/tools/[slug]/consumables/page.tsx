@@ -41,12 +41,12 @@ export default async function ToolConsumablesPage({
   const { data: inventoryItems } = linkedTypeIds.length
     ? await supabase
         .from("inventory_items")
-        .select("id, consumable_type_id")
+        .select("id, consumable_type_id, quantity_on_hand, reorder_threshold")
         .in("consumable_type_id", linkedTypeIds)
     : { data: [] };
 
-  const inventoryIdMap = new Map(
-    (inventoryItems ?? []).map((ii) => [ii.consumable_type_id, ii.id]),
+  const inventoryMap = new Map(
+    (inventoryItems ?? []).map((ii) => [ii.consumable_type_id, ii]),
   );
 
   return (
@@ -67,7 +67,9 @@ export default async function ToolConsumablesPage({
           toolSlug={tool.slug}
           allConsumables={allConsumables ?? []}
           linked={linked ?? []}
-          inventoryIdMap={Object.fromEntries(inventoryIdMap)}
+          inventoryMap={Object.fromEntries(
+            Array.from(inventoryMap.entries()).map(([k, v]) => [k, { id: v.id, onHand: v.quantity_on_hand, threshold: v.reorder_threshold }])
+          )}
         />
 
         <div className="mt-4 rounded-xl border border-dashed border-zinc-200 px-4 py-3 text-center">

@@ -21,15 +21,21 @@ interface LinkedConsumable {
   notes: string | null;
 }
 
+interface InventoryInfo {
+  id: string;
+  onHand: number;
+  threshold: number;
+}
+
 interface Props {
   toolId: string;
   toolSlug: string;
   allConsumables: Consumable[];
   linked: LinkedConsumable[];
-  inventoryIdMap: Record<string, string>; // consumable_type_id → inventory_items.id
+  inventoryMap: Record<string, InventoryInfo>; // consumable_type_id → inventory info
 }
 
-export default function ManageConsumables({ toolId, allConsumables, linked, inventoryIdMap }: Props) {
+export default function ManageConsumables({ toolId, allConsumables, linked, inventoryMap }: Props) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState<string | null>(null);
@@ -74,10 +80,12 @@ export default function ManageConsumables({ toolId, allConsumables, linked, inve
             {linked.map((l) => {
               const ct = allConsumables.find((c) => c.id === l.consumable_type_id);
               if (!ct) return null;
-              const inventoryId = inventoryIdMap[l.consumable_type_id];
-              const href = inventoryId
-                ? `/inventory/${inventoryId}`
-                : `/inventory/new?consumable=${ct.id}`;
+              const inv = inventoryMap[l.consumable_type_id];
+              const href = inv ? `/inventory/${inv.id}` : `/inventory/new?consumable=${ct.id}`;
+              const stockStatus = !inv ? null
+                : inv.onHand <= 0 ? "out"
+                : inv.onHand <= inv.threshold ? "low"
+                : "ok";
               return (
                 <li
                   key={l.id}
@@ -88,6 +96,17 @@ export default function ManageConsumables({ toolId, allConsumables, linked, inve
                       <p className="text-sm font-semibold text-zinc-800">{ct.name}</p>
                       <p className="text-xs capitalize text-zinc-400">{ct.category.replace("_", " ")}</p>
                     </div>
+                    {inv ? (
+                      <span className={`shrink-0 text-sm font-bold tabular-nums ${
+                        stockStatus === "out" ? "text-red-500"
+                        : stockStatus === "low" ? "text-orange-500"
+                        : "text-emerald-600"
+                      }`}>
+                        {inv.onHand} on hand
+                      </span>
+                    ) : (
+                      <span className="shrink-0 text-xs text-zinc-400">no stock entry</span>
+                    )}
                     <ChevronRight size={14} className="shrink-0 text-zinc-300" />
                   </Link>
                   <button
