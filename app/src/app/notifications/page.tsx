@@ -5,19 +5,32 @@ import { AlertTriangle, BellOff, Package } from "lucide-react";
 import AcknowledgeButton from "./AcknowledgeButton";
 
 function NotificationIcon({ type }: { type: string }) {
-  if (type === "tool_down") return <AlertTriangle size={18} className="text-red-500" />;
-  return <Package size={18} className="text-[#e06829]" />;
+  if (type === "tool_down")
+    return (
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100">
+        <AlertTriangle size={15} className="text-red-500" />
+      </div>
+    );
+  return (
+    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-100">
+      <Package size={15} className="text-[#e06829]" />
+    </div>
+  );
 }
 
 function notificationTitle(type: string, payload: Record<string, string>): string {
   if (type === "tool_down") return `Tool down: ${payload.tool_name ?? "Unknown tool"}`;
-  if (type === "reorder_needed") return `Reorder needed: ${payload.consumable_name ?? "Unknown consumable"}`;
+  if (type === "reorder_needed") return `Reorder: ${payload.consumable_name ?? "Unknown consumable"}`;
   return "System notification";
 }
 
 function notificationDetail(type: string, payload: Record<string, string>): string | null {
-  if (type === "reorder_needed" && payload.quantity_on_hand != null && payload.reorder_threshold != null) {
-    return `${payload.quantity_on_hand} on hand / threshold ${payload.reorder_threshold}`;
+  if (
+    type === "reorder_needed" &&
+    payload.quantity_on_hand != null &&
+    payload.reorder_threshold != null
+  ) {
+    return `${payload.quantity_on_hand} on hand · threshold ${payload.reorder_threshold}`;
   }
   return null;
 }
@@ -36,17 +49,22 @@ export default async function NotificationsPage() {
 
   return (
     <AppShell>
-      <div className="px-4 pb-4 pt-6">
-        <h1 className="mb-4 text-xl font-bold text-zinc-900">Notifications</h1>
+      <div className="px-4 pb-4 pt-5">
+        <div className="mb-5">
+          <h1 className="text-xl font-bold text-zinc-900">Notifications</h1>
+          <p className="text-sm text-zinc-500">
+            {unread.length > 0 ? `${unread.length} unread` : "All caught up"}
+          </p>
+        </div>
 
         {/* Unread */}
         <section className="mb-6">
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-500">
-            New {unread.length > 0 && `(${unread.length})`}
-          </h2>
+          <p className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-400">New</p>
           {unread.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 rounded-xl bg-white px-4 py-8 text-center ring-1 ring-zinc-200">
-              <BellOff size={24} className="text-zinc-300" />
+            <div className="flex flex-col items-center gap-3 rounded-2xl bg-white px-6 py-10 text-center ring-1 ring-zinc-200">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100">
+                <BellOff size={18} className="text-zinc-400" />
+              </div>
               <p className="text-sm text-zinc-400">No new notifications</p>
             </div>
           ) : (
@@ -57,18 +75,14 @@ export default async function NotificationsPage() {
                 return (
                   <li
                     key={n.id}
-                    className="flex items-start gap-3 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200"
+                    className="flex items-center gap-3 rounded-xl bg-white px-4 py-3.5 shadow-sm ring-1 ring-zinc-200"
                   >
-                    <div className="mt-0.5 shrink-0">
-                      <NotificationIcon type={n.type} />
-                    </div>
+                    <NotificationIcon type={n.type} />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-zinc-800">
+                      <p className="text-sm font-semibold text-zinc-800">
                         {notificationTitle(n.type, payload)}
                       </p>
-                      {detail && (
-                        <p className="mt-0.5 text-xs text-zinc-500">{detail}</p>
-                      )}
+                      {detail && <p className="mt-0.5 text-xs text-zinc-500">{detail}</p>}
                       <p className="mt-1 text-xs text-zinc-400">{timeAgo(n.created_at)}</p>
                     </div>
                     <AcknowledgeButton id={n.id} />
@@ -79,12 +93,10 @@ export default async function NotificationsPage() {
           )}
         </section>
 
-        {/* Read */}
+        {/* Dismissed */}
         {read.length > 0 && (
           <section>
-            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-500">
-              Dismissed
-            </h2>
+            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-400">Dismissed</p>
             <ul className="flex flex-col gap-2">
               {read.map((n) => {
                 const payload = (n.payload ?? {}) as Record<string, string>;
@@ -92,18 +104,14 @@ export default async function NotificationsPage() {
                 return (
                   <li
                     key={n.id}
-                    className="flex items-start gap-3 rounded-xl bg-white px-4 py-3 ring-1 ring-zinc-200 opacity-50"
+                    className="flex items-center gap-3 rounded-xl bg-white px-4 py-3.5 ring-1 ring-zinc-200 opacity-50"
                   >
-                    <div className="mt-0.5 shrink-0">
-                      <NotificationIcon type={n.type} />
-                    </div>
+                    <NotificationIcon type={n.type} />
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-zinc-700">
                         {notificationTitle(n.type, payload)}
                       </p>
-                      {detail && (
-                        <p className="mt-0.5 text-xs text-zinc-500">{detail}</p>
-                      )}
+                      {detail && <p className="mt-0.5 text-xs text-zinc-500">{detail}</p>}
                       <p className="mt-1 text-xs text-zinc-400">{timeAgo(n.created_at)}</p>
                     </div>
                   </li>

@@ -27,6 +27,10 @@ export default function NavClient({ unreadCount }: { unreadCount: number }) {
                 active ? "text-[#324168]" : "text-zinc-400 hover:text-zinc-600"
               }`}
             >
+              {/* Active indicator */}
+              {active && (
+                <span className="absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-[#e06829]" />
+              )}
               <div className="relative">
                 <Icon size={20} strokeWidth={active ? 2.5 : 1.75} aria-hidden="true" />
                 {showBadge && (

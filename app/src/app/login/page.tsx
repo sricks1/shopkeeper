@@ -1,8 +1,12 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { Wrench } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useState } from "react";
+
+const inputCls =
+  "w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition-colors focus:border-[#324168] focus:bg-white focus:ring-2 focus:ring-[#324168]/15";
 
 function LoginForm() {
   const router = useRouter();
@@ -32,8 +36,6 @@ function LoginForm() {
       return;
     }
 
-    // Verify the user is an active staff member.
-    // RLS means this query returns nothing if they're not in the staff table.
     const { data: staffRow } = await supabase
       .from("staff")
       .select("id, active")
@@ -51,7 +53,7 @@ function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="text-sm font-medium text-zinc-700">
           Email
@@ -63,7 +65,7 @@ function LoginForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-[#324168] focus:ring-2 focus:ring-[#324168]/20"
+          className={inputCls}
           placeholder="you@thejoinery.club"
         />
       </div>
@@ -79,18 +81,20 @@ function LoginForm() {
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-[#324168] focus:ring-2 focus:ring-[#324168]/20"
+          className={inputCls}
         />
       </div>
 
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
+          {error}
+        </p>
       )}
 
       <button
         type="submit"
         disabled={isLoading}
-        className="rounded-lg bg-[#324168] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#263352] disabled:opacity-60"
+        className="mt-1 w-full rounded-xl bg-[#e06829] py-3 text-sm font-semibold text-white transition-colors hover:bg-[#c55a22] disabled:opacity-60"
       >
         {isLoading ? "Signing in…" : "Sign in"}
       </button>
@@ -100,24 +104,24 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-50 p-4">
-      <div className="w-full max-w-sm">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#324168]">
-            <span className="text-xl">🔧</span>
-          </div>
-          <h1 className="text-2xl font-bold text-zinc-900">ShopKeeper</h1>
-          <p className="mt-1 text-sm text-zinc-500">The Joinery — Staff access only</p>
+    <main className="flex min-h-screen flex-col items-center justify-center bg-[#0a112a] px-4 py-12">
+      {/* Brand mark */}
+      <div className="mb-8 flex flex-col items-center text-center">
+        <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#e06829] shadow-lg shadow-[#e06829]/30">
+          <Wrench size={32} className="text-white" strokeWidth={2} />
         </div>
+        <h1 className="text-3xl font-bold tracking-tight text-white">ShopKeeper</h1>
+        <p className="mt-2 text-sm text-white/40 uppercase tracking-widest">
+          The Joinery
+        </p>
+      </div>
 
-        {/* Card */}
-        <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-zinc-200">
-          {/* useSearchParams must be inside Suspense */}
-          <Suspense>
-            <LoginForm />
-          </Suspense>
-        </div>
+      {/* Card */}
+      <div className="w-full max-w-sm rounded-2xl bg-white p-7 shadow-2xl shadow-black/40">
+        <p className="mb-6 text-sm text-zinc-500">Staff access only</p>
+        <Suspense>
+          <LoginForm />
+        </Suspense>
       </div>
     </main>
   );

@@ -35,7 +35,6 @@ export default async function ToolDetailPage({
 
   if (!tool) notFound();
 
-  // Fetch recent issues and repairs in parallel
   const [{ data: issues }, { data: repairs }] = await Promise.all([
     supabase
       .from("issues")
@@ -55,9 +54,9 @@ export default async function ToolDetailPage({
 
   return (
     <AppShell>
-      <div className="px-4 pb-4 pt-6">
+      <div className="px-4 pb-6 pt-5">
         {/* Back */}
-        <Link href="/tools" className="mb-4 flex items-center gap-1 text-sm text-zinc-500">
+        <Link href="/tools" className="mb-4 flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600">
           <ChevronRight size={14} className="rotate-180" />
           All Tools
         </Link>
@@ -65,38 +64,40 @@ export default async function ToolDetailPage({
         {/* Tool header */}
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <h1 className="text-xl font-bold text-zinc-900">{tool.name}</h1>
+            <h1 className="text-2xl font-bold text-zinc-900">{tool.name}</h1>
             {(tool.manufacturer || tool.model) && (
               <p className="mt-0.5 text-sm text-zinc-500">
                 {[tool.manufacturer, tool.model].filter(Boolean).join(" · ")}
               </p>
             )}
           </div>
-          <ToolStatusBadge status={tool.status} />
+          <div className="mt-1 shrink-0">
+            <ToolStatusBadge status={tool.status} />
+          </div>
         </div>
 
         {/* Down banner */}
         {isDown && (
-          <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 ring-1 ring-red-200">
-            <AlertTriangle size={16} className="shrink-0 text-red-600" />
-            <p className="text-sm font-medium text-red-700">
+          <div className="mb-4 flex items-center gap-2.5 rounded-xl bg-red-50 px-4 py-3.5 ring-1 ring-red-200">
+            <AlertTriangle size={16} className="shrink-0 text-red-500" />
+            <p className="text-sm font-semibold text-red-700">
               This tool is currently out of service.
             </p>
           </div>
         )}
 
-        {/* CTA buttons */}
-        <div className="mb-4 flex gap-2">
+        {/* Primary CTAs */}
+        <div className="mb-4 grid grid-cols-2 gap-2">
           <Link
             href={`/tools/${slug}/issues/new`}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#e06829] px-4 py-3 text-sm font-semibold text-white"
+            className="flex items-center justify-center gap-2 rounded-xl bg-[#e06829] px-4 py-3.5 text-sm font-semibold text-white shadow-sm shadow-[#e06829]/20 transition-colors hover:bg-[#c55a22] active:bg-[#c55a22]"
           >
             <AlertTriangle size={16} />
             Report Issue
           </Link>
           <Link
             href={`/tools/${slug}/repairs/new`}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#324168] px-4 py-3 text-sm font-semibold text-white"
+            className="flex items-center justify-center gap-2 rounded-xl bg-[#324168] px-4 py-3.5 text-sm font-semibold text-white shadow-sm shadow-[#324168]/20 transition-colors hover:bg-[#263352] active:bg-[#263352]"
           >
             <Wrench size={16} />
             Log Repair
@@ -104,24 +105,25 @@ export default async function ToolDetailPage({
         </div>
 
         {/* Metadata card */}
-        <div className="mb-4 rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-zinc-200">
-          <div className="flex flex-col gap-3 text-sm">
+        <div className="mb-4 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-zinc-200">
+          <div className="flex flex-col divide-y divide-zinc-100">
             {tool.location && (
-              <div className="flex items-center gap-2 text-zinc-600">
-                <MapPin size={15} className="shrink-0 text-zinc-400" />
-                {tool.location}
+              <div className="flex items-center gap-3 px-4 py-3 text-sm">
+                <MapPin size={14} className="shrink-0 text-zinc-400" />
+                <span className="text-zinc-700">{tool.location}</span>
               </div>
             )}
             {tool.serial && (
-              <div className="flex items-center gap-2 text-zinc-600">
-                <Tag size={15} className="shrink-0 text-zinc-400" />
-                S/N: {tool.serial}
+              <div className="flex items-center gap-3 px-4 py-3 text-sm">
+                <Tag size={14} className="shrink-0 text-zinc-400" />
+                <span className="text-zinc-500">S/N</span>
+                <span className="font-mono text-xs text-zinc-700">{tool.serial}</span>
               </div>
             )}
             {tool.purchase_date && (
-              <div className="flex items-center gap-2 text-zinc-600">
-                <CalendarDays size={15} className="shrink-0 text-zinc-400" />
-                Purchased {formatDate(tool.purchase_date)}
+              <div className="flex items-center gap-3 px-4 py-3 text-sm">
+                <CalendarDays size={14} className="shrink-0 text-zinc-400" />
+                <span className="text-zinc-700">Purchased {formatDate(tool.purchase_date)}</span>
               </div>
             )}
             {tool.manual_url && (
@@ -129,35 +131,34 @@ export default async function ToolDetailPage({
                 href={tool.manual_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-[#324168]"
+                className="flex items-center gap-3 px-4 py-3 text-sm text-[#324168]"
               >
-                <ExternalLink size={15} className="shrink-0" />
+                <ExternalLink size={14} className="shrink-0" />
                 View manual
               </a>
             )}
           </div>
-
           {tool.notes && (
-            <p className="mt-3 border-t border-zinc-100 pt-3 text-sm text-zinc-500">
+            <p className="border-t border-zinc-100 px-4 py-3 text-sm text-zinc-500 italic">
               {tool.notes}
             </p>
           )}
         </div>
 
-        {/* Actions row: edit + consumables + QR */}
+        {/* Secondary actions */}
         <div className="mb-6 flex flex-wrap gap-2">
           {canManageTools(staff?.role) && (
             <>
               <Link
                 href={`/tools/${slug}/edit`}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white py-2 text-sm font-medium text-zinc-700"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
               >
                 <Pencil size={14} />
-                Edit Tool
+                Edit
               </Link>
               <Link
                 href={`/tools/${slug}/consumables`}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white py-2 text-sm font-medium text-zinc-700"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
               >
                 <Package size={14} />
                 Consumables
@@ -167,17 +168,19 @@ export default async function ToolDetailPage({
           <a
             href={`/api/qr/${slug}`}
             download={`qr-${slug}.png`}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white py-2 text-sm font-medium text-zinc-700"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
           >
             <Download size={14} />
-            Download QR
+            QR Code
           </a>
         </div>
 
         {/* Recent Issues */}
-        <section className="mb-4">
-          <h2 className="mb-2 text-sm font-semibold text-zinc-500 uppercase tracking-wide">
+        <section className="mb-5">
+          <h2 className="mb-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-400">
+            <span className="h-px flex-1 bg-zinc-200" />
             Recent Issues
+            <span className="h-px flex-1 bg-zinc-200" />
           </h2>
           {!issues?.length ? (
             <p className="rounded-xl bg-white px-4 py-4 text-sm text-zinc-400 ring-1 ring-zinc-200">
@@ -192,7 +195,7 @@ export default async function ToolDetailPage({
                     className="flex flex-col rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm font-medium text-zinc-800">{issue.title}</p>
+                      <p className="text-sm font-semibold text-zinc-800">{issue.title}</p>
                       <IssueStatusBadge status={issue.status} />
                     </div>
                     <div className="mt-1.5 flex items-center gap-2">
@@ -208,8 +211,10 @@ export default async function ToolDetailPage({
 
         {/* Recent Repairs */}
         <section>
-          <h2 className="mb-2 text-sm font-semibold text-zinc-500 uppercase tracking-wide">
+          <h2 className="mb-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-400">
+            <span className="h-px flex-1 bg-zinc-200" />
             Recent Repairs
+            <span className="h-px flex-1 bg-zinc-200" />
           </h2>
           {!repairs?.length ? (
             <p className="rounded-xl bg-white px-4 py-4 text-sm text-zinc-400 ring-1 ring-zinc-200">
