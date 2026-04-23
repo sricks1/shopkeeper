@@ -162,24 +162,15 @@ export default async function ToolDetailPage({
         </div>
 
         {/* Secondary actions */}
-        <div className={`mb-6 grid gap-2 ${canManageTools(staff?.role) ? "grid-cols-3" : "grid-cols-1"}`}>
+        <div className={`mb-6 grid gap-2 ${canManageTools(staff?.role) ? "grid-cols-2" : "grid-cols-1"}`}>
           {canManageTools(staff?.role) && (
-            <>
-              <Link
-                href={`/tools/${slug}/edit`}
-                className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
-              >
-                <Pencil size={14} className="shrink-0" />
-                <span className="whitespace-nowrap">Edit</span>
-              </Link>
-              <Link
-                href={`/tools/${slug}/consumables`}
-                className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
-              >
-                <Package size={14} className="shrink-0" />
-                <span className="whitespace-nowrap">Parts</span>
-              </Link>
-            </>
+            <Link
+              href={`/tools/${slug}/edit`}
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+            >
+              <Pencil size={14} className="shrink-0" />
+              <span className="whitespace-nowrap">Edit Tool</span>
+            </Link>
           )}
           <a
             href={`/api/qr/${slug}`}
@@ -192,15 +183,25 @@ export default async function ToolDetailPage({
         </div>
 
         {/* Parts */}
-        {toolConsumables && toolConsumables.length > 0 && (
+        {(toolConsumables && toolConsumables.length > 0 || canManageTools(staff?.role)) && (
           <section className="mb-5">
-            <h2 className="mb-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-400">
+            <div className="mb-2.5 flex items-center gap-2">
               <span className="h-px flex-1 bg-zinc-200" />
-              Parts
+              <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">Parts</span>
               <span className="h-px flex-1 bg-zinc-200" />
-            </h2>
+              {canManageTools(staff?.role) && (
+                <Link href={`/tools/${slug}/consumables`} className="text-xs font-medium text-[#324168]">
+                  Manage
+                </Link>
+              )}
+            </div>
+            {!toolConsumables?.length && (
+              <p className="rounded-xl bg-white px-4 py-4 text-sm text-zinc-400 ring-1 ring-zinc-200">
+                No parts linked yet.
+              </p>
+            )}
             <ul className="flex flex-col gap-2">
-              {toolConsumables.map((tc) => {
+              {(toolConsumables ?? []).map((tc) => {
                 const ct = tc.consumable_types as { id: string; name: string; category: string } | null;
                 if (!ct) return null;
                 const inv = inventoryMap.get(tc.consumable_type_id);
