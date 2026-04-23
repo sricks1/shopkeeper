@@ -9,7 +9,7 @@ export default async function AppShell({ children }: { children: React.ReactNode
     .is("acknowledged_at", null);
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-100">
+    <div className="flex min-h-screen flex-col bg-zinc-50">
       {/* Branded top bar */}
       <header className="sticky top-0 z-10 bg-[#0a112a]">
         <div className="flex items-center justify-between px-4 py-3">

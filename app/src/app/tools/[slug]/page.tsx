@@ -92,15 +92,15 @@ export default async function ToolDetailPage({
             href={`/tools/${slug}/issues/new`}
             className="flex items-center justify-center gap-2 rounded-xl bg-[#e06829] px-4 py-3.5 text-sm font-semibold text-white shadow-sm shadow-[#e06829]/20 transition-colors hover:bg-[#c55a22] active:bg-[#c55a22]"
           >
-            <AlertTriangle size={16} />
-            Report Issue
+            <AlertTriangle size={16} className="shrink-0" />
+            <span className="whitespace-nowrap">Report Issue</span>
           </Link>
           <Link
             href={`/tools/${slug}/repairs/new`}
             className="flex items-center justify-center gap-2 rounded-xl bg-[#324168] px-4 py-3.5 text-sm font-semibold text-white shadow-sm shadow-[#324168]/20 transition-colors hover:bg-[#263352] active:bg-[#263352]"
           >
-            <Wrench size={16} />
-            Log Repair
+            <Wrench size={16} className="shrink-0" />
+            <span className="whitespace-nowrap">Log Repair</span>
           </Link>
         </div>
 
@@ -146,32 +146,32 @@ export default async function ToolDetailPage({
         </div>
 
         {/* Secondary actions */}
-        <div className="mb-6 flex flex-wrap gap-2">
+        <div className={`mb-6 grid gap-2 ${canManageTools(staff?.role) ? "grid-cols-3" : "grid-cols-1"}`}>
           {canManageTools(staff?.role) && (
             <>
               <Link
                 href={`/tools/${slug}/edit`}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
               >
-                <Pencil size={14} />
-                Edit
+                <Pencil size={14} className="shrink-0" />
+                <span className="whitespace-nowrap">Edit</span>
               </Link>
               <Link
                 href={`/tools/${slug}/consumables`}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
               >
-                <Package size={14} />
-                Consumables
+                <Package size={14} className="shrink-0" />
+                <span className="whitespace-nowrap">Parts</span>
               </Link>
             </>
           )}
           <a
             href={`/api/qr/${slug}`}
             download={`qr-${slug}.png`}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
           >
-            <Download size={14} />
-            QR Code
+            <Download size={14} className="shrink-0" />
+            <span className="whitespace-nowrap">QR Code</span>
           </a>
         </div>
 
