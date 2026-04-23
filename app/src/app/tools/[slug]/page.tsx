@@ -10,6 +10,7 @@ import {
   Download,
   ExternalLink,
   MapPin,
+  Package,
   Pencil,
   Tag,
   Wrench,
@@ -143,16 +144,25 @@ export default async function ToolDetailPage({
           )}
         </div>
 
-        {/* Actions row: edit + QR */}
-        <div className="mb-6 flex gap-2">
+        {/* Actions row: edit + consumables + QR */}
+        <div className="mb-6 flex flex-wrap gap-2">
           {canManageTools(staff?.role) && (
-            <Link
-              href={`/tools/${slug}/edit`}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white py-2 text-sm font-medium text-zinc-700"
-            >
-              <Pencil size={14} />
-              Edit Tool
-            </Link>
+            <>
+              <Link
+                href={`/tools/${slug}/edit`}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white py-2 text-sm font-medium text-zinc-700"
+              >
+                <Pencil size={14} />
+                Edit Tool
+              </Link>
+              <Link
+                href={`/tools/${slug}/consumables`}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white py-2 text-sm font-medium text-zinc-700"
+              >
+                <Package size={14} />
+                Consumables
+              </Link>
+            </>
           )}
           <a
             href={`/api/qr/${slug}`}
