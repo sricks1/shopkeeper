@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+
+  /* ShopKeeper brand palette */
+  --color-slate-blue: #324168;
+  --color-craftsman-orange: #e06829;
+  --color-deep-navy: #0a112a;
+}
