@@ -176,18 +176,20 @@ export default async function ToolDetailPage({
           ) : (
             <ul className="flex flex-col gap-2">
               {issues.map((issue) => (
-                <li
-                  key={issue.id}
-                  className="rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-medium text-zinc-800">{issue.title}</p>
-                    <IssueStatusBadge status={issue.status} />
-                  </div>
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <SeverityBadge severity={issue.severity} />
-                    <span className="text-xs text-zinc-400">{timeAgo(issue.created_at)}</span>
-                  </div>
+                <li key={issue.id}>
+                  <Link
+                    href={`/tools/${slug}/issues/${issue.id}`}
+                    className="flex flex-col rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium text-zinc-800">{issue.title}</p>
+                      <IssueStatusBadge status={issue.status} />
+                    </div>
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <SeverityBadge severity={issue.severity} />
+                      <span className="text-xs text-zinc-400">{timeAgo(issue.created_at)}</span>
+                    </div>
+                  </Link>
                 </li>
               ))}
             </ul>
