@@ -1,8 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
-export const runtime = "nodejs";
-
 // Public routes that don't require authentication
 const PUBLIC_PATHS = ["/login"];
 
