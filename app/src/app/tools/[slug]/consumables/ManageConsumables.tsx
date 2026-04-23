@@ -2,7 +2,8 @@
 
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/types/database.types";
-import { Link2Off, Plus, Search } from "lucide-react";
+import { ChevronRight, Link2Off, Plus, Search } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -25,9 +26,10 @@ interface Props {
   toolSlug: string;
   allConsumables: Consumable[];
   linked: LinkedConsumable[];
+  inventoryIdMap: Record<string, string>; // consumable_type_id → inventory_items.id
 }
 
-export default function ManageConsumables({ toolId, allConsumables, linked }: Props) {
+export default function ManageConsumables({ toolId, allConsumables, linked, inventoryIdMap }: Props) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState<string | null>(null);
@@ -72,23 +74,29 @@ export default function ManageConsumables({ toolId, allConsumables, linked }: Pr
             {linked.map((l) => {
               const ct = allConsumables.find((c) => c.id === l.consumable_type_id);
               if (!ct) return null;
+              const inventoryId = inventoryIdMap[l.consumable_type_id];
+              const href = inventoryId
+                ? `/inventory/${inventoryId}`
+                : `/inventory/new?consumable=${ct.id}`;
               return (
                 <li
                   key={l.id}
-                  className="flex items-center justify-between rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200"
+                  className="flex items-center rounded-xl bg-white shadow-sm ring-1 ring-zinc-200"
                 >
-                  <div>
-                    <p className="text-sm font-medium text-zinc-800">{ct.name}</p>
-                    <p className="text-xs capitalize text-zinc-400">{ct.category.replace("_", " ")}</p>
-                  </div>
+                  <Link href={href} className="flex flex-1 items-center gap-3 px-4 py-3 transition-colors active:bg-zinc-50">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-zinc-800">{ct.name}</p>
+                      <p className="text-xs capitalize text-zinc-400">{ct.category.replace("_", " ")}</p>
+                    </div>
+                    <ChevronRight size={14} className="shrink-0 text-zinc-300" />
+                  </Link>
                   <button
                     type="button"
                     onClick={() => unlink(l.id)}
                     disabled={isLoading === l.id}
-                    className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs text-red-500 hover:bg-red-50 disabled:opacity-40"
+                    className="flex items-center gap-1 border-l border-zinc-100 px-3 py-3 text-xs text-red-400 hover:bg-red-50 disabled:opacity-40"
                   >
                     <Link2Off size={13} />
-                    Remove
                   </button>
                 </li>
               );

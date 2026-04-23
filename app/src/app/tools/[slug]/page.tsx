@@ -35,7 +35,7 @@ export default async function ToolDetailPage({
 
   if (!tool) notFound();
 
-  const [{ data: issues }, { data: repairs }] = await Promise.all([
+  const [{ data: issues }, { data: repairs }, { data: toolConsumables }] = await Promise.all([
     supabase
       .from("issues")
       .select("id, title, severity, status, created_at")
@@ -48,7 +48,23 @@ export default async function ToolDetailPage({
       .eq("tool_id", tool.id)
       .order("created_at", { ascending: false })
       .limit(5),
+    supabase
+      .from("tool_consumables")
+      .select("consumable_type_id, consumable_types(id, name, category)")
+      .eq("tool_id", tool.id),
   ]);
+
+  const consumableTypeIds = (toolConsumables ?? []).map((tc) => tc.consumable_type_id);
+  const { data: inventoryItems } = consumableTypeIds.length
+    ? await supabase
+        .from("inventory_items")
+        .select("id, consumable_type_id, quantity_on_hand, reorder_threshold")
+        .in("consumable_type_id", consumableTypeIds)
+    : { data: [] };
+
+  const inventoryMap = new Map(
+    (inventoryItems ?? []).map((ii) => [ii.consumable_type_id, ii]),
+  );
 
   const isDown = tool.status === "down";
 
@@ -174,6 +190,59 @@ export default async function ToolDetailPage({
             <span className="whitespace-nowrap">QR Code</span>
           </a>
         </div>
+
+        {/* Parts */}
+        {toolConsumables && toolConsumables.length > 0 && (
+          <section className="mb-5">
+            <h2 className="mb-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-400">
+              <span className="h-px flex-1 bg-zinc-200" />
+              Parts
+              <span className="h-px flex-1 bg-zinc-200" />
+            </h2>
+            <ul className="flex flex-col gap-2">
+              {toolConsumables.map((tc) => {
+                const ct = tc.consumable_types as { id: string; name: string; category: string } | null;
+                if (!ct) return null;
+                const inv = inventoryMap.get(tc.consumable_type_id);
+                const onHand = inv?.quantity_on_hand ?? null;
+                const threshold = inv?.reorder_threshold ?? 1;
+                const stockStatus =
+                  onHand === null ? null
+                  : onHand <= 0 ? "out"
+                  : onHand <= threshold ? "low"
+                  : "ok";
+                const href = inv ? `/inventory/${inv.id}` : `/inventory/new?consumable=${ct.id}`;
+                return (
+                  <li key={tc.consumable_type_id}>
+                    <Link
+                      href={href}
+                      className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-zinc-800">{ct.name}</p>
+                        <p className="mt-0.5 text-xs capitalize text-zinc-400">
+                          {ct.category.replace("_", " ")}
+                        </p>
+                      </div>
+                      {onHand !== null ? (
+                        <span className={`shrink-0 text-sm font-bold tabular-nums ${
+                          stockStatus === "out" ? "text-red-500"
+                          : stockStatus === "low" ? "text-orange-500"
+                          : "text-emerald-600"
+                        }`}>
+                          {onHand} on hand
+                        </span>
+                      ) : (
+                        <span className="shrink-0 text-xs text-zinc-400">no stock entry</span>
+                      )}
+                      <ChevronRight size={14} className="shrink-0 text-zinc-300" />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
 
         {/* Recent Issues */}
         <section className="mb-5">
