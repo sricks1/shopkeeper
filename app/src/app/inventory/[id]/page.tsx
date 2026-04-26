@@ -1,4 +1,5 @@
 import AppShell from "@/components/AppShell";
+import DeleteConsumableButton from "@/components/inventory/DeleteConsumableButton";
 import { ToolStatusBadge } from "@/components/StatusBadge";
 import { canManageTools, getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -96,6 +97,14 @@ export default async function InventoryDetailPage({
           initialThreshold={item.reorder_threshold}
           canEdit={canEdit}
         />
+
+        {canEdit && (
+          <DeleteConsumableButton
+            consumableTypeId={ct.id}
+            inventoryItemId={id}
+            consumableName={ct.name}
+          />
+        )}
 
         {/* Used in tools */}
         <section className="mt-6">

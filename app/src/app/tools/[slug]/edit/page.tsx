@@ -1,4 +1,5 @@
 import AppShell from "@/components/AppShell";
+import DeleteToolButton from "@/components/tools/DeleteToolButton";
 import ToolForm from "@/components/tools/ToolForm";
 import { canManageTools, getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -36,6 +37,7 @@ export default async function EditToolPage({
         </Link>
         <h1 className="mb-6 text-xl font-bold text-zinc-900">Edit Tool</h1>
         <ToolForm tool={tool} />
+        <DeleteToolButton toolId={tool.id} toolName={tool.name} />
       </div>
     </AppShell>
   );
