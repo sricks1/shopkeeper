@@ -364,6 +364,57 @@ export type Database = {
           },
         ]
       }
+      maintenance_tasks: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          interval_days: number | null
+          last_performed_at: string | null
+          notes: string | null
+          tool_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description: string
+          id?: string
+          interval_days?: number | null
+          last_performed_at?: string | null
+          notes?: string | null
+          tool_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          interval_days?: number | null
+          last_performed_at?: string | null
+          notes?: string | null
+          tool_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_tasks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_tasks_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           acknowledged_at: string | null
@@ -863,6 +914,7 @@ export type Database = {
         | "filter"
         | "brush"
         | "other"
+        | "vacuum_bag"
       issue_severity: "minor" | "needs_attention" | "down"
       issue_status: "open" | "resolved"
       notification_type: "reorder_needed" | "tool_down"
@@ -1012,6 +1064,7 @@ export const Constants = {
         "filter",
         "brush",
         "other",
+        "vacuum_bag",
       ],
       issue_severity: ["minor", "needs_attention", "down"],
       issue_status: ["open", "resolved"],
