@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import LogoutButton from "./LogoutButton";
 import NavClient from "./NavClient";
 
 export default async function AppShell({ children }: { children: React.ReactNode }) {
@@ -21,9 +22,12 @@ export default async function AppShell({ children }: { children: React.ReactNode
             </div>
             <span className="text-sm font-bold text-white">ShopKeeper</span>
           </div>
-          <span className="text-[10px] font-medium uppercase tracking-widest text-white/30">
-            The Joinery
-          </span>
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] font-medium uppercase tracking-widest text-white/30">
+              The Joinery
+            </span>
+            <LogoutButton />
+          </div>
         </div>
       </header>
 
