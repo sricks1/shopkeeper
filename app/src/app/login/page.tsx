@@ -36,9 +36,11 @@ function LoginForm() {
       return;
     }
 
+    const { data: { user } } = await supabase.auth.getUser();
     const { data: staffRow } = await supabase
       .from("staff")
       .select("id, active")
+      .eq("id", user?.id ?? "")
       .single();
 
     if (!staffRow || !staffRow.active) {
