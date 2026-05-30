@@ -116,14 +116,16 @@ export default async function TasksPage({
             </div>
           </div>
         ) : (
-          /* Horizontally-scrollable kanban — one lane dominates on phones, swipe between */
-          <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
+          /* Horizontally-scrollable kanban — one lane dominates on phones, swipe between.
+             Columns sized in viewport units and kept inside the page gutters so they
+             frame cleanly (no full-bleed negative margin). */
+          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth pb-2">
             {COLUMN_ORDER.map((status) => {
               const colTasks = byStatus(status);
               return (
                 <section
                   key={status}
-                  className="flex min-w-[82%] snap-start flex-col gap-2 sm:min-w-[280px]"
+                  className="flex w-[78vw] max-w-[20rem] shrink-0 snap-start flex-col gap-2 sm:w-72"
                 >
                   <div className="flex items-center gap-2 px-1">
                     <span className={`h-2 w-2 rounded-full ${COLUMN_DOT[status]}`} />
@@ -147,12 +149,12 @@ export default async function TasksPage({
                           href={`/tasks/${task.id}`}
                           className="flex flex-col gap-2 rounded-xl bg-white px-3.5 py-3 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
                         >
-                          <p className="text-sm font-semibold leading-snug text-zinc-900">
+                          <p className="break-words text-sm font-semibold leading-snug text-zinc-900">
                             {task.name}
                           </p>
                           <div className="flex items-center justify-between gap-2 text-xs">
-                            <span className="flex items-center gap-1 text-zinc-400">
-                              <User size={11} />
+                            <span className="flex min-w-0 items-center gap-1 text-zinc-400">
+                              <User size={11} className="shrink-0" />
                               <span className="truncate">{assignee ?? "Unassigned"}</span>
                             </span>
                             {task.date_needed && (

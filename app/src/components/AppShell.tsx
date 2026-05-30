@@ -38,7 +38,7 @@ export default async function AppShell({ children }: { children: React.ReactNode
         </div>
       </header>
 
-      <main className="flex-1 pb-20">{children}</main>
+      <main className="flex-1 overflow-x-clip pb-20">{children}</main>
       <NavClient unreadCount={count ?? 0} />
     </div>
   );

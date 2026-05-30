@@ -47,7 +47,7 @@ export default async function TaskDetailPage({
         </Link>
 
         <div className="mb-1 flex items-start justify-between gap-3">
-          <h1 className="text-xl font-bold text-zinc-900">{task.name}</h1>
+          <h1 className="min-w-0 break-words text-xl font-bold text-zinc-900">{task.name}</h1>
           <div className="shrink-0 pt-1">
             <TaskStatusBadge status={task.status} />
           </div>
@@ -64,7 +64,7 @@ export default async function TaskDetailPage({
           <dl className="flex flex-col gap-2 text-zinc-600">
             <div className="flex justify-between">
               <dt className="text-zinc-400">Assigned to</dt>
-              <dd className="font-medium">
+              <dd className="ml-3 min-w-0 break-words text-right font-medium">
                 {task.assigned_to ? (nameById.get(task.assigned_to) ?? "—") : "Unassigned"}
               </dd>
             </div>
@@ -77,7 +77,7 @@ export default async function TaskDetailPage({
             </div>
           </dl>
           {task.notes && (
-            <p className="mt-3 whitespace-pre-wrap border-t border-zinc-100 pt-3 text-zinc-500">
+            <p className="mt-3 whitespace-pre-wrap break-words border-t border-zinc-100 pt-3 text-zinc-500">
               {task.notes}
             </p>
           )}
@@ -107,13 +107,13 @@ export default async function TaskDetailPage({
             <ul className="mb-4 flex flex-col gap-3">
               {comments.map((c) => (
                 <li key={c.id} className="rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200">
-                  <div className="mb-1 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-zinc-800">
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <span className="min-w-0 truncate text-sm font-semibold text-zinc-800">
                       {c.author_id ? (nameById.get(c.author_id) ?? "Unknown") : "Unknown"}
                     </span>
-                    <span className="text-xs text-zinc-400">{timeAgo(c.created_at)}</span>
+                    <span className="shrink-0 text-xs text-zinc-400">{timeAgo(c.created_at)}</span>
                   </div>
-                  <p className="whitespace-pre-wrap text-sm text-zinc-600">{c.body}</p>
+                  <p className="whitespace-pre-wrap break-words text-sm text-zinc-600">{c.body}</p>
                 </li>
               ))}
             </ul>
