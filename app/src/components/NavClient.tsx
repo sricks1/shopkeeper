@@ -1,11 +1,12 @@
 "use client";
 
-import { Bell, Package, Wrench } from "lucide-react";
+import { Bell, ListChecks, Package, Wrench } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
   { href: "/tools", label: "Tools", icon: Wrench },
+  { href: "/tasks", label: "Tasks", icon: ListChecks },
   { href: "/inventory", label: "Inventory", icon: Package },
   { href: "/notifications", label: "Alerts", icon: Bell },
 ];

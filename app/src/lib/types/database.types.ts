@@ -422,6 +422,7 @@ export type Database = {
           created_at: string
           id: string
           payload: Json
+          recipient_id: string | null
           type: Database["public"]["Enums"]["notification_type"]
         }
         Insert: {
@@ -430,6 +431,7 @@ export type Database = {
           created_at?: string
           id?: string
           payload?: Json
+          recipient_id?: string | null
           type: Database["public"]["Enums"]["notification_type"]
         }
         Update: {
@@ -438,12 +440,20 @@ export type Database = {
           created_at?: string
           id?: string
           payload?: Json
+          recipient_id?: string | null
           type?: Database["public"]["Enums"]["notification_type"]
         }
         Relationships: [
           {
             foreignKeyName: "notifications_acknowledged_by_fkey"
             columns: ["acknowledged_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
             isOneToOne: false
             referencedRelation: "staff"
             referencedColumns: ["id"]
@@ -707,6 +717,96 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_tasks: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          created_by: string | null
+          date_needed: string | null
+          id: string
+          name: string
+          notes: string | null
+          status: Database["public"]["Enums"]["task_status"]
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          date_needed?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          date_needed?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_tasks_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_tasks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_comments: {
+        Row: {
+          author_id: string | null
+          body: string
+          created_at: string
+          id: string
+          task_id: string
+        }
+        Insert: {
+          author_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          task_id: string
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "staff_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tool_consumables: {
         Row: {
           consumable_type_id: string
@@ -917,7 +1017,11 @@ export type Database = {
         | "vacuum_bag"
       issue_severity: "minor" | "needs_attention" | "down"
       issue_status: "open" | "resolved"
-      notification_type: "reorder_needed" | "tool_down"
+      notification_type:
+        | "reorder_needed"
+        | "tool_down"
+        | "task_assigned"
+        | "task_comment"
       source_type:
         | "betterdocs_article"
         | "betterdocs_faq"
@@ -928,6 +1032,7 @@ export type Database = {
         | "blog_post"
         | "operator_note"
       staff_role: "owner" | "shop_master" | "instructor" | "staff"
+      task_status: "new" | "todo" | "in_progress" | "done" | "deferred"
       tool_status: "active" | "down" | "retired"
     }
     CompositeTypes: {
@@ -1068,7 +1173,12 @@ export const Constants = {
       ],
       issue_severity: ["minor", "needs_attention", "down"],
       issue_status: ["open", "resolved"],
-      notification_type: ["reorder_needed", "tool_down"],
+      notification_type: [
+        "reorder_needed",
+        "tool_down",
+        "task_assigned",
+        "task_comment",
+      ],
       source_type: [
         "betterdocs_article",
         "betterdocs_faq",
@@ -1080,6 +1190,7 @@ export const Constants = {
         "operator_note",
       ],
       staff_role: ["owner", "shop_master", "instructor", "staff"],
+      task_status: ["new", "todo", "in_progress", "done", "deferred"],
       tool_status: ["active", "down", "retired"],
     },
   },

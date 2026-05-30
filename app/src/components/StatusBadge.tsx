@@ -3,6 +3,7 @@ import type { Enums } from "@/lib/types/database.types";
 type ToolStatus = Enums<"tool_status">;
 type IssueSeverity = Enums<"issue_severity">;
 type IssueStatus = Enums<"issue_status">;
+type TaskStatus = Enums<"task_status">;
 
 const TOOL_STATUS_STYLES: Record<ToolStatus, string> = {
   active: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
@@ -38,6 +39,22 @@ const ISSUE_STATUS_LABELS: Record<IssueStatus, string> = {
   resolved: "Resolved",
 };
 
+const TASK_STATUS_STYLES: Record<TaskStatus, string> = {
+  new: "bg-zinc-100 text-zinc-600 ring-zinc-500/20",
+  todo: "bg-blue-50 text-blue-700 ring-blue-600/20",
+  in_progress: "bg-amber-50 text-amber-700 ring-amber-600/20",
+  done: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
+  deferred: "bg-zinc-100 text-zinc-400 ring-zinc-400/20",
+};
+
+const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
+  new: "New",
+  todo: "To Do",
+  in_progress: "In Progress",
+  done: "Done",
+  deferred: "Deferred",
+};
+
 function Badge({ label, style }: { label: string; style: string }) {
   return (
     <span
@@ -59,3 +76,9 @@ export function SeverityBadge({ severity }: { severity: IssueSeverity }) {
 export function IssueStatusBadge({ status }: { status: IssueStatus }) {
   return <Badge label={ISSUE_STATUS_LABELS[status]} style={ISSUE_STATUS_STYLES[status]} />;
 }
+
+export function TaskStatusBadge({ status }: { status: TaskStatus }) {
+  return <Badge label={TASK_STATUS_LABELS[status]} style={TASK_STATUS_STYLES[status]} />;
+}
+
+export { TASK_STATUS_LABELS, TASK_STATUS_STYLES };

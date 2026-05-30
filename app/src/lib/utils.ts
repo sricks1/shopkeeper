@@ -15,6 +15,21 @@ export function formatDate(iso: string | null | undefined): string {
   });
 }
 
+/**
+ * A task is overdue when its due date is in the past and it isn't done or
+ * deferred. `dateNeeded` is a date-only string ("YYYY-MM-DD"); it's treated as
+ * due by end of that local day.
+ */
+export function isOverdue(
+  dateNeeded: string | null | undefined,
+  status: string,
+): boolean {
+  if (!dateNeeded) return false;
+  if (status === "done" || status === "deferred") return false;
+  const due = new Date(`${dateNeeded}T23:59:59`);
+  return due.getTime() < Date.now();
+}
+
 export function timeAgo(iso: string): string {
   const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
   if (seconds < 60) return "just now";

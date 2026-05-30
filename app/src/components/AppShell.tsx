@@ -1,13 +1,20 @@
+import { getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "./LogoutButton";
 import NavClient from "./NavClient";
 
+// Sentinel UUID so the `.or()` filter is always valid even when there's no
+// current staff (matches nothing rather than erroring).
+const NO_STAFF = "00000000-0000-0000-0000-000000000000";
+
 export default async function AppShell({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
+  const staff = await getCurrentStaff();
   const { count } = await supabase
     .from("notifications")
     .select("*", { count: "exact", head: true })
-    .is("acknowledged_at", null);
+    .is("acknowledged_at", null)
+    .or(`recipient_id.is.null,recipient_id.eq.${staff?.id ?? NO_STAFF}`);
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50">
