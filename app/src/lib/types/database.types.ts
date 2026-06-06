@@ -7,134 +7,33 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.1"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
-      boards: {
-        Row: {
-          board_feet: number
-          board_feet_per_piece: number
-          created_at: string | null
-          id: number
-          length: number
-          name: string
-          project_id: number
-          quantity: number | null
-          species: string | null
-          thickness: string
-          thickness_inches: number
-          width: number
-        }
-        Insert: {
-          board_feet: number
-          board_feet_per_piece: number
-          created_at?: string | null
-          id?: number
-          length: number
-          name: string
-          project_id: number
-          quantity?: number | null
-          species?: string | null
-          thickness: string
-          thickness_inches: number
-          width: number
-        }
-        Update: {
-          board_feet?: number
-          board_feet_per_piece?: number
-          created_at?: string | null
-          id?: number
-          length?: number
-          name?: string
-          project_id?: number
-          quantity?: number | null
-          species?: string | null
-          thickness?: string
-          thickness_inches?: number
-          width?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "boards_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      chat_logs: {
-        Row: {
-          answer: string
-          created_at: string | null
-          feedback: number | null
-          feedback_comment: string | null
-          id: number
-          question: string
-          sources: Json | null
-        }
-        Insert: {
-          answer: string
-          created_at?: string | null
-          feedback?: number | null
-          feedback_comment?: string | null
-          id?: never
-          question: string
-          sources?: Json | null
-        }
-        Update: {
-          answer?: string
-          created_at?: string | null
-          feedback?: number | null
-          feedback_comment?: string | null
-          id?: never
-          question?: string
-          sources?: Json | null
-        }
-        Relationships: []
-      }
-      chunks: {
-        Row: {
-          chunk_index: number
-          content: string
-          created_at: string | null
-          document_id: number
-          embedding: string | null
-          id: number
-          metadata: Json | null
-        }
-        Insert: {
-          chunk_index?: number
-          content: string
-          created_at?: string | null
-          document_id: number
-          embedding?: string | null
-          id?: never
-          metadata?: Json | null
-        }
-        Update: {
-          chunk_index?: number
-          content?: string
-          created_at?: string | null
-          document_id?: number
-          embedding?: string | null
-          id?: never
-          metadata?: Json | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "chunks_document_id_fkey"
-            columns: ["document_id"]
-            isOneToOne: false
-            referencedRelation: "documents"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       consumable_types: {
         Row: {
           category: Database["public"]["Enums"]["consumable_category"]
@@ -182,82 +81,122 @@ export type Database = {
           },
         ]
       }
-      cut_pieces: {
+      folder_items: {
         Row: {
-          created_at: string | null
-          id: number
-          length: number
-          name: string
-          project_id: number
-          quantity: number | null
-          species: string | null
-          thickness: string
-          width: number
+          created_at: string
+          folder_id: string
+          id: string
+          sort_order: number
+          task_id: string
         }
         Insert: {
-          created_at?: string | null
-          id?: number
-          length: number
-          name: string
-          project_id: number
-          quantity?: number | null
-          species?: string | null
-          thickness: string
-          width: number
+          created_at?: string
+          folder_id: string
+          id?: string
+          sort_order?: number
+          task_id: string
         }
         Update: {
-          created_at?: string | null
-          id?: number
-          length?: number
-          name?: string
-          project_id?: number
-          quantity?: number | null
-          species?: string | null
-          thickness?: string
-          width?: number
+          created_at?: string
+          folder_id?: string
+          id?: string
+          sort_order?: number
+          task_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "cut_pieces_project_id_fkey"
-            columns: ["project_id"]
+            foreignKeyName: "folder_items_folder_id_fkey"
+            columns: ["folder_id"]
             isOneToOne: false
-            referencedRelation: "projects"
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "folder_items_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "staff_tasks"
             referencedColumns: ["id"]
           },
         ]
       }
-      documents: {
+      folders: {
         Row: {
-          created_at: string | null
-          id: number
-          metadata: Json | null
-          source_id: string
-          source_type: Database["public"]["Enums"]["source_type"]
-          title: string
-          updated_at: string | null
-          url: string | null
+          created_at: string
+          id: string
+          name: string
+          parent_id: string | null
+          sort_order: number
+          updated_at: string
+          user_id: string
         }
         Insert: {
-          created_at?: string | null
-          id?: never
-          metadata?: Json | null
-          source_id: string
-          source_type: Database["public"]["Enums"]["source_type"]
-          title: string
-          updated_at?: string | null
-          url?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          parent_id?: string | null
+          sort_order?: number
+          updated_at?: string
+          user_id: string
         }
         Update: {
-          created_at?: string | null
-          id?: never
-          metadata?: Json | null
-          source_id?: string
-          source_type?: Database["public"]["Enums"]["source_type"]
-          title?: string
-          updated_at?: string | null
-          url?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          parent_id?: string | null
+          sort_order?: number
+          updated_at?: string
+          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "folders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hot_tasks: {
+        Row: {
+          created_at: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hot_tasks_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "staff_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hot_tasks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       inventory_items: {
         Row: {
@@ -460,45 +399,6 @@ export type Database = {
           },
         ]
       }
-      projects: {
-        Row: {
-          created_at: string | null
-          cut_plan: Json | null
-          description: string | null
-          id: number
-          name: string
-          quantity: number | null
-          sheet_cut_plan: Json | null
-          updated_at: string | null
-          user_id: string
-          workflow: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          cut_plan?: Json | null
-          description?: string | null
-          id?: number
-          name: string
-          quantity?: number | null
-          sheet_cut_plan?: Json | null
-          updated_at?: string | null
-          user_id: string
-          workflow?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          cut_plan?: Json | null
-          description?: string | null
-          id?: number
-          name?: string
-          quantity?: number | null
-          sheet_cut_plan?: Json | null
-          updated_at?: string | null
-          user_id?: string
-          workflow?: string | null
-        }
-        Relationships: []
-      }
       repair_consumables: {
         Row: {
           consumable_type_id: string
@@ -596,100 +496,6 @@ export type Database = {
           },
         ]
       }
-      sheet_cut_pieces: {
-        Row: {
-          created_at: string | null
-          grain_direction: string | null
-          id: number
-          length: number
-          name: string
-          product_type: string
-          project_id: number
-          quantity: number | null
-          thickness: string
-          width: number
-        }
-        Insert: {
-          created_at?: string | null
-          grain_direction?: string | null
-          id?: number
-          length: number
-          name: string
-          product_type: string
-          project_id: number
-          quantity?: number | null
-          thickness: string
-          width: number
-        }
-        Update: {
-          created_at?: string | null
-          grain_direction?: string | null
-          id?: number
-          length?: number
-          name?: string
-          product_type?: string
-          project_id?: number
-          quantity?: number | null
-          thickness?: string
-          width?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sheet_cut_pieces_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      sheet_goods: {
-        Row: {
-          created_at: string | null
-          id: number
-          length: number
-          name: string
-          price_per_sheet: number | null
-          product_type: string
-          project_id: number
-          quantity: number | null
-          thickness: string
-          width: number
-        }
-        Insert: {
-          created_at?: string | null
-          id?: number
-          length: number
-          name: string
-          price_per_sheet?: number | null
-          product_type: string
-          project_id: number
-          quantity?: number | null
-          thickness: string
-          width: number
-        }
-        Update: {
-          created_at?: string | null
-          id?: number
-          length?: number
-          name?: string
-          price_per_sheet?: number | null
-          product_type?: string
-          project_id?: number
-          quantity?: number | null
-          thickness?: string
-          width?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sheet_goods_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       staff: {
         Row: {
           active: boolean
@@ -726,6 +532,8 @@ export type Database = {
           id: string
           name: string
           notes: string | null
+          priority: Database["public"]["Enums"]["task_priority"]
+          scope: Database["public"]["Enums"]["task_scope"]
           status: Database["public"]["Enums"]["task_status"]
           updated_at: string
         }
@@ -737,6 +545,8 @@ export type Database = {
           id?: string
           name: string
           notes?: string | null
+          priority?: Database["public"]["Enums"]["task_priority"]
+          scope?: Database["public"]["Enums"]["task_scope"]
           status?: Database["public"]["Enums"]["task_status"]
           updated_at?: string
         }
@@ -748,6 +558,8 @@ export type Database = {
           id?: string
           name?: string
           notes?: string | null
+          priority?: Database["public"]["Enums"]["task_priority"]
+          scope?: Database["public"]["Enums"]["task_scope"]
           status?: Database["public"]["Enums"]["task_status"]
           updated_at?: string
         }
@@ -761,6 +573,41 @@ export type Database = {
           },
           {
             foreignKeyName: "staff_tasks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tags: {
+        Row: {
+          color: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tags_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "staff"
@@ -800,6 +647,39 @@ export type Database = {
           },
           {
             foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "staff_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_tags: {
+        Row: {
+          created_at: string
+          tag_id: string
+          task_id: string
+        }
+        Insert: {
+          created_at?: string
+          tag_id: string
+          task_id: string
+        }
+        Update: {
+          created_at?: string
+          tag_id?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_tags_task_id_fkey"
             columns: ["task_id"]
             isOneToOne: false
             referencedRelation: "staff_tasks"
@@ -908,75 +788,6 @@ export type Database = {
           },
         ]
       }
-      user_profiles: {
-        Row: {
-          address: string | null
-          created_at: string | null
-          email: string | null
-          id: string
-          name: string | null
-          phone: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          address?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          name?: string | null
-          phone?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          address?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          name?: string | null
-          phone?: string | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      woodworking_plans: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          description: string | null
-          id: string
-          image_url: string | null
-          skill_level: string | null
-          source_site: string | null
-          source_url: string
-          title: string
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          image_url?: string | null
-          skill_level?: string | null
-          source_site?: string | null
-          source_url: string
-          title: string
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          image_url?: string | null
-          skill_level?: string | null
-          source_site?: string | null
-          source_url?: string
-          title?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -985,24 +796,6 @@ export type Database = {
       current_staff_role: {
         Args: never
         Returns: Database["public"]["Enums"]["staff_role"]
-      }
-      match_chunks: {
-        Args: {
-          filter_source_types?: Database["public"]["Enums"]["source_type"][]
-          match_count?: number
-          query_embedding: string
-          similarity_threshold?: number
-        }
-        Returns: {
-          chunk_content: string
-          chunk_id: number
-          chunk_metadata: Json
-          document_metadata: Json
-          document_source_type: Database["public"]["Enums"]["source_type"]
-          document_title: string
-          document_url: string
-          similarity: number
-        }[]
       }
     }
     Enums: {
@@ -1022,16 +815,9 @@ export type Database = {
         | "tool_down"
         | "task_assigned"
         | "task_comment"
-      source_type:
-        | "betterdocs_article"
-        | "betterdocs_faq"
-        | "pdf_manual"
-        | "class_doc"
-        | "discord"
-        | "email"
-        | "blog_post"
-        | "operator_note"
       staff_role: "owner" | "shop_master" | "instructor" | "staff"
+      task_priority: "low" | "normal" | "high"
+      task_scope: "team" | "personal"
       task_status: "new" | "todo" | "in_progress" | "done" | "deferred"
       tool_status: "active" | "down" | "retired"
     }
@@ -1159,6 +945,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       consumable_category: [
@@ -1179,19 +968,12 @@ export const Constants = {
         "task_assigned",
         "task_comment",
       ],
-      source_type: [
-        "betterdocs_article",
-        "betterdocs_faq",
-        "pdf_manual",
-        "class_doc",
-        "discord",
-        "email",
-        "blog_post",
-        "operator_note",
-      ],
       staff_role: ["owner", "shop_master", "instructor", "staff"],
+      task_priority: ["low", "normal", "high"],
+      task_scope: ["team", "personal"],
       task_status: ["new", "todo", "in_progress", "done", "deferred"],
       tool_status: ["active", "down", "retired"],
     },
   },
 } as const
+

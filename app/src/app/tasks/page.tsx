@@ -4,7 +4,7 @@ import { getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/types/database.types";
 import { formatDate, isOverdue } from "@/lib/utils";
-import { CalendarClock, ClipboardList, Plus, User } from "lucide-react";
+import { CalendarClock, ClipboardList, FolderTree, Plus, User } from "lucide-react";
 import Link from "next/link";
 
 type TaskStatus = Enums<"task_status">;
@@ -70,13 +70,22 @@ export default async function TasksPage({
               {tasks.length} {view === "mine" ? "assigned to you" : "total"}
             </p>
           </div>
-          <Link
-            href="/tasks/new"
-            className="flex items-center gap-1.5 rounded-xl bg-[#324168] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#263352] active:bg-[#1e2840]"
-          >
-            <Plus size={16} />
-            New
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/tasks/organize"
+              className="flex items-center gap-1.5 rounded-xl border border-zinc-300 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50"
+            >
+              <FolderTree size={16} />
+              Organize
+            </Link>
+            <Link
+              href="/tasks/new"
+              className="flex items-center gap-1.5 rounded-xl bg-[#324168] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#263352] active:bg-[#1e2840]"
+            >
+              <Plus size={16} />
+              New
+            </Link>
+          </div>
         </div>
 
         {/* All / Mine toggle */}
