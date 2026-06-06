@@ -35,7 +35,7 @@ export default function TaskOrganizer({ initialState, userId, staff }: TaskOrgan
   );
 
   return (
-    <div className="flex h-[calc(100vh-7rem)] flex-col px-4 pb-4 pt-5">
+    <div className="flex flex-col px-4 pb-4 pt-5 md:h-[calc(100dvh-7rem)]">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-zinc-900">Organize</h1>
@@ -61,7 +61,7 @@ export default function TaskOrganizer({ initialState, userId, staff }: TaskOrgan
       )}
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 md:grid-cols-2">
-        <aside className="min-h-0 overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-3">
+        <aside className="rounded-2xl border border-zinc-200 bg-white p-3 md:min-h-0 md:overflow-y-auto">
           <FolderTree state={state} ctrl={ctrl} tasksById={tasksById} userId={userId} />
         </aside>
         <section className="min-h-0">

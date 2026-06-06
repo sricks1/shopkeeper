@@ -108,7 +108,7 @@ export default function TaskPool({ state, userId, staffName, ctrl }: TaskPoolPro
     });
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex flex-col md:h-full">
       <div className="mb-3 flex flex-col gap-3">
         {/* Scope toggle */}
         <div className="flex gap-1 rounded-xl bg-zinc-200/60 p-1">
@@ -173,7 +173,7 @@ export default function TaskPool({ state, userId, staffName, ctrl }: TaskPoolPro
         {filtered.length} {filtered.length === 1 ? "task" : "tasks"}
       </p>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-2 pr-1">
+      <div className="flex flex-col gap-2 pb-2 pr-1 md:min-h-0 md:flex-1 md:overflow-y-auto">
         {filtered.length === 0 ? (
           <div className="rounded-xl border border-dashed border-zinc-200 px-3 py-10 text-center text-sm text-zinc-400">
             No tasks match these filters.
