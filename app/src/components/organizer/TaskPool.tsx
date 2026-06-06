@@ -186,6 +186,8 @@ export default function TaskPool({ state, userId, staffName, ctrl }: TaskPoolPro
               hot={hotSet.has(task.id)}
               tags={tagsByTask.get(task.id) ?? []}
               staffName={staffName}
+              folders={state.folders}
+              onFile={(folderId) => ctrl.fileTask(folderId, task.id)}
               onToggleHot={() => ctrl.toggleHot(task.id)}
               onSetStatus={(s) => ctrl.setStatus(task.id, s)}
               onSubmit={
