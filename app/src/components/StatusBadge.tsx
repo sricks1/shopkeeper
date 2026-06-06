@@ -4,6 +4,7 @@ type ToolStatus = Enums<"tool_status">;
 type IssueSeverity = Enums<"issue_severity">;
 type IssueStatus = Enums<"issue_status">;
 type TaskStatus = Enums<"task_status">;
+type TaskPriority = Enums<"task_priority">;
 
 const TOOL_STATUS_STYLES: Record<ToolStatus, string> = {
   active: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
@@ -55,6 +56,18 @@ const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   deferred: "Deferred",
 };
 
+const TASK_PRIORITY_STYLES: Record<TaskPriority, string> = {
+  low: "bg-zinc-100 text-zinc-500 ring-zinc-500/20",
+  normal: "bg-zinc-100 text-zinc-600 ring-zinc-500/20",
+  high: "bg-red-50 text-red-700 ring-red-600/20",
+};
+
+const TASK_PRIORITY_LABELS: Record<TaskPriority, string> = {
+  low: "Low",
+  normal: "Normal",
+  high: "High",
+};
+
 function Badge({ label, style }: { label: string; style: string }) {
   return (
     <span
@@ -81,4 +94,17 @@ export function TaskStatusBadge({ status }: { status: TaskStatus }) {
   return <Badge label={TASK_STATUS_LABELS[status]} style={TASK_STATUS_STYLES[status]} />;
 }
 
-export { TASK_STATUS_LABELS, TASK_STATUS_STYLES };
+// Priority badge. "normal" is the default and renders nothing unless `showNormal`
+// is set, so lists aren't cluttered with the no-op majority case.
+export function TaskPriorityBadge({
+  priority,
+  showNormal = false,
+}: {
+  priority: TaskPriority;
+  showNormal?: boolean;
+}) {
+  if (priority === "normal" && !showNormal) return null;
+  return <Badge label={TASK_PRIORITY_LABELS[priority]} style={TASK_PRIORITY_STYLES[priority]} />;
+}
+
+export { TASK_STATUS_LABELS, TASK_STATUS_STYLES, TASK_PRIORITY_LABELS, TASK_PRIORITY_STYLES };

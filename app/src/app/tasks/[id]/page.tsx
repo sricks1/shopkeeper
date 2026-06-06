@@ -1,5 +1,6 @@
 import AppShell from "@/components/AppShell";
-import { TaskStatusBadge } from "@/components/StatusBadge";
+import { TaskPriorityBadge, TaskStatusBadge } from "@/components/StatusBadge";
+import { TagChip } from "@/components/TagChip";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate, isOverdue, timeAgo } from "@/lib/utils";
 import { ChevronRight, MessageSquare, ShoppingCart } from "lucide-react";
@@ -7,19 +8,26 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import AddCommentForm from "./AddCommentForm";
 import TaskEditForm from "./TaskEditForm";
+import TaskTagsEditor from "./TaskTagsEditor";
 
 export default async function TaskDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string }>;
 }) {
   const { id } = await params;
+  const { from } = await searchParams;
+  const fromOrganize = from === "organize";
+  const backHref = fromOrganize ? "/tasks/organize" : "/tasks";
+  const backLabel = fromOrganize ? "Organize" : "Tasks";
   const supabase = await createClient();
 
   const { data: task } = await supabase
     .from("staff_tasks")
     .select(
-      "id, name, status, assigned_to, date_needed, notes, created_by, created_at, updated_at, consumable_type_id",
+      "id, name, status, priority, assigned_to, date_needed, notes, created_by, created_at, updated_at, consumable_type_id",
     )
     .eq("id", id)
     .single();
@@ -46,26 +54,36 @@ export default async function TaskDetailPage({
     .filter((s) => s.active)
     .map((s) => ({ id: s.id, display_name: s.display_name }));
 
-  const { data: comments } = await supabase
-    .from("task_comments")
-    .select("id, body, created_at, author_id")
-    .eq("task_id", id)
-    .order("created_at", { ascending: true });
+  const [{ data: comments }, { data: allTags }, { data: taskTags }] = await Promise.all([
+    supabase
+      .from("task_comments")
+      .select("id, body, created_at, author_id")
+      .eq("task_id", id)
+      .order("created_at", { ascending: true }),
+    supabase.from("tags").select("id, name, color").order("name", { ascending: true }),
+    supabase.from("task_tags").select("tag_id").eq("task_id", id),
+  ]);
+
+  const tags = allTags ?? [];
+  const taskTagIds = (taskTags ?? []).map((r) => r.tag_id);
+  const taskTagSet = new Set(taskTagIds);
+  const appliedTags = tags.filter((t) => taskTagSet.has(t.id));
 
   const overdue = isOverdue(task.date_needed, task.status);
 
   return (
     <AppShell>
       <div className="px-4 pb-4 pt-6">
-        <Link href="/tasks" className="mb-4 flex items-center gap-1 text-sm text-zinc-500">
+        <Link href={backHref} className="mb-4 flex items-center gap-1 text-sm text-zinc-500">
           <ChevronRight size={14} className="rotate-180" />
-          Tasks
+          {backLabel}
         </Link>
 
         <div className="mb-1 flex items-start justify-between gap-3">
           <h1 className="min-w-0 break-words text-xl font-bold text-zinc-900">{task.name}</h1>
-          <div className="shrink-0 pt-1">
+          <div className="flex shrink-0 flex-col items-end gap-1 pt-1">
             <TaskStatusBadge status={task.status} />
+            <TaskPriorityBadge priority={task.priority} />
           </div>
         </div>
         <p className="mb-6 text-sm text-zinc-400">
@@ -107,6 +125,13 @@ export default async function TaskDetailPage({
               </dd>
             </div>
           </dl>
+          {appliedTags.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1.5 border-t border-zinc-100 pt-3">
+              {appliedTags.map((t) => (
+                <TagChip key={t.id} name={t.name} color={t.color} />
+              ))}
+            </div>
+          )}
           {task.notes && (
             <p className="mt-3 whitespace-pre-wrap break-words border-t border-zinc-100 pt-3 text-zinc-500">
               {task.notes}
@@ -120,12 +145,18 @@ export default async function TaskDetailPage({
             id: task.id,
             name: task.name,
             status: task.status,
+            priority: task.priority,
             assigned_to: task.assigned_to,
             date_needed: task.date_needed,
             notes: task.notes,
           }}
           staff={activeStaff}
         />
+
+        {/* Tags */}
+        <div className="mt-4 rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-zinc-200">
+          <TaskTagsEditor taskId={task.id} allTags={tags} initialTagIds={taskTagIds} />
+        </div>
 
         {/* Comments */}
         <section className="mt-8">

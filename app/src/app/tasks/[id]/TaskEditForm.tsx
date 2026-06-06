@@ -1,21 +1,41 @@
 "use client";
 
 import StaffPicker, { type StaffOption } from "@/components/StaffPicker";
-import { TASK_STATUS_LABELS } from "@/components/StatusBadge";
+import { TASK_PRIORITY_LABELS, TASK_STATUS_LABELS } from "@/components/StatusBadge";
+import { STATUS_DOT } from "@/components/organizer/StatusMenu";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/types/database.types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type TaskStatus = Enums<"task_status">;
+type TaskPriority = Enums<"task_priority">;
 
 const STATUS_ORDER: TaskStatus[] = ["new", "todo", "in_progress", "done", "deferred"];
+const PRIORITY_ORDER: TaskPriority[] = ["low", "normal", "high"];
+
+// Always-visible color cue per priority; stronger fill when selected.
+const PRIORITY_STYLE: Record<TaskPriority, { on: string; off: string }> = {
+  low: {
+    on: "bg-zinc-500 text-white ring-zinc-500",
+    off: "bg-zinc-50 text-zinc-600 ring-zinc-300 hover:bg-zinc-100",
+  },
+  normal: {
+    on: "bg-[#324168] text-white ring-[#324168]",
+    off: "bg-white text-zinc-600 ring-zinc-200 hover:bg-zinc-50",
+  },
+  high: {
+    on: "bg-red-500 text-white ring-red-500",
+    off: "bg-red-50 text-red-700 ring-red-200 hover:bg-red-100",
+  },
+};
 
 interface TaskEditFormProps {
   task: {
     id: string;
     name: string;
     status: TaskStatus;
+    priority: TaskPriority;
     assigned_to: string | null;
     date_needed: string | null;
     notes: string | null;
@@ -27,6 +47,7 @@ export default function TaskEditForm({ task, staff }: TaskEditFormProps) {
   const router = useRouter();
   const [name, setName] = useState(task.name);
   const [status, setStatus] = useState<TaskStatus>(task.status);
+  const [priority, setPriority] = useState<TaskPriority>(task.priority);
   const [assignedTo, setAssignedTo] = useState<string | null>(task.assigned_to);
   const [dateNeeded, setDateNeeded] = useState(task.date_needed ?? "");
   const [notes, setNotes] = useState(task.notes ?? "");
@@ -46,6 +67,22 @@ export default function TaskEditForm({ task, staff }: TaskEditFormProps) {
     if (err) {
       setError(err.message);
       setStatus(task.status);
+      return;
+    }
+    router.refresh();
+  }
+
+  async function updatePriority(next: TaskPriority) {
+    setPriority(next);
+    setError(null);
+    const supabase = createClient();
+    const { error: err } = await supabase
+      .from("staff_tasks")
+      .update({ priority: next })
+      .eq("id", task.id);
+    if (err) {
+      setError(err.message);
+      setPriority(task.priority);
       return;
     }
     router.refresh();
@@ -102,13 +139,33 @@ export default function TaskEditForm({ task, staff }: TaskEditFormProps) {
               key={s}
               type="button"
               onClick={() => updateStatus(s)}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium ring-1 ring-inset transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium ring-1 ring-inset transition-colors ${
                 status === s
                   ? "bg-[#324168] text-white ring-[#324168]"
                   : "bg-white text-zinc-600 ring-zinc-200 hover:bg-zinc-50"
               }`}
             >
+              <span className={`h-2 w-2 rounded-full ${STATUS_DOT[s]}`} />
               {TASK_STATUS_LABELS[s]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Priority control — updates immediately so the organizer reflects it */}
+      <div className="rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-zinc-200">
+        <p className="mb-2 text-sm font-medium text-zinc-700">Priority</p>
+        <div className="flex flex-wrap gap-2">
+          {PRIORITY_ORDER.map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => updatePriority(p)}
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium ring-1 ring-inset transition-colors ${
+                priority === p ? PRIORITY_STYLE[p].on : PRIORITY_STYLE[p].off
+              }`}
+            >
+              {TASK_PRIORITY_LABELS[p]}
             </button>
           ))}
         </div>
