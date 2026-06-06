@@ -1,13 +1,14 @@
 import AppShell from "@/components/AppShell";
 import DeleteConsumableButton from "@/components/inventory/DeleteConsumableButton";
-import { ToolStatusBadge } from "@/components/StatusBadge";
+import { TaskStatusBadge, ToolStatusBadge } from "@/components/StatusBadge";
 import { canManageTools, getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { ChevronRight, Wrench } from "lucide-react";
+import { ChevronRight, ShoppingCart, Wrench } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import EditConsumableForm from "./EditConsumableForm";
 import InventoryEditForm from "./InventoryEditForm";
+import OrderButton from "./OrderButton";
 
 export default async function InventoryDetailPage({
   params,
@@ -45,6 +46,13 @@ export default async function InventoryDetailPage({
     categoryList.find((c) => c.value === ct.category)?.label ??
     ct.category.replace(/_/g, " ");
 
+  const { data: orderTasks } = await supabase
+    .from("staff_tasks")
+    .select("id, name, status")
+    .eq("consumable_type_id", ct.id)
+    .neq("status", "done")
+    .order("created_at", { ascending: false });
+
   const { data: linkedTools } = await supabase
     .from("tool_consumables")
     .select("tool_id, tools(id, name, slug, status)")
@@ -69,6 +77,43 @@ export default async function InventoryDetailPage({
           initialThreshold={item.reorder_threshold}
           canEdit={true}
         />
+
+        {/* Purchasing — create/track an order task linked to this consumable */}
+        <section className="mt-4 rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-zinc-200">
+          <p className="mb-3 flex items-center gap-1.5 text-sm font-medium text-zinc-700">
+            <ShoppingCart size={15} />
+            Purchasing
+          </p>
+          {orderTasks && orderTasks.length > 0 && (
+            <ul className="mb-3 flex flex-col gap-2">
+              {orderTasks.map((t) => (
+                <li key={t.id}>
+                  <Link
+                    href={`/tasks/${t.id}`}
+                    className="flex items-center justify-between gap-2 rounded-lg bg-zinc-50 px-3 py-2 text-sm ring-1 ring-zinc-200 active:bg-zinc-100"
+                  >
+                    <span className="truncate font-medium text-zinc-700">{t.name}</span>
+                    <TaskStatusBadge status={t.status} />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+          <OrderButton
+            consumableTypeId={ct.id}
+            name={ct.name}
+            vendor={ct.vendor}
+            vendorUrl={ct.vendor_url}
+            sku={ct.sku}
+            onHand={item.quantity_on_hand}
+            threshold={item.reorder_threshold}
+          />
+          {orderTasks && orderTasks.length > 0 && (
+            <p className="mt-2 text-xs text-zinc-400">
+              There's already an open order for this — only order again if you need a separate buy.
+            </p>
+          )}
+        </section>
 
         {/* Catalog details — editable by all active staff */}
         <div className="mt-4">

@@ -752,6 +752,7 @@ export type Database = {
       staff_tasks: {
         Row: {
           assigned_to: string | null
+          consumable_type_id: string | null
           created_at: string
           created_by: string | null
           date_needed: string | null
@@ -763,6 +764,7 @@ export type Database = {
         }
         Insert: {
           assigned_to?: string | null
+          consumable_type_id?: string | null
           created_at?: string
           created_by?: string | null
           date_needed?: string | null
@@ -774,6 +776,7 @@ export type Database = {
         }
         Update: {
           assigned_to?: string | null
+          consumable_type_id?: string | null
           created_at?: string
           created_by?: string | null
           date_needed?: string | null
@@ -789,6 +792,13 @@ export type Database = {
             columns: ["assigned_to"]
             isOneToOne: false
             referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_tasks_consumable_type_id_fkey"
+            columns: ["consumable_type_id"]
+            isOneToOne: false
+            referencedRelation: "consumable_types"
             referencedColumns: ["id"]
           },
           {

@@ -2,7 +2,7 @@ import AppShell from "@/components/AppShell";
 import { TaskStatusBadge } from "@/components/StatusBadge";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate, isOverdue, timeAgo } from "@/lib/utils";
-import { ChevronRight, MessageSquare } from "lucide-react";
+import { ChevronRight, MessageSquare, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AddCommentForm from "./AddCommentForm";
@@ -18,11 +18,27 @@ export default async function TaskDetailPage({
 
   const { data: task } = await supabase
     .from("staff_tasks")
-    .select("id, name, status, assigned_to, date_needed, notes, created_by, created_at, updated_at")
+    .select(
+      "id, name, status, assigned_to, date_needed, notes, created_by, created_at, updated_at, consumable_type_id",
+    )
     .eq("id", id)
     .single();
 
   if (!task) notFound();
+
+  // If this is a purchasing task, resolve the linked consumable + its inventory row for a link back.
+  let linkedConsumable: { name: string; inventoryId: string | null } | null = null;
+  if (task.consumable_type_id) {
+    const { data: c } = await supabase
+      .from("consumable_types")
+      .select("name, inventory_items(id)")
+      .eq("id", task.consumable_type_id)
+      .single();
+    if (c) {
+      const inv = Array.isArray(c.inventory_items) ? c.inventory_items[0] : c.inventory_items;
+      linkedConsumable = { name: c.name, inventoryId: inv?.id ?? null };
+    }
+  }
 
   const { data: allStaff } = await supabase.from("staff").select("id, display_name, active");
   const nameById = new Map((allStaff ?? []).map((s) => [s.id, s.display_name]));
@@ -58,6 +74,21 @@ export default async function TaskDetailPage({
             ? ` by ${nameById.get(task.created_by)}`
             : ""}
         </p>
+
+        {linkedConsumable && (
+          <Link
+            href={
+              linkedConsumable.inventoryId
+                ? `/inventory/${linkedConsumable.inventoryId}`
+                : "/inventory"
+            }
+            className="mb-4 flex items-center gap-2 rounded-xl bg-[#e06829]/5 px-4 py-3 text-sm font-medium text-[#c55a22] ring-1 ring-[#e06829]/20"
+          >
+            <ShoppingCart size={15} className="shrink-0" />
+            <span className="min-w-0 flex-1 truncate">Purchasing: {linkedConsumable.name}</span>
+            <ChevronRight size={15} className="shrink-0" />
+          </Link>
+        )}
 
         {/* Metadata */}
         <div className="mb-4 rounded-xl bg-white px-4 py-4 text-sm shadow-sm ring-1 ring-zinc-200">

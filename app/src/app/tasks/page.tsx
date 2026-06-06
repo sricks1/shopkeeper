@@ -33,7 +33,8 @@ export default async function TasksPage({
   searchParams: Promise<{ view?: string }>;
 }) {
   const { view: rawView } = await searchParams;
-  const view: "all" | "mine" = rawView === "mine" ? "mine" : "all";
+  const view: "all" | "mine" | "purchases" =
+    rawView === "mine" ? "mine" : rawView === "purchases" ? "purchases" : "all";
 
   const supabase = await createClient();
   const staff = await getCurrentStaff();
@@ -50,6 +51,8 @@ export default async function TasksPage({
 
   if (view === "mine" && staff) {
     query = query.eq("assigned_to", staff.id);
+  } else if (view === "purchases") {
+    query = query.not("consumable_type_id", "is", null);
   }
 
   const { data } = await query
@@ -67,7 +70,8 @@ export default async function TasksPage({
           <div>
             <h1 className="text-xl font-bold text-zinc-900">Tasks</h1>
             <p className="text-sm text-zinc-500">
-              {tasks.length} {view === "mine" ? "assigned to you" : "total"}
+              {tasks.length}{" "}
+              {view === "mine" ? "assigned to you" : view === "purchases" ? "to buy" : "total"}
             </p>
           </div>
           <Link
@@ -83,8 +87,9 @@ export default async function TasksPage({
         <div className="mb-4 flex gap-1 rounded-xl bg-zinc-200/60 p-1">
           {(
             [
-              { value: "all", label: "All Tasks", href: "/tasks" },
+              { value: "all", label: "All", href: "/tasks" },
               { value: "mine", label: "Mine", href: "/tasks?view=mine" },
+              { value: "purchases", label: "To Buy", href: "/tasks?view=purchases" },
             ] as const
           ).map((tab) => (
             <Link
@@ -108,7 +113,11 @@ export default async function TasksPage({
             </div>
             <div>
               <p className="text-sm font-medium text-zinc-600">
-                {view === "mine" ? "Nothing assigned to you" : "No tasks yet"}
+                {view === "mine"
+                  ? "Nothing assigned to you"
+                  : view === "purchases"
+                    ? "Nothing to buy right now"
+                    : "No tasks yet"}
               </p>
               <Link href="/tasks/new" className="mt-1 inline-block text-sm text-[#324168] underline">
                 Create the first one
