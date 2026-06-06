@@ -1,18 +1,15 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import type { Enums } from "@/lib/types/database.types";
 import { ChevronRight, Link2Off, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-type ConsumableCategory = Enums<"consumable_category">;
-
 interface Consumable {
   id: string;
   name: string;
-  category: ConsumableCategory;
+  category: string;
 }
 
 interface LinkedConsumable {

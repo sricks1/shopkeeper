@@ -1,26 +1,14 @@
 "use client";
 
+import CategoryPicker, { type CategoryOption } from "@/components/CategoryPicker";
 import { createClient } from "@/lib/supabase/client";
-import type { Enums } from "@/lib/types/database.types";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
-type ConsumableCategory = Enums<"consumable_category">;
-
-const CATEGORIES: { value: ConsumableCategory; label: string }[] = [
-  { value: "blade", label: "Blade" },
-  { value: "bearing", label: "Bearing" },
-  { value: "belt", label: "Belt" },
-  { value: "throat_plate", label: "Throat Plate" },
-  { value: "filter", label: "Filter" },
-  { value: "brush", label: "Brush" },
-  { value: "other", label: "Other" },
-];
-
-export default function NewConsumableForm() {
+export default function NewConsumableForm({ categories }: { categories: CategoryOption[] }) {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [category, setCategory] = useState<ConsumableCategory>("blade");
+  const [category, setCategory] = useState<string>(categories[0]?.value ?? "other");
   const [sku, setSku] = useState("");
   const [vendor, setVendor] = useState("");
   const [vendorUrl, setVendorUrl] = useState("");
@@ -91,17 +79,7 @@ export default function NewConsumableForm() {
       </Field>
 
       <Field label="Category *">
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value as ConsumableCategory)}
-          className={inputCls}
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c.value} value={c.value}>
-              {c.label}
-            </option>
-          ))}
-        </select>
+        <CategoryPicker categories={categories} value={category} onChange={setCategory} />
       </Field>
 
       <div className="flex gap-3">

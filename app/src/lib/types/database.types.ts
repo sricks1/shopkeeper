@@ -135,9 +135,41 @@ export type Database = {
           },
         ]
       }
+      consumable_categories: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consumable_categories_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consumable_types: {
         Row: {
-          category: Database["public"]["Enums"]["consumable_category"]
+          category: string
           created_at: string
           created_by: string | null
           id: string
@@ -149,7 +181,7 @@ export type Database = {
           vendor_url: string | null
         }
         Insert: {
-          category: Database["public"]["Enums"]["consumable_category"]
+          category: string
           created_at?: string
           created_by?: string | null
           id?: string
@@ -161,7 +193,7 @@ export type Database = {
           vendor_url?: string | null
         }
         Update: {
-          category?: Database["public"]["Enums"]["consumable_category"]
+          category?: string
           created_at?: string
           created_by?: string | null
           id?: string

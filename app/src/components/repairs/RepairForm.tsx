@@ -1,17 +1,14 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import type { Enums } from "@/lib/types/database.types";
 import { Minus, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
-type ConsumableCategory = Enums<"consumable_category">;
-
 export interface ConsumableOption {
   id: string;
   name: string;
-  category: ConsumableCategory;
+  category: string;
   quantityOnHand: number;
 }
 

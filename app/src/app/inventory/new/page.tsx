@@ -1,13 +1,15 @@
 import AppShell from "@/components/AppShell";
-import { canManageTools, getCurrentStaff } from "@/lib/auth";
-import NewConsumableForm from "./NewConsumableForm";
+import { createClient } from "@/lib/supabase/server";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import NewConsumableForm from "./NewConsumableForm";
 
 export default async function NewConsumablePage() {
-  const staff = await getCurrentStaff();
-  if (!canManageTools(staff?.role)) notFound();
+  const supabase = await createClient();
+  const { data: categories } = await supabase
+    .from("consumable_categories")
+    .select("value, label")
+    .order("label");
 
   return (
     <AppShell>
@@ -20,7 +22,7 @@ export default async function NewConsumablePage() {
         <p className="mb-6 text-sm text-zinc-500">
           Creates a new part type and adds it to inventory.
         </p>
-        <NewConsumableForm />
+        <NewConsumableForm categories={categories ?? []} />
       </div>
     </AppShell>
   );

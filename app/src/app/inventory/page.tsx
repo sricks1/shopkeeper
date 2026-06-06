@@ -1,5 +1,4 @@
 import AppShell from "@/components/AppShell";
-import { canManageTools, getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Package, Plus } from "lucide-react";
 import Link from "next/link";
@@ -46,7 +45,6 @@ export default async function InventoryPage({
     rawStatus === "low" || rawStatus === "out" ? rawStatus : "all";
 
   const supabase = await createClient();
-  const staff = await getCurrentStaff();
 
   const { data: consumables } = await supabase
     .from("consumable_types")
@@ -89,15 +87,13 @@ export default async function InventoryPage({
               )}
             </p>
           </div>
-          {canManageTools(staff?.role) && (
-            <Link
-              href="/inventory/new"
-              className="flex items-center gap-1.5 rounded-xl bg-[#324168] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#263352]"
-            >
-              <Plus size={16} />
-              Add
-            </Link>
-          )}
+          <Link
+            href="/inventory/new"
+            className="flex items-center gap-1.5 rounded-xl bg-[#324168] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#263352]"
+          >
+            <Plus size={16} />
+            Add
+          </Link>
         </div>
 
         {/* Filter tabs */}
@@ -127,7 +123,7 @@ export default async function InventoryPage({
               <p className="text-sm font-medium text-zinc-600">
                 {filter === "all" ? "No consumables yet" : "Nothing in this filter"}
               </p>
-              {filter === "all" && canManageTools(staff?.role) && (
+              {filter === "all" && (
                 <Link href="/inventory/new" className="mt-1 text-sm text-[#324168] underline">
                   Add the first one
                 </Link>
