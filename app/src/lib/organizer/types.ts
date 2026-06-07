@@ -16,6 +16,8 @@ export interface OrganizerTask {
   date_needed: string | null;
   notes: string | null;
   created_by: string | null;
+  // Non-null when the task is a purchasing ("To Buy") task linked to a consumable.
+  consumable_type_id: string | null;
 }
 
 // A tag from the shared, team-wide vocabulary.

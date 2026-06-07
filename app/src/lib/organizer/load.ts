@@ -13,7 +13,9 @@ export async function loadOrganizerState(
   const [tasksRes, foldersRes, itemsRes, hotRes, tagsRes, taskTagsRes] = await Promise.all([
     supabase
       .from("staff_tasks")
-      .select("id, name, status, scope, priority, assigned_to, date_needed, notes, created_by")
+      .select(
+        "id, name, status, scope, priority, assigned_to, date_needed, notes, created_by, consumable_type_id",
+      )
       .order("date_needed", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: false }),
     supabase
