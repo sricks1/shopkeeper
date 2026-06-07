@@ -5,7 +5,16 @@ import { TagChip } from "@/components/TagChip";
 import { buildFolderTree } from "@/lib/organizer/tree";
 import type { FolderRow, OrganizerTask, TagRow, TaskStatus } from "@/lib/organizer/types";
 import { formatDate, isOverdue } from "@/lib/utils";
-import { CalendarClock, Flame, Folder, FolderPlus, Lock, Send, User } from "lucide-react";
+import {
+  CalendarClock,
+  Flame,
+  Folder,
+  FolderPlus,
+  Lock,
+  Send,
+  ShoppingCart,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { setDrag } from "./dnd";
@@ -49,6 +58,7 @@ export default function TaskCard({
 }: TaskCardProps) {
   const overdue = isOverdue(task.date_needed, task.status);
   const personal = task.scope === "personal";
+  const isPurchase = task.consumable_type_id != null;
   const [filing, setFiling] = useState(false);
   const flatFolders = filing ? flattenFolders(folders) : [];
 
@@ -67,6 +77,15 @@ export default function TaskCard({
         </Link>
         <div className="flex shrink-0 items-center gap-1">
           <TaskPriorityBadge priority={task.priority} />
+          {isPurchase && (
+            <span
+              title="Purchasing task — linked to a consumable"
+              className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 ring-1 ring-inset ring-amber-200"
+            >
+              <ShoppingCart size={9} />
+              To Buy
+            </span>
+          )}
           {personal && (
             <span
               title="Personal task — only you can see it"
