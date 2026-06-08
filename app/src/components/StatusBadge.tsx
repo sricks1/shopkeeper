@@ -1,4 +1,5 @@
 import type { Enums } from "@/lib/types/database.types";
+import { Flag } from "lucide-react";
 
 type ToolStatus = Enums<"tool_status">;
 type IssueSeverity = Enums<"issue_severity">;
@@ -56,10 +57,12 @@ const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   deferred: "Deferred",
 };
 
-const TASK_PRIORITY_STYLES: Record<TaskPriority, string> = {
-  low: "bg-zinc-100 text-zinc-500 ring-zinc-500/20",
-  normal: "bg-zinc-100 text-zinc-600 ring-zinc-500/20",
-  high: "bg-red-50 text-red-700 ring-red-600/20",
+// Priority's color cue, used by the flag indicator. High is the only one that
+// fills the flag; low/normal stay a muted outline.
+const TASK_PRIORITY_FLAG_COLOR: Record<TaskPriority, string> = {
+  low: "text-zinc-400",
+  normal: "text-zinc-400",
+  high: "text-red-600",
 };
 
 const TASK_PRIORITY_LABELS: Record<TaskPriority, string> = {
@@ -94,17 +97,29 @@ export function TaskStatusBadge({ status }: { status: TaskStatus }) {
   return <Badge label={TASK_STATUS_LABELS[status]} style={TASK_STATUS_STYLES[status]} />;
 }
 
-// Priority badge. "normal" is the default and renders nothing unless `showNormal`
-// is set, so lists aren't cluttered with the no-op majority case.
+// Priority as a flag icon (a "system flag", distinct from worded tag chips).
+// High fills the flag red; low is a muted outline. "normal" renders nothing
+// unless `showNormal`, so lists aren't cluttered with the no-op majority case.
+// `showLabel` adds the text (e.g. the roomy task-detail header).
 export function TaskPriorityBadge({
   priority,
   showNormal = false,
+  showLabel = false,
 }: {
   priority: TaskPriority;
   showNormal?: boolean;
+  showLabel?: boolean;
 }) {
   if (priority === "normal" && !showNormal) return null;
-  return <Badge label={TASK_PRIORITY_LABELS[priority]} style={TASK_PRIORITY_STYLES[priority]} />;
+  return (
+    <span
+      className={`inline-flex items-center gap-1 ${TASK_PRIORITY_FLAG_COLOR[priority]}`}
+      title={`${TASK_PRIORITY_LABELS[priority]} priority`}
+    >
+      <Flag size={showLabel ? 14 : 13} fill={priority === "high" ? "currentColor" : "none"} />
+      {showLabel && <span className="text-xs font-medium">{TASK_PRIORITY_LABELS[priority]}</span>}
+    </span>
+  );
 }
 
-export { TASK_STATUS_LABELS, TASK_STATUS_STYLES, TASK_PRIORITY_LABELS, TASK_PRIORITY_STYLES };
+export { TASK_STATUS_LABELS, TASK_STATUS_STYLES, TASK_PRIORITY_LABELS };

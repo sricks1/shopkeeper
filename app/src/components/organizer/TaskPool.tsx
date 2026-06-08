@@ -1,6 +1,7 @@
 "use client";
 
 import { TASK_PRIORITY_LABELS, TASK_STATUS_LABELS } from "@/components/StatusBadge";
+import { TagChip } from "@/components/TagChip";
 import type {
   OrganizerState,
   TagRow,
@@ -8,52 +9,50 @@ import type {
   TaskScope,
   TaskStatus,
 } from "@/lib/organizer/types";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { STATUS_DOT } from "./StatusMenu";
+import FilterPanel from "./FilterPanel";
 import TaskCard from "./TaskCard";
 import type { OrganizerController } from "./useOrganizer";
 
 const STATUS_ORDER: TaskStatus[] = ["new", "todo", "in_progress", "done", "deferred"];
 const PRIORITY_ORDER: TaskPriority[] = ["low", "normal", "high"];
+// Default view hides terminal statuses; "Reset" returns here.
+const DEFAULT_STATUSES: TaskStatus[] = ["new", "todo", "in_progress"];
 
-// Priority reads as a colored background (distinct from the neutral status chips):
-// tinted when available, solid when the filter is active.
-const PRIORITY_STYLE: Record<TaskPriority, { on: string; off: string }> = {
-  low: {
-    on: "bg-zinc-500 text-white ring-zinc-500",
-    off: "bg-zinc-100 text-zinc-600 ring-zinc-300 hover:bg-zinc-200",
-  },
-  normal: {
-    on: "bg-[#324168] text-white ring-[#324168]",
-    off: "bg-[#324168]/10 text-[#324168] ring-[#324168]/30 hover:bg-[#324168]/15",
-  },
-  high: {
-    on: "bg-red-500 text-white ring-red-500",
-    off: "bg-red-50 text-red-700 ring-red-200 hover:bg-red-100",
-  },
-};
+const isDefaultStatuses = (s: Set<TaskStatus>) =>
+  s.size === DEFAULT_STATUSES.length && DEFAULT_STATUSES.every((v) => s.has(v));
 
 interface TaskPoolProps {
   state: OrganizerState;
   userId: string;
   staffName: (id: string | null) => string;
   ctrl: OrganizerController;
+  // Controlled by the parent so the "New Task" button can default its scope to
+  // whichever pool the user is looking at.
+  scope: TaskScope;
+  onScopeChange: (s: TaskScope) => void;
 }
 
-export default function TaskPool({ state, userId, staffName, ctrl }: TaskPoolProps) {
-  const [scope, setScope] = useState<TaskScope>("team");
+export default function TaskPool({
+  state,
+  userId,
+  staffName,
+  ctrl,
+  scope,
+  onScopeChange,
+}: TaskPoolProps) {
   const [search, setSearch] = useState("");
   const [assignedToMe, setAssignedToMe] = useState(false);
-  const [statuses, setStatuses] = useState<Set<TaskStatus>>(new Set());
-  const [priorities, setPriorities] = useState<Set<TaskPriority>>(new Set());
   const [unorganizedOnly, setUnorganizedOnly] = useState(false);
+  // Status/priority are "show these values" sets; tags is an optional
+  // "has at least one of these" constraint (empty = no tag filter).
+  const [statuses, setStatuses] = useState<Set<TaskStatus>>(() => new Set(DEFAULT_STATUSES));
+  const [priorities, setPriorities] = useState<Set<TaskPriority>>(() => new Set(PRIORITY_ORDER));
+  const [tagIds, setTagIds] = useState<Set<string>>(new Set());
 
   const hotSet = useMemo(() => new Set(state.hotTaskIds), [state.hotTaskIds]);
-  const filedSet = useMemo(
-    () => new Set(state.items.map((i) => i.task_id)),
-    [state.items],
-  );
+  const filedSet = useMemo(() => new Set(state.items.map((i) => i.task_id)), [state.items]);
   const tagsByTask = useMemo(() => {
     const byId = new Map(state.tags.map((t) => [t.id, t]));
     const m = new Map<string, TagRow[]>();
@@ -66,15 +65,29 @@ export default function TaskPool({ state, userId, staffName, ctrl }: TaskPoolPro
     }
     return m;
   }, [state.tags, state.taskTags]);
+  const tagIdsByTask = useMemo(() => {
+    const m = new Map<string, Set<string>>();
+    for (const tt of state.taskTags) {
+      const set = m.get(tt.task_id) ?? new Set<string>();
+      set.add(tt.tag_id);
+      m.set(tt.task_id, set);
+    }
+    return m;
+  }, [state.taskTags]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
+    const tagFilter = [...tagIds];
     return state.tasks.filter((t) => {
       if (t.scope !== scope) return false;
       if (scope === "team" && assignedToMe && t.assigned_to !== userId) return false;
       if (q && !t.name.toLowerCase().includes(q)) return false;
-      if (statuses.size > 0 && !statuses.has(t.status)) return false;
-      if (priorities.size > 0 && !priorities.has(t.priority)) return false;
+      if (!statuses.has(t.status)) return false;
+      if (!priorities.has(t.priority)) return false;
+      if (tagFilter.length > 0) {
+        const tt = tagIdsByTask.get(t.id);
+        if (!tt || !tagFilter.some((id) => tt.has(id))) return false;
+      }
       if (unorganizedOnly && (hotSet.has(t.id) || filedSet.has(t.id))) return false;
       return true;
     });
@@ -86,26 +99,46 @@ export default function TaskPool({ state, userId, staffName, ctrl }: TaskPoolPro
     search,
     statuses,
     priorities,
+    tagIds,
+    tagIdsByTask,
     unorganizedOnly,
     hotSet,
     filedSet,
   ]);
 
-  const toggleStatus = (s: TaskStatus) =>
-    setStatuses((prev) => {
+  const toggleIn = <T,>(set: (fn: (prev: Set<T>) => Set<T>) => void, value: T) =>
+    set((prev) => {
       const next = new Set(prev);
-      if (next.has(s)) next.delete(s);
-      else next.add(s);
+      if (next.has(value)) next.delete(value);
+      else next.add(value);
       return next;
     });
+  const toggleStatus = (s: TaskStatus) => toggleIn(setStatuses, s);
+  const togglePriority = (p: TaskPriority) => toggleIn(setPriorities, p);
+  const toggleTag = (id: string) => toggleIn(setTagIds, id);
 
-  const togglePriority = (p: TaskPriority) =>
-    setPriorities((prev) => {
-      const next = new Set(prev);
-      if (next.has(p)) next.delete(p);
-      else next.add(p);
-      return next;
-    });
+  const resetStatuses = () => setStatuses(new Set(DEFAULT_STATUSES));
+  const resetPriorities = () => setPriorities(new Set(PRIORITY_ORDER));
+  const reset = () => {
+    resetStatuses();
+    resetPriorities();
+    setTagIds(new Set());
+  };
+
+  const statusDefault = isDefaultStatuses(statuses);
+  const priorityDefault = priorities.size === PRIORITY_ORDER.length;
+  const activeCount = tagIds.size + (statusDefault ? 0 : 1) + (priorityDefault ? 0 : 1);
+
+  const selectedTags = useMemo(
+    () => state.tags.filter((t) => tagIds.has(t.id)),
+    [state.tags, tagIds],
+  );
+  const statusLabel = STATUS_ORDER.filter((s) => statuses.has(s))
+    .map((s) => TASK_STATUS_LABELS[s])
+    .join(", ");
+  const priorityLabel = PRIORITY_ORDER.filter((p) => priorities.has(p))
+    .map((p) => TASK_PRIORITY_LABELS[p])
+    .join(", ");
 
   return (
     <div className="flex flex-col md:h-full">
@@ -116,7 +149,7 @@ export default function TaskPool({ state, userId, staffName, ctrl }: TaskPoolPro
             <button
               key={s}
               type="button"
-              onClick={() => setScope(s)}
+              onClick={() => onScopeChange(s)}
               className={`flex-1 rounded-lg py-2 text-center text-sm font-medium capitalize transition-colors ${
                 scope === s ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-700"
               }`}
@@ -138,8 +171,8 @@ export default function TaskPool({ state, userId, staffName, ctrl }: TaskPoolPro
           />
         </div>
 
-        {/* Chips */}
-        <div className="flex flex-wrap gap-1.5">
+        {/* Always-visible quick filters + the Filters panel */}
+        <div className="flex flex-wrap items-center gap-1.5">
           {scope === "team" && (
             <Chip active={assignedToMe} onClick={() => setAssignedToMe((v) => !v)}>
               Assigned to me
@@ -148,25 +181,36 @@ export default function TaskPool({ state, userId, staffName, ctrl }: TaskPoolPro
           <Chip active={unorganizedOnly} onClick={() => setUnorganizedOnly((v) => !v)}>
             Unorganized
           </Chip>
-          {STATUS_ORDER.map((s) => (
-            <Chip key={s} active={statuses.has(s)} onClick={() => toggleStatus(s)}>
-              <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[s]}`} />
-              {TASK_STATUS_LABELS[s]}
-            </Chip>
-          ))}
-          {PRIORITY_ORDER.map((p) => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => togglePriority(p)}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium ring-1 ring-inset transition-colors ${
-                priorities.has(p) ? PRIORITY_STYLE[p].on : PRIORITY_STYLE[p].off
-              }`}
-            >
-              {TASK_PRIORITY_LABELS[p]}
-            </button>
-          ))}
+          <FilterPanel
+            statuses={statuses}
+            priorities={priorities}
+            tagIds={tagIds}
+            tags={state.tags}
+            activeCount={activeCount}
+            onToggleStatus={toggleStatus}
+            onTogglePriority={togglePriority}
+            onToggleTag={toggleTag}
+            onReset={reset}
+          />
         </div>
+
+        {/* Active filter chips */}
+        {activeCount > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {!statusDefault && (
+              <FilterChip label={`Status: ${statusLabel || "none"}`} onRemove={resetStatuses} />
+            )}
+            {!priorityDefault && (
+              <FilterChip
+                label={`Priority: ${priorityLabel || "none"}`}
+                onRemove={resetPriorities}
+              />
+            )}
+            {selectedTags.map((t) => (
+              <TagChip key={t.id} name={t.name} color={t.color} onRemove={() => toggleTag(t.id)} />
+            ))}
+          </div>
+        )}
       </div>
 
       <p className="mb-2 px-1 text-xs text-zinc-400">
@@ -224,5 +268,21 @@ function Chip({
     >
       {children}
     </button>
+  );
+}
+
+function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-[#324168]/10 px-2.5 py-1 text-xs font-medium text-[#324168] ring-1 ring-inset ring-[#324168]/20">
+      {label}
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label={`Clear ${label}`}
+        className="rounded-full p-0.5 hover:bg-[#324168]/20"
+      >
+        <X size={12} />
+      </button>
+    </span>
   );
 }

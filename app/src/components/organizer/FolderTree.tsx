@@ -1,6 +1,5 @@
 "use client";
 
-import { TaskPriorityBadge } from "@/components/StatusBadge";
 import { TagChip } from "@/components/TagChip";
 import type { OrganizerState, OrganizerTask, TagRow } from "@/lib/organizer/types";
 import { buildFolderTree, type FolderTreeNode, isAncestor } from "@/lib/organizer/tree";
@@ -21,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { type DragEvent, useEffect, useMemo, useRef, useState } from "react";
 import { clearActiveDrag, type DragPayload, getActiveDrag, getDrag, setDrag } from "./dnd";
 import StatusMenu from "./StatusMenu";
+import TaskFlags from "./TaskFlags";
 import type { OrganizerController } from "./useOrganizer";
 
 interface FolderTreeProps {
@@ -72,6 +72,31 @@ export default function FolderTree({ state, ctrl, tasksById, userId }: FolderTre
   const [dropAt, setDropAt] = useState<{ folderId: string; index: number } | null>(null);
   const [selected, setSelected] = useState<Selected | null>(null);
   const treeRef = useRef<HTMLDivElement>(null);
+
+  // Remember the selected row so it's restored when coming back from a task
+  // detail page (or a reload), mirroring the expand/collapse persistence above.
+  const selKey = `organizer:selected:${userId}`;
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(selKey);
+      if (raw) setSelected(JSON.parse(raw) as Selected);
+    } catch {
+      // ignore unreadable/blocked storage
+    }
+  }, [selKey]);
+  const skipPersistSel = useRef(true);
+  useEffect(() => {
+    if (skipPersistSel.current) {
+      skipPersistSel.current = false;
+      return;
+    }
+    try {
+      if (selected) localStorage.setItem(selKey, JSON.stringify(selected));
+      else localStorage.removeItem(selKey);
+    } catch {
+      // ignore quota/blocked storage
+    }
+  }, [selected, selKey]);
 
   const tree = useMemo(() => buildFolderTree(state.folders), [state.folders]);
   const itemsByFolder = useMemo(() => {
@@ -346,12 +371,16 @@ export default function FolderTree({ state, ctrl, tasksById, userId }: FolderTre
         {task.name}
       </button>
       <span className="flex shrink-0 items-center gap-1">
-        <TaskPriorityBadge priority={task.priority} />
         {(tagsByTask.get(task.id) ?? []).map((t) => (
           <TagChip key={t.id} name={t.name} color={t.color} />
         ))}
       </span>
       <StatusMenu status={task.status} onChange={(s) => ctrl.setStatus(task.id, s)} />
+      <TaskFlags
+        priority={task.priority}
+        isPurchase={task.consumable_type_id != null}
+        personal={task.scope === "personal"}
+      />
       <button
         type="button"
         onClick={() => ctrl.toggleHot(task.id)}
@@ -543,6 +572,11 @@ export default function FolderTree({ state, ctrl, tasksById, userId }: FolderTre
                   {task.name}
                 </Link>
                 <StatusMenu status={task.status} onChange={(s) => ctrl.setStatus(task.id, s)} />
+                <TaskFlags
+                  priority={task.priority}
+                  isPurchase={task.consumable_type_id != null}
+                  personal={task.scope === "personal"}
+                />
                 <button
                   type="button"
                   onClick={() => ctrl.toggleHot(task.id)}
