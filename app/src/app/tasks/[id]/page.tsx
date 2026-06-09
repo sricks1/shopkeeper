@@ -7,6 +7,7 @@ import { ChevronRight, MessageSquare, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AddCommentForm from "./AddCommentForm";
+import DeleteTaskButton from "./DeleteTaskButton";
 import TaskEditForm from "./TaskEditForm";
 import TaskTagsEditor from "./TaskTagsEditor";
 
@@ -81,9 +82,12 @@ export default async function TaskDetailPage({
 
         <div className="mb-1 flex items-start justify-between gap-3">
           <h1 className="min-w-0 break-words text-xl font-bold text-zinc-900">{task.name}</h1>
-          <div className="flex shrink-0 flex-col items-end gap-1 pt-1">
-            <TaskStatusBadge status={task.status} />
-            <TaskPriorityBadge priority={task.priority} />
+          <div className="flex shrink-0 items-start gap-2 pt-1">
+            <div className="flex flex-col items-end gap-1">
+              <TaskStatusBadge status={task.status} />
+              <TaskPriorityBadge priority={task.priority} showLabel />
+            </div>
+            <DeleteTaskButton taskId={task.id} />
           </div>
         </div>
         <p className="mb-6 text-sm text-zinc-400">

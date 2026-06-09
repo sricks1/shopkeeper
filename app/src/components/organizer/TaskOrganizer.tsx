@@ -1,9 +1,9 @@
 "use client";
 
-import type { OrganizerState, OrganizerTask } from "@/lib/organizer/types";
-import { AlertTriangle, LayoutGrid, X } from "lucide-react";
+import type { OrganizerState, OrganizerTask, TaskScope } from "@/lib/organizer/types";
+import { AlertTriangle, LayoutGrid, Plus, X } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import FolderTree from "./FolderTree";
 import TaskPool from "./TaskPool";
 import { useOrganizer } from "./useOrganizer";
@@ -23,6 +23,10 @@ export default function TaskOrganizer({ initialState, userId, staff }: TaskOrgan
   const ctrl = useOrganizer(initialState, userId);
   const { state, error, clearError } = ctrl;
 
+  // Which pool the user is viewing. Lifted here so the "New Task" button can
+  // default its scope to match (Team pool → team task, Personal pool → personal).
+  const [poolScope, setPoolScope] = useState<TaskScope>("team");
+
   const nameById = useMemo(
     () => new Map(staff.map((s) => [s.id, s.display_name])),
     [staff],
@@ -41,13 +45,22 @@ export default function TaskOrganizer({ initialState, userId, staff }: TaskOrgan
           <h1 className="text-xl font-bold text-zinc-900">Organize</h1>
           <p className="text-sm text-zinc-500">Drag tasks into your folders. Flag what's Hot.</p>
         </div>
-        <Link
-          href="/tasks"
-          className="flex items-center gap-1.5 rounded-xl border border-zinc-300 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50"
-        >
-          <LayoutGrid size={16} />
-          Board
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/tasks/new?scope=${poolScope}&from=organize`}
+            className="flex items-center gap-1.5 rounded-xl bg-[#324168] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#263352] active:bg-[#1e2840]"
+          >
+            <Plus size={16} />
+            New Task
+          </Link>
+          <Link
+            href="/tasks"
+            className="flex items-center gap-1.5 rounded-xl border border-zinc-300 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50"
+          >
+            <LayoutGrid size={16} />
+            Board
+          </Link>
+        </div>
       </div>
 
       {error && (
@@ -65,7 +78,14 @@ export default function TaskOrganizer({ initialState, userId, staff }: TaskOrgan
           <FolderTree state={state} ctrl={ctrl} tasksById={tasksById} userId={userId} />
         </aside>
         <section className="min-h-0">
-          <TaskPool state={state} userId={userId} staffName={staffName} ctrl={ctrl} />
+          <TaskPool
+            state={state}
+            userId={userId}
+            staffName={staffName}
+            ctrl={ctrl}
+            scope={poolScope}
+            onScopeChange={setPoolScope}
+          />
         </section>
       </div>
     </div>
