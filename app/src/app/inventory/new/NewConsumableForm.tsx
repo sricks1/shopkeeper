@@ -2,6 +2,8 @@
 
 import CategoryPicker, { type CategoryOption } from "@/components/CategoryPicker";
 import { createClient } from "@/lib/supabase/client";
+import { toHref } from "@/lib/utils";
+import { ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
@@ -125,13 +127,29 @@ export default function NewConsumableForm({ categories }: { categories: Category
         />
       </Field>
 
-      <Field label="Vendor URL">
+      <Field
+        label="Vendor URL"
+        action={
+          toHref(vendorUrl) && (
+            <a
+              href={toHref(vendorUrl) as string}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs font-medium text-[#324168] hover:underline"
+            >
+              <ExternalLink size={13} />
+              Open
+            </a>
+          )
+        }
+      >
         <input
-          type="url"
+          type="text"
+          inputMode="url"
           value={vendorUrl}
           onChange={(e) => setVendorUrl(e.target.value)}
           className={inputCls}
-          placeholder="https://woodcraft.com/..."
+          placeholder="woodcraft.com/part — https:// optional"
         />
       </Field>
 
@@ -175,17 +193,22 @@ const inputCls =
 function Field({
   label,
   hint,
+  action,
   children,
   className,
 }: {
   label: string;
   hint?: string;
+  action?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
 }) {
   return (
     <div className={`flex flex-col gap-1.5 ${className ?? ""}`}>
-      <label className="text-sm font-medium text-zinc-700">{label}</label>
+      <div className="flex items-center justify-between gap-2">
+        <label className="text-sm font-medium text-zinc-700">{label}</label>
+        {action}
+      </div>
       {children}
       {hint && <p className="text-xs text-zinc-400">{hint}</p>}
     </div>

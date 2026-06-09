@@ -30,6 +30,17 @@ export function isOverdue(
   return due.getTime() < Date.now();
 }
 
+/**
+ * Make a user-typed URL openable: pass through if it already has an http(s)
+ * scheme, otherwise assume https. Returns null for empty input so callers can
+ * hide an "Open" affordance. Lets the user enter bare domains (woodcraft.com/x).
+ */
+export function toHref(raw: string | null | undefined): string | null {
+  const u = (raw ?? "").trim();
+  if (!u) return null;
+  return /^https?:\/\//i.test(u) ? u : `https://${u}`;
+}
+
 export function timeAgo(iso: string): string {
   const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
   if (seconds < 60) return "just now";

@@ -1,13 +1,15 @@
 import AppShell from "@/components/AppShell";
-import { TASK_STATUS_LABELS } from "@/components/StatusBadge";
+import { TASK_STATUS_LABELS, TaskPriorityBadge } from "@/components/StatusBadge";
 import { getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/types/database.types";
 import { formatDate, isOverdue } from "@/lib/utils";
-import { CalendarClock, ClipboardList, FolderTree, Plus, User } from "lucide-react";
+import { CalendarClock, ClipboardList, FolderTree, Lock, Plus, User } from "lucide-react";
 import Link from "next/link";
 
 type TaskStatus = Enums<"task_status">;
+type TaskPriority = Enums<"task_priority">;
+type TaskScope = Enums<"task_scope">;
 
 const COLUMN_ORDER: TaskStatus[] = ["new", "todo", "in_progress", "done", "deferred"];
 
@@ -23,6 +25,8 @@ type BoardTask = {
   id: string;
   name: string;
   status: TaskStatus;
+  priority: TaskPriority;
+  scope: TaskScope;
   date_needed: string | null;
   assigned_to: string | null;
 };
@@ -47,12 +51,19 @@ export default async function TasksPage({
 
   // Apply filters before ordering: supabase-js exposes .eq() on the builder
   // returned by .select(), but .order() returns a transform builder without it.
-  let query = supabase.from("staff_tasks").select("id, name, status, date_needed, assigned_to");
+  // The board is the team overview, so personal drafts are excluded — except on
+  // the "Mine" tab, which also surfaces your own personal tasks (RLS already
+  // limits personal rows to their owner). They're flagged with a lock.
+  let query = supabase
+    .from("staff_tasks")
+    .select("id, name, status, priority, scope, date_needed, assigned_to");
 
   if (view === "mine" && staff) {
-    query = query.eq("assigned_to", staff.id);
+    query = query.or(`assigned_to.eq.${staff.id},scope.eq.personal`);
   } else if (view === "purchases") {
-    query = query.not("consumable_type_id", "is", null);
+    query = query.eq("scope", "team").not("consumable_type_id", "is", null);
+  } else {
+    query = query.eq("scope", "team");
   }
 
   const { data } = await query
@@ -167,9 +178,19 @@ export default async function TasksPage({
                           href={`/tasks/${task.id}`}
                           className="flex flex-col gap-2 rounded-xl bg-white px-3.5 py-3 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
                         >
-                          <p className="break-words text-sm font-semibold leading-snug text-zinc-900">
-                            {task.name}
-                          </p>
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="min-w-0 break-words text-sm font-semibold leading-snug text-zinc-900">
+                              {task.name}
+                            </p>
+                            <span className="flex shrink-0 items-center gap-1 pt-0.5">
+                              <TaskPriorityBadge priority={task.priority} />
+                              {task.scope === "personal" && (
+                                <span title="Personal — only you can see it" className="text-violet-600">
+                                  <Lock size={13} />
+                                </span>
+                              )}
+                            </span>
+                          </div>
                           <div className="flex items-center justify-between gap-2 text-xs">
                             <span className="flex min-w-0 items-center gap-1 text-zinc-400">
                               <User size={11} className="shrink-0" />
