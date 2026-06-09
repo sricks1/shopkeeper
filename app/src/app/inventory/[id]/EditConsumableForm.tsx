@@ -2,6 +2,8 @@
 
 import CategoryPicker, { type CategoryOption } from "@/components/CategoryPicker";
 import { createClient } from "@/lib/supabase/client";
+import { toHref } from "@/lib/utils";
+import { ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -99,11 +101,28 @@ export default function EditConsumableForm({
         />
       </Field>
 
-      <Field label="Vendor URL">
+      <Field
+        label="Vendor URL"
+        action={
+          toHref(vendorUrl) && (
+            <a
+              href={toHref(vendorUrl) as string}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs font-medium text-[#324168] hover:underline"
+            >
+              <ExternalLink size={13} />
+              Open
+            </a>
+          )
+        }
+      >
         <input
-          type="url"
+          type="text"
+          inputMode="url"
           value={vendorUrl}
           onChange={(e) => setVendorUrl(e.target.value)}
+          placeholder="woodcraft.com/part — https:// optional"
           className={inputCls}
         />
       </Field>
@@ -137,10 +156,21 @@ export default function EditConsumableForm({
 const inputCls =
   "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-[#324168] focus:ring-2 focus:ring-[#324168]/20";
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  action,
+  children,
+}: {
+  label: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-sm font-medium text-zinc-700">{label}</label>
+      <div className="flex items-center justify-between gap-2">
+        <label className="text-sm font-medium text-zinc-700">{label}</label>
+        {action}
+      </div>
       {children}
     </div>
   );
