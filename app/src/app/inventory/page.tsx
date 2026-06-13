@@ -1,6 +1,5 @@
 import AppShell from "@/components/AppShell";
 import StockControl from "@/components/inventory/StockControl";
-import { StockStatusBadge } from "@/components/StatusBadge";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/types/database.types";
 import { Package, Plus } from "lucide-react";
@@ -126,10 +125,7 @@ export default async function InventoryPage({
                     {item.vendor ? ` · ${item.vendor}` : ""}
                   </p>
                 </Link>
-                <div className="flex shrink-0 items-center gap-2 py-2 pl-1 pr-3">
-                  <span className="hidden sm:inline-flex">
-                    <StockStatusBadge status={item.status} />
-                  </span>
+                <div className="flex shrink-0 items-center py-2 pl-1 pr-3">
                   {item.inventoryId && (
                     <StockControl
                       compact
