@@ -1,10 +1,14 @@
 "use client";
 
+import { StockStatusBadge } from "@/components/StatusBadge";
 import { createClient } from "@/lib/supabase/client";
+import type { Enums } from "@/lib/types/database.types";
 import { ChevronRight, Link2Off, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+
+type StockStatus = Enums<"stock_status">;
 
 interface Consumable {
   id: string;
@@ -18,10 +22,9 @@ interface LinkedConsumable {
   notes: string | null;
 }
 
-interface InventoryInfo {
+interface StockInfo {
   id: string;
-  onHand: number;
-  threshold: number;
+  status: StockStatus;
 }
 
 interface Props {
@@ -29,10 +32,10 @@ interface Props {
   toolSlug: string;
   allConsumables: Consumable[];
   linked: LinkedConsumable[];
-  inventoryMap: Record<string, InventoryInfo>; // consumable_type_id → inventory info
+  stockMap: Record<string, StockInfo>; // consumable_type_id → inventory id + stock status
 }
 
-export default function ManageConsumables({ toolId, allConsumables, linked, inventoryMap }: Props) {
+export default function ManageConsumables({ toolId, allConsumables, linked, stockMap }: Props) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState<string | null>(null);
@@ -77,12 +80,8 @@ export default function ManageConsumables({ toolId, allConsumables, linked, inve
             {linked.map((l) => {
               const ct = allConsumables.find((c) => c.id === l.consumable_type_id);
               if (!ct) return null;
-              const inv = inventoryMap[l.consumable_type_id];
+              const inv = stockMap[l.consumable_type_id];
               const href = inv ? `/inventory/${inv.id}` : `/inventory/new?consumable=${ct.id}`;
-              const stockStatus = !inv ? null
-                : inv.onHand <= 0 ? "out"
-                : inv.onHand <= inv.threshold ? "low"
-                : "ok";
               return (
                 <li
                   key={l.id}
@@ -94,13 +93,7 @@ export default function ManageConsumables({ toolId, allConsumables, linked, inve
                       <p className="text-xs capitalize text-zinc-400">{ct.category.replace("_", " ")}</p>
                     </div>
                     {inv ? (
-                      <span className={`shrink-0 text-sm font-bold tabular-nums ${
-                        stockStatus === "out" ? "text-red-500"
-                        : stockStatus === "low" ? "text-orange-500"
-                        : "text-emerald-600"
-                      }`}>
-                        {inv.onHand} on hand
-                      </span>
+                      <StockStatusBadge status={inv.status} />
                     ) : (
                       <span className="shrink-0 text-xs text-zinc-400">no stock entry</span>
                     )}

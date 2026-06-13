@@ -31,31 +31,11 @@ export default async function NewRepairPage({
     .select("consumable_type_id, consumable_types (id, name, category)")
     .eq("tool_id", tool.id);
 
-  const consumableTypeIds = (toolConsumables ?? []).map((tc) => tc.consumable_type_id);
-
-  // Fetch inventory separately — nested joins through consumable_types are unreliable
-  const { data: inventoryItems } = consumableTypeIds.length
-    ? await supabase
-        .from("inventory_items")
-        .select("consumable_type_id, quantity_on_hand")
-        .in("consumable_type_id", consumableTypeIds)
-    : { data: [] };
-
-  const inventoryMap = new Map(
-    (inventoryItems ?? []).map((ii) => [ii.consumable_type_id, ii.quantity_on_hand]),
-  );
-
   const consumables: ConsumableOption[] = (toolConsumables ?? [])
     .filter((tc) => tc.consumable_types)
     .map((tc) => {
       const ct = tc.consumable_types as { id: string; name: string; category: string };
-      return {
-        id: ct.id,
-        name: ct.name,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        category: ct.category as any,
-        quantityOnHand: inventoryMap.get(tc.consumable_type_id) ?? 0,
-      };
+      return { id: ct.id, name: ct.name, category: ct.category };
     });
 
   // Fetch open issues for this tool

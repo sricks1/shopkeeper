@@ -6,6 +6,7 @@ type IssueSeverity = Enums<"issue_severity">;
 type IssueStatus = Enums<"issue_status">;
 type TaskStatus = Enums<"task_status">;
 type TaskPriority = Enums<"task_priority">;
+type StockStatus = Enums<"stock_status">;
 
 const TOOL_STATUS_STYLES: Record<ToolStatus, string> = {
   active: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
@@ -71,6 +72,16 @@ const TASK_PRIORITY_LABELS: Record<TaskPriority, string> = {
   high: "High",
 };
 
+const STOCK_STATUS_STYLES: Record<StockStatus, string> = {
+  in_stock: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
+  on_order: "bg-amber-50 text-amber-700 ring-amber-600/20",
+};
+
+const STOCK_STATUS_LABELS: Record<StockStatus, string> = {
+  in_stock: "In Stock",
+  on_order: "On Order",
+};
+
 function Badge({ label, style }: { label: string; style: string }) {
   return (
     <span
@@ -120,6 +131,10 @@ export function TaskPriorityBadge({
       {showLabel && <span className="text-xs font-medium">{TASK_PRIORITY_LABELS[priority]}</span>}
     </span>
   );
+}
+
+export function StockStatusBadge({ status }: { status: StockStatus }) {
+  return <Badge label={STOCK_STATUS_LABELS[status]} style={STOCK_STATUS_STYLES[status]} />;
 }
 
 export { TASK_STATUS_LABELS, TASK_STATUS_STYLES, TASK_PRIORITY_LABELS };

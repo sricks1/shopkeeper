@@ -1,7 +1,6 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { Minus, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
@@ -9,7 +8,6 @@ export interface ConsumableOption {
   id: string;
   name: string;
   category: string;
-  quantityOnHand: number;
 }
 
 export interface OpenIssue {
@@ -38,25 +36,18 @@ export default function RepairForm({
   const [laborMinutes, setLaborMinutes] = useState("");
   const [notes, setNotes] = useState("");
   const [issueId, setIssueId] = useState(prefilledIssueId ?? "");
-  // consumable_type_id → quantity used
-  const [selected, setSelected] = useState<Record<string, number>>({});
+  // consumable_type_ids this repair used
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function toggleConsumable(id: string) {
     setSelected((prev) => {
-      if (id in prev) {
-        const next = { ...prev };
-        delete next[id];
-        return next;
-      }
-      return { ...prev, [id]: 1 };
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
     });
-  }
-
-  function setQty(id: string, qty: number) {
-    if (qty < 1) return;
-    setSelected((prev) => ({ ...prev, [id]: qty }));
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -85,11 +76,11 @@ export default function RepairForm({
       return;
     }
 
-    // 2. Insert consumables used (triggers inventory decrement + reorder alerts)
-    const consumableRows = Object.entries(selected).map(([consumable_type_id, quantity_used]) => ({
+    // 2. Record which consumables this repair used (service history — no stock effect)
+    const consumableRows = Array.from(selected).map((consumable_type_id) => ({
       repair_id: repair.id,
       consumable_type_id,
-      quantity_used,
+      quantity_used: 1,
     }));
 
     if (consumableRows.length > 0) {
@@ -98,12 +89,7 @@ export default function RepairForm({
         .insert(consumableRows);
 
       if (consumableErr) {
-        // Inventory check constraint violation means we tried to go negative
-        setError(
-          consumableErr.code === "23514"
-            ? "Not enough stock for one or more consumables. Check inventory and adjust quantities."
-            : consumableErr.message,
-        );
+        setError(consumableErr.message);
         setIsLoading(false);
         return;
       }
@@ -124,7 +110,7 @@ export default function RepairForm({
     router.refresh();
   }
 
-  const selectedCount = Object.keys(selected).length;
+  const selectedCount = selected.size;
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -179,64 +165,32 @@ export default function RepairForm({
         ) : (
           <div className="flex flex-col gap-2">
             {consumables.map((c) => {
-              const isSelected = c.id in selected;
-              const qty = selected[c.id] ?? 1;
-              const wouldGoNegative = isSelected && qty > c.quantityOnHand;
-
+              const isSelected = selected.has(c.id);
               return (
-                <div
+                <button
                   key={c.id}
-                  className={`rounded-xl border px-4 py-3 transition-colors ${
+                  type="button"
+                  onClick={() => toggleConsumable(c.id)}
+                  className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
                     isSelected ? "border-[#324168] bg-[#324168]/5" : "border-zinc-200 bg-white"
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <button
-                      type="button"
-                      onClick={() => toggleConsumable(c.id)}
-                      className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left"
-                    >
-                      <span className="text-sm font-medium text-zinc-800">{c.name}</span>
-                      <span
-                        className={`text-xs ${
-                          c.quantityOnHand <= 0
-                            ? "text-red-500"
-                            : c.quantityOnHand <= 2
-                              ? "text-orange-500"
-                              : "text-zinc-400"
-                        }`}
-                      >
-                        {c.quantityOnHand} on hand
-                      </span>
-                    </button>
-
-                    {isSelected && (
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => setQty(c.id, qty - 1)}
-                          className="flex h-7 w-7 items-center justify-center rounded-full border border-zinc-200 text-zinc-600"
-                        >
-                          <Minus size={12} />
-                        </button>
-                        <span className="w-4 text-center text-sm font-medium">{qty}</span>
-                        <button
-                          type="button"
-                          onClick={() => setQty(c.id, qty + 1)}
-                          className="flex h-7 w-7 items-center justify-center rounded-full border border-zinc-200 text-zinc-600"
-                        >
-                          <Plus size={12} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {wouldGoNegative && (
-                    <p className="mt-1.5 text-xs text-orange-600">
-                      Only {c.quantityOnHand} in stock — this will trigger a reorder alert.
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-zinc-800">{c.name}</p>
+                    <p className="truncate text-xs capitalize text-zinc-400">
+                      {c.category.replace(/_/g, " ")}
                     </p>
-                  )}
-                </div>
+                  </div>
+                  <span
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[11px] font-bold ${
+                      isSelected
+                        ? "border-[#324168] bg-[#324168] text-white"
+                        : "border-zinc-300 text-transparent"
+                    }`}
+                  >
+                    ✓
+                  </span>
+                </button>
               );
             })}
           </div>

@@ -41,11 +41,11 @@ export default async function ToolConsumablesPage({
   const { data: inventoryItems } = linkedTypeIds.length
     ? await supabase
         .from("inventory_items")
-        .select("id, consumable_type_id, quantity_on_hand, reorder_threshold")
+        .select("id, consumable_type_id, stock_status")
         .in("consumable_type_id", linkedTypeIds)
     : { data: [] };
 
-  const inventoryMap = new Map(
+  const stockMap = new Map(
     (inventoryItems ?? []).map((ii) => [ii.consumable_type_id, ii]),
   );
 
@@ -67,8 +67,8 @@ export default async function ToolConsumablesPage({
           toolSlug={tool.slug}
           allConsumables={allConsumables ?? []}
           linked={linked ?? []}
-          inventoryMap={Object.fromEntries(
-            Array.from(inventoryMap.entries()).map(([k, v]) => [k, { id: v.id, onHand: v.quantity_on_hand, threshold: v.reorder_threshold }])
+          stockMap={Object.fromEntries(
+            Array.from(stockMap.entries()).map(([k, v]) => [k, { id: v.id, status: v.stock_status }]),
           )}
         />
 

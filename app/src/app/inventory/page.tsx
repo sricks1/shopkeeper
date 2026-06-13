@@ -1,38 +1,22 @@
 import AppShell from "@/components/AppShell";
+import StockControl from "@/components/inventory/StockControl";
+import { StockStatusBadge } from "@/components/StatusBadge";
 import { createClient } from "@/lib/supabase/server";
+import type { Enums } from "@/lib/types/database.types";
 import { Package, Plus } from "lucide-react";
 import Link from "next/link";
 
-type StatusFilter = "all" | "low" | "out";
+type StockStatus = Enums<"stock_status">;
 
-function inventoryStatus(onHand: number, threshold: number): "ok" | "low" | "out" {
-  if (onHand <= 0) return "out";
-  if (onHand <= threshold) return "low";
-  return "ok";
-}
-
-const STATUS_STRIP: Record<"ok" | "low" | "out", string> = {
-  ok: "bg-emerald-400",
-  low: "bg-orange-400",
-  out: "bg-red-500",
+const STRIP: Record<StockStatus, string> = {
+  in_stock: "bg-emerald-400",
+  on_order: "bg-amber-400",
 };
 
-const STATUS_BADGE: Record<"ok" | "low" | "out", string> = {
-  ok: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
-  low: "bg-orange-50 text-orange-700 ring-orange-600/20",
-  out: "bg-red-50 text-red-700 ring-red-600/20",
-};
-
-const STATUS_LABEL: Record<"ok" | "low" | "out", string> = {
-  ok: "OK",
-  low: "Low",
-  out: "Out",
-};
-
-const FILTER_TABS: { value: StatusFilter; label: string }[] = [
+const FILTER_TABS: { value: "all" | StockStatus; label: string }[] = [
   { value: "all", label: "All" },
-  { value: "low", label: "Low / Out" },
-  { value: "out", label: "Out" },
+  { value: "on_order", label: "On Order" },
+  { value: "in_stock", label: "In Stock" },
 ];
 
 export default async function InventoryPage({
@@ -41,37 +25,31 @@ export default async function InventoryPage({
   searchParams: Promise<{ status?: string }>;
 }) {
   const { status: rawStatus } = await searchParams;
-  const filter: StatusFilter =
-    rawStatus === "low" || rawStatus === "out" ? rawStatus : "all";
+  const filter: "all" | StockStatus =
+    rawStatus === "on_order" || rawStatus === "in_stock" ? rawStatus : "all";
 
   const supabase = await createClient();
-
   const { data: consumables } = await supabase
     .from("consumable_types")
-    .select("id, name, category, vendor, inventory_items(id, quantity_on_hand, reorder_threshold)")
+    .select("id, name, category, sku, vendor, vendor_url, inventory_items(id, stock_status)")
     .order("name");
 
   const items = (consumables ?? []).map((c) => {
     const inv = Array.isArray(c.inventory_items) ? c.inventory_items[0] : c.inventory_items;
-    const onHand = inv?.quantity_on_hand ?? 0;
-    const threshold = inv?.reorder_threshold ?? 1;
     return {
-      ...c,
+      id: c.id,
+      name: c.name,
+      category: c.category,
+      vendor: c.vendor,
+      sku: c.sku,
+      vendorUrl: c.vendor_url,
       inventoryId: inv?.id ?? null,
-      onHand,
-      threshold,
-      status: inventoryStatus(onHand, threshold),
+      status: (inv?.stock_status ?? "in_stock") as StockStatus,
     };
   });
 
-  const filtered =
-    filter === "all"
-      ? items
-      : filter === "out"
-        ? items.filter((i) => i.status === "out")
-        : items.filter((i) => i.status === "low" || i.status === "out");
-
-  const alertCount = items.filter((i) => i.status !== "ok").length;
+  const filtered = filter === "all" ? items : items.filter((i) => i.status === filter);
+  const onOrderCount = items.filter((i) => i.status === "on_order").length;
 
   return (
     <AppShell>
@@ -82,8 +60,8 @@ export default async function InventoryPage({
             <h1 className="text-xl font-bold text-zinc-900">Inventory</h1>
             <p className="text-sm text-zinc-500">
               {items.length} consumables
-              {alertCount > 0 && (
-                <span className="ml-2 font-medium text-orange-600">· {alertCount} need attention</span>
+              {onOrderCount > 0 && (
+                <span className="ml-2 font-medium text-amber-600">· {onOrderCount} on order</span>
               )}
             </p>
           </div>
@@ -133,36 +111,38 @@ export default async function InventoryPage({
         ) : (
           <ul className="flex flex-col gap-2">
             {filtered.map((item) => (
-              <li key={item.id}>
+              <li
+                key={item.id}
+                className="flex items-center overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-zinc-200"
+              >
+                <div className={`w-1 shrink-0 self-stretch ${STRIP[item.status]}`} />
                 <Link
-                  href={
-                    item.inventoryId
-                      ? `/inventory/${item.inventoryId}`
-                      : `/inventory/new?consumable=${item.id}`
-                  }
-                  className="flex items-center overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
+                  href={item.inventoryId ? `/inventory/${item.inventoryId}` : "/inventory/new"}
+                  className="min-w-0 flex-1 px-4 py-3.5 transition-colors active:bg-zinc-50"
                 >
-                  <div className={`w-1 shrink-0 self-stretch ${STATUS_STRIP[item.status]}`} />
-                  <div className="flex flex-1 items-center justify-between px-4 py-3.5">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold text-zinc-900">{item.name}</p>
-                      <p className="mt-0.5 text-xs capitalize text-zinc-400">
-                        {item.category.replace("_", " ")}
-                        {item.vendor ? ` · ${item.vendor}` : ""}
-                      </p>
-                    </div>
-                    <div className="ml-3 flex shrink-0 items-center gap-3">
-                      <span className="text-sm font-bold tabular-nums text-zinc-700">
-                        {item.onHand}
-                      </span>
-                      <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${STATUS_BADGE[item.status]}`}
-                      >
-                        {STATUS_LABEL[item.status]}
-                      </span>
-                    </div>
-                  </div>
+                  <p className="truncate font-semibold text-zinc-900">{item.name}</p>
+                  <p className="mt-0.5 truncate text-xs capitalize text-zinc-400">
+                    {item.category.replace(/_/g, " ")}
+                    {item.vendor ? ` · ${item.vendor}` : ""}
+                  </p>
                 </Link>
+                <div className="flex shrink-0 items-center gap-2 py-2 pl-1 pr-3">
+                  <span className="hidden sm:inline-flex">
+                    <StockStatusBadge status={item.status} />
+                  </span>
+                  {item.inventoryId && (
+                    <StockControl
+                      compact
+                      inventoryItemId={item.inventoryId}
+                      consumableTypeId={item.id}
+                      status={item.status}
+                      name={item.name}
+                      vendor={item.vendor}
+                      vendorUrl={item.vendorUrl}
+                      sku={item.sku}
+                    />
+                  )}
+                </div>
               </li>
             ))}
           </ul>

@@ -357,8 +357,7 @@ export type Database = {
           created_at: string
           id: string
           last_ordered_at: string | null
-          quantity_on_hand: number
-          reorder_threshold: number
+          stock_status: Database["public"]["Enums"]["stock_status"]
           updated_at: string
         }
         Insert: {
@@ -366,8 +365,7 @@ export type Database = {
           created_at?: string
           id?: string
           last_ordered_at?: string | null
-          quantity_on_hand?: number
-          reorder_threshold?: number
+          stock_status?: Database["public"]["Enums"]["stock_status"]
           updated_at?: string
         }
         Update: {
@@ -375,8 +373,7 @@ export type Database = {
           created_at?: string
           id?: string
           last_ordered_at?: string | null
-          quantity_on_hand?: number
-          reorder_threshold?: number
+          stock_status?: Database["public"]["Enums"]["stock_status"]
           updated_at?: string
         }
         Relationships: [
@@ -979,6 +976,7 @@ export type Database = {
         | "task_assigned"
         | "task_comment"
       staff_role: "owner" | "shop_master" | "instructor" | "staff"
+      stock_status: "in_stock" | "on_order"
       task_priority: "low" | "normal" | "high"
       task_scope: "team" | "personal"
       task_status: "new" | "todo" | "in_progress" | "done" | "deferred"
@@ -1132,6 +1130,7 @@ export const Constants = {
         "task_comment",
       ],
       staff_role: ["owner", "shop_master", "instructor", "staff"],
+      stock_status: ["in_stock", "on_order"],
       task_priority: ["low", "normal", "high"],
       task_scope: ["team", "personal"],
       task_status: ["new", "todo", "in_progress", "done", "deferred"],

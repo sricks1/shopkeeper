@@ -15,8 +15,6 @@ export default function NewConsumableForm({ categories }: { categories: Category
   const [vendor, setVendor] = useState("");
   const [vendorUrl, setVendorUrl] = useState("");
   const [notes, setNotes] = useState("");
-  const [onHand, setOnHand] = useState("0");
-  const [threshold, setThreshold] = useState("1");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,14 +44,10 @@ export default function NewConsumableForm({ categories }: { categories: Category
       return;
     }
 
-    // 2. Create inventory item
+    // 2. Create the inventory record (starts In Stock)
     const { data: inv, error: invErr } = await supabase
       .from("inventory_items")
-      .insert({
-        consumable_type_id: ct.id,
-        quantity_on_hand: parseInt(onHand, 10),
-        reorder_threshold: parseInt(threshold, 10),
-      })
+      .insert({ consumable_type_id: ct.id })
       .select("id")
       .single();
 
@@ -83,29 +77,6 @@ export default function NewConsumableForm({ categories }: { categories: Category
       <Field label="Category *">
         <CategoryPicker categories={categories} value={category} onChange={setCategory} />
       </Field>
-
-      <div className="flex gap-3">
-        <Field label="On hand" className="flex-1">
-          <input
-            type="number"
-            min="0"
-            required
-            value={onHand}
-            onChange={(e) => setOnHand(e.target.value)}
-            className={inputCls}
-          />
-        </Field>
-        <Field label="Reorder at" className="flex-1" hint="Alert fires at or below this">
-          <input
-            type="number"
-            min="0"
-            required
-            value={threshold}
-            onChange={(e) => setThreshold(e.target.value)}
-            className={inputCls}
-          />
-        </Field>
-      </div>
 
       <Field label="SKU / Part number">
         <input

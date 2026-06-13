@@ -1,14 +1,14 @@
 import AppShell from "@/components/AppShell";
 import DeleteConsumableButton from "@/components/inventory/DeleteConsumableButton";
+import StockControl from "@/components/inventory/StockControl";
 import { TaskStatusBadge, ToolStatusBadge } from "@/components/StatusBadge";
 import { canManageTools, getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { ChevronRight, ShoppingCart, Wrench } from "lucide-react";
+import { formatDate } from "@/lib/utils";
+import { ChevronRight, Wrench } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import EditConsumableForm from "./EditConsumableForm";
-import InventoryEditForm from "./InventoryEditForm";
-import OrderButton from "./OrderButton";
 
 export default async function InventoryDetailPage({
   params,
@@ -69,51 +69,38 @@ export default async function InventoryDetailPage({
         <h1 className="mb-1 break-words text-xl font-bold text-zinc-900">{ct.name}</h1>
         <p className="mb-6 text-sm capitalize text-zinc-400">{categoryLabel}</p>
 
-        {/* Stock levels — editable by all active staff */}
-        <InventoryEditForm
-          inventoryId={id}
+        {/* Stock status — Re-order / In Stock, drives the order task */}
+        <StockControl
+          inventoryItemId={id}
           consumableTypeId={ct.id}
-          initialOnHand={item.quantity_on_hand}
-          initialThreshold={item.reorder_threshold}
-          canEdit={true}
+          status={item.stock_status}
+          name={ct.name}
+          vendor={ct.vendor}
+          vendorUrl={ct.vendor_url}
+          sku={ct.sku}
         />
-
-        {/* Purchasing — create/track an order task linked to this consumable */}
-        <section className="mt-4 rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-zinc-200">
-          <p className="mb-3 flex items-center gap-1.5 text-sm font-medium text-zinc-700">
-            <ShoppingCart size={15} />
-            Purchasing
+        {item.last_ordered_at && (
+          <p className="mt-2 px-1 text-xs text-zinc-400">
+            Last ordered {formatDate(item.last_ordered_at)}
           </p>
-          {orderTasks && orderTasks.length > 0 && (
-            <ul className="mb-3 flex flex-col gap-2">
-              {orderTasks.map((t) => (
-                <li key={t.id}>
-                  <Link
-                    href={`/tasks/${t.id}`}
-                    className="flex items-center justify-between gap-2 rounded-lg bg-zinc-50 px-3 py-2 text-sm ring-1 ring-zinc-200 active:bg-zinc-100"
-                  >
-                    <span className="truncate font-medium text-zinc-700">{t.name}</span>
-                    <TaskStatusBadge status={t.status} />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-          <OrderButton
-            consumableTypeId={ct.id}
-            name={ct.name}
-            vendor={ct.vendor}
-            vendorUrl={ct.vendor_url}
-            sku={ct.sku}
-            onHand={item.quantity_on_hand}
-            threshold={item.reorder_threshold}
-          />
-          {orderTasks && orderTasks.length > 0 && (
-            <p className="mt-2 text-xs text-zinc-400">
-              There's already an open order for this — only order again if you need a separate buy.
-            </p>
-          )}
-        </section>
+        )}
+
+        {/* Linked order task(s) */}
+        {orderTasks && orderTasks.length > 0 && (
+          <ul className="mt-3 flex flex-col gap-2">
+            {orderTasks.map((t) => (
+              <li key={t.id}>
+                <Link
+                  href={`/tasks/${t.id}`}
+                  className="flex items-center justify-between gap-2 rounded-xl bg-white px-4 py-3 text-sm shadow-sm ring-1 ring-zinc-200 active:bg-zinc-50"
+                >
+                  <span className="truncate font-medium text-zinc-700">{t.name}</span>
+                  <TaskStatusBadge status={t.status} />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
 
         {/* Catalog details — editable by all active staff */}
         <div className="mt-4">
