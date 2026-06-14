@@ -8,6 +8,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import AddCommentForm from "./AddCommentForm";
 import DeleteTaskButton from "./DeleteTaskButton";
+import OrderToggle from "./OrderToggle";
 import TaskEditForm from "./TaskEditForm";
 import TaskTagsEditor from "./TaskTagsEditor";
 
@@ -28,7 +29,7 @@ export default async function TaskDetailPage({
   const { data: task } = await supabase
     .from("staff_tasks")
     .select(
-      "id, name, status, priority, assigned_to, date_needed, notes, created_by, created_at, updated_at, consumable_type_id",
+      "id, name, status, priority, assigned_to, date_needed, notes, created_by, created_at, updated_at, consumable_type_id, is_order",
     )
     .eq("id", id)
     .single();
@@ -48,7 +49,7 @@ export default async function TaskDetailPage({
       linkedConsumable = { name: c.name, inventoryId: inv?.id ?? null };
     }
   }
-  const isPurchase = task.consumable_type_id != null;
+  const isPurchase = task.consumable_type_id != null || task.is_order;
 
   const { data: allStaff } = await supabase.from("staff").select("id, display_name, active");
   const nameById = new Map((allStaff ?? []).map((s) => [s.id, s.display_name]));
@@ -111,6 +112,11 @@ export default async function TaskDetailPage({
             <span className="min-w-0 flex-1 truncate">Purchasing: {linkedConsumable.name}</span>
             <ChevronRight size={15} className="shrink-0" />
           </Link>
+        )}
+
+        {/* Loose-order promote toggle (only for tasks not tied to a consumable) */}
+        {!task.consumable_type_id && (
+          <OrderToggle taskId={task.id} isOrder={task.is_order} status={task.status} />
         )}
 
         {/* Metadata */}

@@ -49,7 +49,7 @@ export default function TaskCard({
 }: TaskCardProps) {
   const overdue = isOverdue(task.date_needed, task.status);
   const personal = task.scope === "personal";
-  const isPurchase = task.consumable_type_id != null;
+  const isPurchase = task.consumable_type_id != null || task.is_order;
   const [filing, setFiling] = useState(false);
   const flatFolders = filing ? flattenFolders(folders) : [];
 

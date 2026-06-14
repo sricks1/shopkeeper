@@ -18,6 +18,8 @@ export interface OrganizerTask {
   created_by: string | null;
   // Non-null when the task is a purchasing ("To Buy") task linked to a consumable.
   consumable_type_id: string | null;
+  // A "loose" order — an order not tied to a consumable (e.g. "order soap").
+  is_order: boolean;
 }
 
 // A tag from the shared, team-wide vocabulary.

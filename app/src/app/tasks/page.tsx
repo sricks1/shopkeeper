@@ -32,6 +32,7 @@ type BoardTask = {
   date_needed: string | null;
   assigned_to: string | null;
   consumable_type_id: string | null;
+  is_order: boolean;
 };
 
 export default async function TasksPage({
@@ -59,7 +60,7 @@ export default async function TasksPage({
   // limits personal rows to their owner). They're flagged with a lock.
   let query = supabase
     .from("staff_tasks")
-    .select("id, name, status, priority, scope, date_needed, assigned_to, consumable_type_id");
+    .select("id, name, status, priority, scope, date_needed, assigned_to, consumable_type_id, is_order");
 
   if (view === "mine" && staff) {
     query = query.or(`assigned_to.eq.${staff.id},scope.eq.personal`);
@@ -69,7 +70,7 @@ export default async function TasksPage({
     const cutoff = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
     query = query
       .eq("scope", "team")
-      .not("consumable_type_id", "is", null)
+      .or("consumable_type_id.not.is.null,is_order.is.true")
       .or(`status.neq.done,updated_at.gte.${cutoff}`);
   } else {
     query = query.eq("scope", "team");
@@ -235,7 +236,7 @@ export default async function TasksPage({
                               {task.name}
                             </p>
                             <span className="flex shrink-0 items-center gap-1 pt-0.5">
-                              {task.consumable_type_id && (
+                              {(task.consumable_type_id || task.is_order) && (
                                 <span title="Purchase order" className="text-[#e06829]">
                                   <ShoppingCart size={13} />
                                 </span>
