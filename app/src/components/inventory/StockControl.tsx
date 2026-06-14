@@ -44,6 +44,14 @@ export default function StockControl({
       data: { user },
     } = await supabase.auth.getUser();
 
+    // Don't stack duplicate orders — if one is already open, just keep it On Order.
+    const { data: openOrders } = await supabase
+      .from("staff_tasks")
+      .select("id")
+      .eq("consumable_type_id", consumableTypeId)
+      .neq("status", "done")
+      .limit(1);
+
     const { error: statusErr } = await supabase
       .from("inventory_items")
       .update({ stock_status: "on_order", last_ordered_at: new Date().toISOString() })
@@ -51,6 +59,12 @@ export default function StockControl({
     if (statusErr) {
       setError(statusErr.message);
       setBusy(false);
+      return;
+    }
+
+    if (openOrders && openOrders.length > 0) {
+      setBusy(false);
+      router.refresh();
       return;
     }
 

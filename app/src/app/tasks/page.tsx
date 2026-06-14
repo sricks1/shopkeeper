@@ -1,4 +1,5 @@
 import AppShell from "@/components/AppShell";
+import OrderStatusControl from "@/components/OrderStatusControl";
 import { ORDER_COLUMN_ORDER, TaskPriorityBadge, taskStatusLabel } from "@/components/StatusBadge";
 import TaskViewToggle from "@/components/TaskViewToggle";
 import { getCurrentStaff } from "@/lib/auth";
@@ -171,6 +172,52 @@ export default async function TasksPage({
                     colTasks.map((task) => {
                       const overdue = isOverdue(task.date_needed, task.status);
                       const assignee = task.assigned_to ? nameById.get(task.assigned_to) : null;
+                      const meta = (
+                        <div className="flex min-w-0 items-center gap-2 text-xs text-zinc-400">
+                          <span className="flex min-w-0 items-center gap-1">
+                            <User size={11} className="shrink-0" />
+                            <span className="truncate">{assignee ?? "Unassigned"}</span>
+                          </span>
+                          {task.date_needed && (
+                            <span
+                              className={`flex shrink-0 items-center gap-1 ${
+                                overdue ? "font-medium text-red-600" : ""
+                              }`}
+                            >
+                              <CalendarClock size={11} />
+                              {formatDate(task.date_needed)}
+                            </span>
+                          )}
+                        </div>
+                      );
+
+                      // Orders board: card carries an inline status control so you can
+                      // advance To Order → Ordered → Received without leaving the board.
+                      if (isOrders) {
+                        return (
+                          <div
+                            key={task.id}
+                            className="flex flex-col gap-2 rounded-xl bg-white px-3.5 py-3 shadow-sm ring-1 ring-zinc-200"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <Link
+                                href={`/tasks/${task.id}`}
+                                className="min-w-0 break-words text-sm font-semibold leading-snug text-zinc-900 hover:underline"
+                              >
+                                {task.name}
+                              </Link>
+                              <span className="shrink-0 pt-0.5">
+                                <TaskPriorityBadge priority={task.priority} />
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-2">
+                              <OrderStatusControl taskId={task.id} status={task.status} />
+                              {meta}
+                            </div>
+                          </div>
+                        );
+                      }
+
                       return (
                         <Link
                           key={task.id}
@@ -182,7 +229,7 @@ export default async function TasksPage({
                               {task.name}
                             </p>
                             <span className="flex shrink-0 items-center gap-1 pt-0.5">
-                              {!isOrders && task.consumable_type_id && (
+                              {task.consumable_type_id && (
                                 <span title="Purchase order" className="text-[#e06829]">
                                   <ShoppingCart size={13} />
                                 </span>
@@ -195,22 +242,7 @@ export default async function TasksPage({
                               )}
                             </span>
                           </div>
-                          <div className="flex items-center justify-between gap-2 text-xs">
-                            <span className="flex min-w-0 items-center gap-1 text-zinc-400">
-                              <User size={11} className="shrink-0" />
-                              <span className="truncate">{assignee ?? "Unassigned"}</span>
-                            </span>
-                            {task.date_needed && (
-                              <span
-                                className={`flex shrink-0 items-center gap-1 ${
-                                  overdue ? "font-medium text-red-600" : "text-zinc-400"
-                                }`}
-                              >
-                                <CalendarClock size={11} />
-                                {formatDate(task.date_needed)}
-                              </span>
-                            )}
-                          </div>
+                          {meta}
                         </Link>
                       );
                     })
