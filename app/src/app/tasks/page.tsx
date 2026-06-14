@@ -64,7 +64,13 @@ export default async function TasksPage({
   if (view === "mine" && staff) {
     query = query.or(`assigned_to.eq.${staff.id},scope.eq.personal`);
   } else if (view === "purchases") {
-    query = query.eq("scope", "team").not("consumable_type_id", "is", null);
+    // Received orders self-clean: drop them off the board 5 days after being
+    // received (updated_at is the received time once status is done).
+    const cutoff = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
+    query = query
+      .eq("scope", "team")
+      .not("consumable_type_id", "is", null)
+      .or(`status.neq.done,updated_at.gte.${cutoff}`);
   } else {
     query = query.eq("scope", "team");
   }
