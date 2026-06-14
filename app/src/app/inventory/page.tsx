@@ -60,7 +60,12 @@ export default async function InventoryPage({
             <p className="text-sm text-zinc-500">
               {items.length} consumables
               {onOrderCount > 0 && (
-                <span className="ml-2 font-medium text-amber-600">· {onOrderCount} on order</span>
+                <Link
+                  href="/tasks?view=purchases"
+                  className="ml-2 font-medium text-amber-600 hover:underline"
+                >
+                  · {onOrderCount} on order →
+                </Link>
               )}
             </p>
           </div>

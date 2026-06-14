@@ -92,7 +92,7 @@ export default function TaskCard({
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <StatusMenu status={task.status} onChange={onSetStatus} />
+        <StatusMenu status={task.status} onChange={onSetStatus} purchase={isPurchase} />
         <div className="flex min-w-0 items-center gap-2 text-xs text-zinc-400">
           <span className="flex min-w-0 items-center gap-1">
             <User size={11} className="shrink-0" />

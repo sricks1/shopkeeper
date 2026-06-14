@@ -1,7 +1,7 @@
 "use client";
 
 import StaffPicker, { type StaffOption } from "@/components/StaffPicker";
-import { TASK_PRIORITY_LABELS, TASK_STATUS_LABELS } from "@/components/StatusBadge";
+import { ORDER_COLUMN_ORDER, TASK_PRIORITY_LABELS, taskStatusLabel } from "@/components/StatusBadge";
 import { STATUS_DOT } from "@/components/organizer/StatusMenu";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums, TablesUpdate } from "@/lib/types/database.types";
@@ -43,12 +43,13 @@ interface TaskEditFormProps {
     notes: string | null;
   };
   staff: StaffOption[];
+  isPurchase?: boolean;
 }
 
 // Everything on this form saves the moment you change it — status, priority, and
 // the text fields (the latter commit on blur). A single "Saving/Saved" cue at the
 // top reflects all of them, so there's no Save button to hunt for.
-export default function TaskEditForm({ task, staff }: TaskEditFormProps) {
+export default function TaskEditForm({ task, staff, isPurchase = false }: TaskEditFormProps) {
   const router = useRouter();
   const [name, setName] = useState(task.name);
   const [status, setStatus] = useState<TaskStatus>(task.status);
@@ -168,7 +169,7 @@ export default function TaskEditForm({ task, staff }: TaskEditFormProps) {
       <div className="rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-zinc-200">
         <p className="mb-2 text-sm font-medium text-zinc-700">Status</p>
         <div className="flex flex-wrap gap-2">
-          {STATUS_ORDER.map((s) => (
+          {(isPurchase ? ORDER_COLUMN_ORDER : STATUS_ORDER).map((s) => (
             <button
               key={s}
               type="button"
@@ -180,7 +181,7 @@ export default function TaskEditForm({ task, staff }: TaskEditFormProps) {
               }`}
             >
               <span className={`h-2 w-2 rounded-full ${STATUS_DOT[s]}`} />
-              {TASK_STATUS_LABELS[s]}
+              {taskStatusLabel(s, isPurchase)}
             </button>
           ))}
         </div>

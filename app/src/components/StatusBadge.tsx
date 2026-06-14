@@ -58,6 +58,25 @@ const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   deferred: "Deferred",
 };
 
+// Purchase/order tasks (a task linked to a consumable) read with an order
+// vocabulary instead of the generic one. 'todo' is unused for orders but mapped
+// for safety. The 4 meaningful order states drive the Orders board columns.
+const ORDER_STATUS_LABELS: Record<TaskStatus, string> = {
+  new: "To Order",
+  todo: "To Order",
+  in_progress: "Ordered",
+  done: "Received",
+  deferred: "Deferred",
+};
+
+export const ORDER_COLUMN_ORDER: TaskStatus[] = ["new", "in_progress", "done", "deferred"];
+
+// One place that decides a task's status label. Pass isPurchase to get the
+// order vocabulary (To Order / Ordered / Received / Deferred).
+export function taskStatusLabel(status: TaskStatus, isPurchase = false): string {
+  return isPurchase ? ORDER_STATUS_LABELS[status] : TASK_STATUS_LABELS[status];
+}
+
 // Priority's color cue, used by the flag indicator. High is the only one that
 // fills the flag; low/normal stay a muted outline.
 const TASK_PRIORITY_FLAG_COLOR: Record<TaskPriority, string> = {
@@ -104,8 +123,14 @@ export function IssueStatusBadge({ status }: { status: IssueStatus }) {
   return <Badge label={ISSUE_STATUS_LABELS[status]} style={ISSUE_STATUS_STYLES[status]} />;
 }
 
-export function TaskStatusBadge({ status }: { status: TaskStatus }) {
-  return <Badge label={TASK_STATUS_LABELS[status]} style={TASK_STATUS_STYLES[status]} />;
+export function TaskStatusBadge({
+  status,
+  purchase = false,
+}: {
+  status: TaskStatus;
+  purchase?: boolean;
+}) {
+  return <Badge label={taskStatusLabel(status, purchase)} style={TASK_STATUS_STYLES[status]} />;
 }
 
 // Priority as a flag icon (a "system flag", distinct from worded tag chips).

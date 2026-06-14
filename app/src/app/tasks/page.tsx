@@ -1,10 +1,11 @@
 import AppShell from "@/components/AppShell";
-import { TASK_STATUS_LABELS, TaskPriorityBadge } from "@/components/StatusBadge";
+import { ORDER_COLUMN_ORDER, TaskPriorityBadge, taskStatusLabel } from "@/components/StatusBadge";
+import TaskViewToggle from "@/components/TaskViewToggle";
 import { getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/types/database.types";
 import { formatDate, isOverdue } from "@/lib/utils";
-import { CalendarClock, ClipboardList, FolderTree, Lock, Plus, User } from "lucide-react";
+import { CalendarClock, ClipboardList, Lock, Plus, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 
 type TaskStatus = Enums<"task_status">;
@@ -29,6 +30,7 @@ type BoardTask = {
   scope: TaskScope;
   date_needed: string | null;
   assigned_to: string | null;
+  consumable_type_id: string | null;
 };
 
 export default async function TasksPage({
@@ -56,7 +58,7 @@ export default async function TasksPage({
   // limits personal rows to their owner). They're flagged with a lock.
   let query = supabase
     .from("staff_tasks")
-    .select("id, name, status, priority, scope, date_needed, assigned_to");
+    .select("id, name, status, priority, scope, date_needed, assigned_to, consumable_type_id");
 
   if (view === "mine" && staff) {
     query = query.or(`assigned_to.eq.${staff.id},scope.eq.personal`);
@@ -71,6 +73,9 @@ export default async function TasksPage({
     .order("created_at", { ascending: false });
   const tasks = (data ?? []) as BoardTask[];
 
+  // The Orders view (purchase tasks) uses the 4 order columns + order vocabulary.
+  const isOrders = view === "purchases";
+  const columns = isOrders ? ORDER_COLUMN_ORDER : COLUMN_ORDER;
   const byStatus = (status: TaskStatus) => tasks.filter((t) => t.status === status);
 
   return (
@@ -82,17 +87,11 @@ export default async function TasksPage({
             <h1 className="text-xl font-bold text-zinc-900">Tasks</h1>
             <p className="text-sm text-zinc-500">
               {tasks.length}{" "}
-              {view === "mine" ? "assigned to you" : view === "purchases" ? "to buy" : "total"}
+              {view === "mine" ? "assigned to you" : isOrders ? "orders" : "total"}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              href="/tasks/organize"
-              className="flex items-center gap-1.5 rounded-xl border border-zinc-300 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50"
-            >
-              <FolderTree size={16} />
-              Organize
-            </Link>
+            <TaskViewToggle current="board" />
             <Link
               href="/tasks/new"
               className="flex items-center gap-1.5 rounded-xl bg-[#324168] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#263352] active:bg-[#1e2840]"
@@ -109,7 +108,7 @@ export default async function TasksPage({
             [
               { value: "all", label: "All", href: "/tasks" },
               { value: "mine", label: "Mine", href: "/tasks?view=mine" },
-              { value: "purchases", label: "To Buy", href: "/tasks?view=purchases" },
+              { value: "purchases", label: "Orders", href: "/tasks?view=purchases" },
             ] as const
           ).map((tab) => (
             <Link
@@ -135,8 +134,8 @@ export default async function TasksPage({
               <p className="text-sm font-medium text-zinc-600">
                 {view === "mine"
                   ? "Nothing assigned to you"
-                  : view === "purchases"
-                    ? "Nothing to buy right now"
+                  : isOrders
+                    ? "No orders right now"
                     : "No tasks yet"}
               </p>
               <Link href="/tasks/new" className="mt-1 inline-block text-sm text-[#324168] underline">
@@ -149,7 +148,7 @@ export default async function TasksPage({
              Columns sized in viewport units and kept inside the page gutters so they
              frame cleanly (no full-bleed negative margin). */
           <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth pb-2">
-            {COLUMN_ORDER.map((status) => {
+            {columns.map((status) => {
               const colTasks = byStatus(status);
               return (
                 <section
@@ -159,7 +158,7 @@ export default async function TasksPage({
                   <div className="flex items-center gap-2 px-1">
                     <span className={`h-2 w-2 rounded-full ${COLUMN_DOT[status]}`} />
                     <h2 className="text-sm font-semibold text-zinc-700">
-                      {TASK_STATUS_LABELS[status]}
+                      {taskStatusLabel(status, isOrders)}
                     </h2>
                     <span className="text-xs font-medium text-zinc-400">{colTasks.length}</span>
                   </div>
@@ -183,6 +182,11 @@ export default async function TasksPage({
                               {task.name}
                             </p>
                             <span className="flex shrink-0 items-center gap-1 pt-0.5">
+                              {!isOrders && task.consumable_type_id && (
+                                <span title="Purchase order" className="text-[#e06829]">
+                                  <ShoppingCart size={13} />
+                                </span>
+                              )}
                               <TaskPriorityBadge priority={task.priority} />
                               {task.scope === "personal" && (
                                 <span title="Personal — only you can see it" className="text-violet-600">

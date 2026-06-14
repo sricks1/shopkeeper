@@ -48,6 +48,7 @@ export default async function TaskDetailPage({
       linkedConsumable = { name: c.name, inventoryId: inv?.id ?? null };
     }
   }
+  const isPurchase = task.consumable_type_id != null;
 
   const { data: allStaff } = await supabase.from("staff").select("id, display_name, active");
   const nameById = new Map((allStaff ?? []).map((s) => [s.id, s.display_name]));
@@ -84,7 +85,7 @@ export default async function TaskDetailPage({
           <h1 className="min-w-0 break-words text-xl font-bold text-zinc-900">{task.name}</h1>
           <div className="flex shrink-0 items-start gap-2 pt-1">
             <div className="flex flex-col items-end gap-1">
-              <TaskStatusBadge status={task.status} />
+              <TaskStatusBadge status={task.status} purchase={isPurchase} />
               <TaskPriorityBadge priority={task.priority} showLabel />
             </div>
             <DeleteTaskButton taskId={task.id} />
@@ -155,6 +156,7 @@ export default async function TaskDetailPage({
             notes: task.notes,
           }}
           staff={activeStaff}
+          isPurchase={isPurchase}
         />
 
         {/* Tags */}

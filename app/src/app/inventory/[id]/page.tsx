@@ -95,7 +95,7 @@ export default async function InventoryDetailPage({
                   className="flex items-center justify-between gap-2 rounded-xl bg-white px-4 py-3 text-sm shadow-sm ring-1 ring-zinc-200 active:bg-zinc-50"
                 >
                   <span className="truncate font-medium text-zinc-700">{t.name}</span>
-                  <TaskStatusBadge status={t.status} />
+                  <TaskStatusBadge status={t.status} purchase />
                 </Link>
               </li>
             ))}

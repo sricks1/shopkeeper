@@ -1,6 +1,6 @@
 "use client";
 
-import { TASK_STATUS_LABELS } from "@/components/StatusBadge";
+import { ORDER_COLUMN_ORDER, taskStatusLabel } from "@/components/StatusBadge";
 import type { TaskStatus } from "@/lib/organizer/types";
 import { useEffect, useRef, useState } from "react";
 
@@ -18,12 +18,15 @@ export const STATUS_DOT: Record<TaskStatus, string> = {
 export default function StatusMenu({
   status,
   onChange,
+  purchase = false,
 }: {
   status: TaskStatus;
   onChange: (s: TaskStatus) => void;
+  purchase?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const options = purchase ? ORDER_COLUMN_ORDER : ORDER;
 
   useEffect(() => {
     if (!open) return;
@@ -45,11 +48,11 @@ export default function StatusMenu({
         className="inline-flex items-center gap-1.5 rounded-full bg-white px-2 py-0.5 text-xs font-medium text-zinc-600 ring-1 ring-inset ring-zinc-200 transition-colors hover:bg-zinc-50"
       >
         <span className={`h-2 w-2 rounded-full ${STATUS_DOT[status]}`} />
-        {TASK_STATUS_LABELS[status]}
+        {taskStatusLabel(status, purchase)}
       </button>
       {open && (
         <div className="absolute right-0 z-30 mt-1 w-36 rounded-lg bg-white py-1 shadow-lg ring-1 ring-zinc-200">
-          {ORDER.map((s) => (
+          {options.map((s) => (
             <button
               key={s}
               type="button"
@@ -63,7 +66,7 @@ export default function StatusMenu({
               }`}
             >
               <span className={`h-2 w-2 rounded-full ${STATUS_DOT[s]}`} />
-              {TASK_STATUS_LABELS[s]}
+              {taskStatusLabel(s, purchase)}
             </button>
           ))}
         </div>

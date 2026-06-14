@@ -169,7 +169,7 @@ export default async function ToolDetailPage({
         </div>
 
         {/* Secondary actions */}
-        <div className={`mb-6 grid gap-2 ${canManageTools(staff?.role) ? "grid-cols-4" : "grid-cols-3"}`}>
+        <div className={`mb-6 grid gap-2 ${canManageTools(staff?.role) ? "grid-cols-4" : "grid-cols-2"}`}>
           {canManageTools(staff?.role) && (
             <Link
               href={`/tools/${slug}/edit`}
@@ -179,13 +179,15 @@ export default async function ToolDetailPage({
               <span className="whitespace-nowrap">Edit</span>
             </Link>
           )}
-          <Link
-            href={`/tools/${slug}/consumables`}
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
-          >
-            <Package size={14} className="shrink-0" />
-            <span className="whitespace-nowrap">Parts</span>
-          </Link>
+          {canManageTools(staff?.role) && (
+            <Link
+              href={`/tools/${slug}/consumables`}
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+            >
+              <Package size={14} className="shrink-0" />
+              <span className="whitespace-nowrap">Parts</span>
+            </Link>
+          )}
           <Link
             href={`/tools/${slug}/maintenance`}
             className="relative flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"

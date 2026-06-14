@@ -66,7 +66,7 @@ export default function StockControl({
     const { error: taskErr } = await supabase.from("staff_tasks").insert({
       name: `Order: ${name}`,
       notes,
-      status: "todo",
+      status: "new", // "To Order" in the order vocabulary
       consumable_type_id: consumableTypeId,
       created_by: user?.id ?? null,
     });

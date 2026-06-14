@@ -1,7 +1,8 @@
 "use client";
 
+import TaskViewToggle from "@/components/TaskViewToggle";
 import type { OrganizerState, OrganizerTask, TaskScope } from "@/lib/organizer/types";
-import { AlertTriangle, LayoutGrid, Plus, X } from "lucide-react";
+import { AlertTriangle, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import FolderTree from "./FolderTree";
@@ -53,13 +54,7 @@ export default function TaskOrganizer({ initialState, userId, staff }: TaskOrgan
             <Plus size={16} />
             New Task
           </Link>
-          <Link
-            href="/tasks"
-            className="flex items-center gap-1.5 rounded-xl border border-zinc-300 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50"
-          >
-            <LayoutGrid size={16} />
-            Board
-          </Link>
+          <TaskViewToggle current="organize" />
         </div>
       </div>
 
