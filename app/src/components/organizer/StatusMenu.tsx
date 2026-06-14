@@ -51,7 +51,7 @@ export default function StatusMenu({
         {taskStatusLabel(status, purchase)}
       </button>
       {open && (
-        <div className="absolute right-0 z-30 mt-1 w-36 rounded-lg bg-white py-1 shadow-lg ring-1 ring-zinc-200">
+        <div className="absolute left-0 z-30 mt-1 w-36 rounded-lg bg-white py-1 shadow-lg ring-1 ring-zinc-200">
           {options.map((s) => (
             <button
               key={s}
