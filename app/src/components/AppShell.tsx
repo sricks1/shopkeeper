@@ -1,5 +1,6 @@
-import { getCurrentStaff } from "@/lib/auth";
+import { getCurrentAccount } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { AlertTriangle } from "lucide-react";
 import LogoutButton from "./LogoutButton";
 import NavClient from "./NavClient";
 
@@ -9,7 +10,11 @@ const NO_STAFF = "00000000-0000-0000-0000-000000000000";
 
 export default async function AppShell({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
-  const staff = await getCurrentStaff();
+  const { email, staff } = await getCurrentAccount();
+  // Signed in but not an active staff row: RLS blocks everything, so the app
+  // looks empty and every save silently fails. Name it so it's obvious.
+  const notStaff = email != null && staff == null;
+  const identity = staff?.display_name ?? email;
   const { count } = await supabase
     .from("notifications")
     .select("*", { count: "exact", head: true })
@@ -29,14 +34,31 @@ export default async function AppShell({ children }: { children: React.ReactNode
             </div>
             <span className="text-sm font-bold text-white">ShopKeeper</span>
           </div>
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-widest text-white/30">
-              The Joinery
-            </span>
+          <div className="flex min-w-0 items-center gap-2">
+            {identity && (
+              <span
+                className={`max-w-[40vw] truncate text-xs font-medium ${
+                  notStaff ? "text-red-300" : "text-white/60"
+                }`}
+                title={email ?? undefined}
+              >
+                {identity}
+              </span>
+            )}
             <LogoutButton />
           </div>
         </div>
       </header>
+
+      {notStaff && (
+        <div className="flex items-start gap-2 bg-red-600 px-4 py-2.5 text-xs font-medium text-white">
+          <AlertTriangle size={15} className="mt-px shrink-0" />
+          <span>
+            Signed in as <span className="font-bold">{email}</span> — not a shop account. Nothing you
+            change here will save. Sign out and sign back in with your Joinery email.
+          </span>
+        </div>
+      )}
 
       <main className="flex-1 overflow-x-clip pb-20">{children}</main>
       <NavClient unreadCount={count ?? 0} />

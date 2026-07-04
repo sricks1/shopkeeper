@@ -20,20 +20,36 @@ export default function OrderStatusControl({
 }) {
   const router = useRouter();
   const [current, setCurrent] = useState<TaskStatus>(status);
+  const [failed, setFailed] = useState(false);
 
   async function change(next: TaskStatus) {
     const prev = current;
     setCurrent(next);
-    const { error } = await createClient()
+    setFailed(false);
+    // Ask for the row back: an RLS-blocked or signed-out update returns NO
+    // error but touches ZERO rows, which used to look like success and leave
+    // the card silently stuck. Empty data = it didn't save.
+    const { data, error } = await createClient()
       .from("staff_tasks")
       .update({ status: next })
-      .eq("id", taskId);
-    if (error) {
+      .eq("id", taskId)
+      .select("id");
+    if (error || !data || data.length === 0) {
       setCurrent(prev);
+      setFailed(true);
       return;
     }
     router.refresh();
   }
 
-  return <StatusMenu status={current} onChange={change} purchase />;
+  return (
+    <div className="flex min-w-0 flex-col gap-1">
+      <StatusMenu status={current} onChange={change} purchase />
+      {failed && (
+        <span className="text-[10px] font-medium leading-tight text-red-600">
+          Couldn’t save — you may be signed out. Reload and check you’re signed in.
+        </span>
+      )}
+    </div>
+  );
 }
