@@ -1,8 +1,8 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Wrench } from "lucide-react";
+import AppNav from "@/components/nav/AppNav";
 import { getCurrentAccount } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "./LogoutButton";
-import NavClient from "./NavClient";
 
 // Sentinel UUID so the `.or()` filter is always valid even when there's no
 // current staff (matches nothing rather than erroring).
@@ -23,24 +23,12 @@ export default async function AppShell({ children }: { children: React.ReactNode
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50">
-      {/* Branded top bar */}
-      <header className="sticky top-0 z-10 bg-[#0a112a]">
+      {/* Mobile top bar — the sidebar carries the branding at md+ */}
+      <header className="sticky top-0 z-10 bg-navy pt-[env(safe-area-inset-top)] md:hidden">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#e06829]">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-              </svg>
+            <div className="flex h-7 w-7 items-center justify-center rounded-field bg-accent">
+              <Wrench size={14} className="text-white" strokeWidth={2.5} aria-hidden="true" />
             </div>
             <span className="text-sm font-bold text-white">ShopKeeper</span>
           </div>
@@ -60,18 +48,22 @@ export default async function AppShell({ children }: { children: React.ReactNode
         </div>
       </header>
 
-      {notStaff && (
-        <div className="flex items-start gap-2 bg-red-600 px-4 py-2.5 text-xs font-medium text-white">
-          <AlertTriangle size={15} className="mt-px shrink-0" />
-          <span>
-            Signed in as <span className="font-bold">{email}</span> — not a shop account. Nothing
-            you change here will save. Sign out and sign back in with your Joinery email.
-          </span>
-        </div>
-      )}
+      <div className="flex flex-1 flex-col md:pl-60">
+        {notStaff && (
+          <div className="flex items-start gap-2 bg-red-600 px-4 py-2.5 text-xs font-medium text-white">
+            <AlertTriangle size={15} className="mt-px shrink-0" />
+            <span>
+              Signed in as <span className="font-bold">{email}</span> — not a shop account. Nothing
+              you change here will save. Sign out and sign back in with your Joinery email.
+            </span>
+          </div>
+        )}
+        <main className="mx-auto w-full max-w-5xl flex-1 overflow-x-clip pb-24 md:pb-10">
+          {children}
+        </main>
+      </div>
 
-      <main className="flex-1 overflow-x-clip pb-20">{children}</main>
-      <NavClient unreadCount={count ?? 0} />
+      <AppNav identity={identity ?? null} notStaff={notStaff} initialUnread={count ?? 0} />
     </div>
   );
 }
