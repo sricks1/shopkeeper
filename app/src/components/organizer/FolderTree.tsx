@@ -1,8 +1,5 @@
 "use client";
 
-import { TagChip } from "@/components/TagChip";
-import type { OrganizerState, OrganizerTask, TagRow } from "@/lib/organizer/types";
-import { buildFolderTree, type FolderTreeNode, isAncestor } from "@/lib/organizer/tree";
 import {
   ChevronDown,
   ChevronRight,
@@ -18,7 +15,10 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type DragEvent, useEffect, useMemo, useRef, useState } from "react";
-import { clearActiveDrag, type DragPayload, getActiveDrag, getDrag, setDrag } from "./dnd";
+import { TagChip } from "@/components/TagChip";
+import { buildFolderTree, type FolderTreeNode, isAncestor } from "@/lib/organizer/tree";
+import type { OrganizerState, OrganizerTask, TagRow } from "@/lib/organizer/types";
+import { clearActiveDrag, getActiveDrag, getDrag, setDrag } from "./dnd";
 import StatusMenu from "./StatusMenu";
 import TaskFlags from "./TaskFlags";
 import type { OrganizerController } from "./useOrganizer";
@@ -498,7 +498,11 @@ export default function FolderTree({ state, ctrl, tasksById, userId }: FolderTre
               <IconBtn
                 title="Delete folder"
                 onClick={() => {
-                  if (confirm(`Delete folder "${node.name}"? Subfolders are removed too; tasks stay in the pool.`))
+                  if (
+                    confirm(
+                      `Delete folder "${node.name}"? Subfolders are removed too; tasks stay in the pool.`,
+                    )
+                  )
                     ctrl.deleteFolder(node.id);
                 }}
               >
@@ -554,7 +558,9 @@ export default function FolderTree({ state, ctrl, tasksById, userId }: FolderTre
           <span className="font-normal text-orange-400">{hotTasks.length}</span>
         </h2>
         {hotTasks.length === 0 ? (
-          <p className="py-2 text-xs italic text-orange-400/80">Drag tasks here, or click any flame.</p>
+          <p className="py-2 text-xs italic text-orange-400/80">
+            Drag tasks here, or click any flame.
+          </p>
         ) : (
           <div className="flex flex-col gap-0.5">
             {hotTasks.map((task) => (

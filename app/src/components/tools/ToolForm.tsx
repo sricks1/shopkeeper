@@ -1,10 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { type FormEvent, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums, Tables } from "@/lib/types/database.types";
 import { slugify } from "@/lib/utils";
-import { useRouter } from "next/navigation";
-import { type FormEvent, useEffect, useState } from "react";
 
 type ToolStatus = Enums<"tool_status">;
 type Tool = Tables<"tools">;
@@ -64,10 +64,7 @@ export default function ToolForm({ tool }: ToolFormProps) {
     };
 
     if (isEditing) {
-      const { error: err } = await supabase
-        .from("tools")
-        .update(payload)
-        .eq("id", tool.id);
+      const { error: err } = await supabase.from("tools").update(payload).eq("id", tool.id);
       if (err) {
         setError(err.message);
         setIsLoading(false);
@@ -210,9 +207,7 @@ export default function ToolForm({ tool }: ToolFormProps) {
         />
       </Field>
 
-      {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
-      )}
+      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <div className="flex gap-3">
         <button
@@ -250,7 +245,7 @@ function Field({
 }) {
   return (
     <div className={`flex flex-col gap-1.5 ${className ?? ""}`}>
-      <label className="text-sm font-medium text-zinc-700">{label}</label>
+      <span className="text-sm font-medium text-zinc-700">{label}</span>
       {children}
       {hint && <p className="text-xs text-zinc-400">{hint}</p>}
     </div>

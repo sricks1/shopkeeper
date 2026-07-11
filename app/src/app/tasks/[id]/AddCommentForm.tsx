@@ -1,8 +1,8 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function AddCommentForm({ taskId }: { taskId: string }) {
   const router = useRouter();

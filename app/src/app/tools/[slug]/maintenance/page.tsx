@@ -1,16 +1,12 @@
-import AppShell from "@/components/AppShell";
-import { canManageTools, getCurrentStaff } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AppShell from "@/components/AppShell";
+import { canManageTools, getCurrentStaff } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import MaintenanceManager from "./MaintenanceManager";
 
-export default async function MaintenancePage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function MaintenancePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createClient();
   const staff = await getCurrentStaff();

@@ -1,9 +1,9 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 // Header-level delete, kept out of the edit field flow. Confirms, then removes
 // the task (comments cascade) and returns to the task list.

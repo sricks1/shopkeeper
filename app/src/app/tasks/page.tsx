@@ -1,3 +1,5 @@
+import { CalendarClock, ClipboardList, Lock, Plus, ShoppingCart, User } from "lucide-react";
+import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import OrderStatusControl from "@/components/OrderStatusControl";
 import { ORDER_COLUMN_ORDER, TaskPriorityBadge, taskStatusLabel } from "@/components/StatusBadge";
@@ -6,8 +8,6 @@ import { getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/types/database.types";
 import { formatDate, isOverdue } from "@/lib/utils";
-import { CalendarClock, ClipboardList, Lock, Plus, ShoppingCart, User } from "lucide-react";
-import Link from "next/link";
 
 type TaskStatus = Enums<"task_status">;
 type TaskPriority = Enums<"task_priority">;
@@ -60,7 +60,9 @@ export default async function TasksPage({
   // limits personal rows to their owner). They're flagged with a lock.
   let query = supabase
     .from("staff_tasks")
-    .select("id, name, status, priority, scope, date_needed, assigned_to, consumable_type_id, is_order");
+    .select(
+      "id, name, status, priority, scope, date_needed, assigned_to, consumable_type_id, is_order",
+    );
 
   if (view === "mine" && staff) {
     query = query.or(`assigned_to.eq.${staff.id},scope.eq.personal`);
@@ -94,8 +96,7 @@ export default async function TasksPage({
           <div>
             <h1 className="text-xl font-bold text-zinc-900">Tasks</h1>
             <p className="text-sm text-zinc-500">
-              {tasks.length}{" "}
-              {view === "mine" ? "assigned to you" : isOrders ? "orders" : "total"}
+              {tasks.length} {view === "mine" ? "assigned to you" : isOrders ? "orders" : "total"}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -146,7 +147,10 @@ export default async function TasksPage({
                     ? "No orders right now"
                     : "No tasks yet"}
               </p>
-              <Link href="/tasks/new" className="mt-1 inline-block text-sm text-[#324168] underline">
+              <Link
+                href="/tasks/new"
+                className="mt-1 inline-block text-sm text-[#324168] underline"
+              >
                 Create the first one
               </Link>
             </div>
@@ -243,7 +247,10 @@ export default async function TasksPage({
                               )}
                               <TaskPriorityBadge priority={task.priority} />
                               {task.scope === "personal" && (
-                                <span title="Personal — only you can see it" className="text-violet-600">
+                                <span
+                                  title="Personal — only you can see it"
+                                  className="text-violet-600"
+                                >
                                   <Lock size={13} />
                                 </span>
                               )}

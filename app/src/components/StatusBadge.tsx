@@ -1,5 +1,5 @@
-import type { Enums } from "@/lib/types/database.types";
 import { Flag } from "lucide-react";
+import type { Enums } from "@/lib/types/database.types";
 
 type ToolStatus = Enums<"tool_status">;
 type IssueSeverity = Enums<"issue_severity">;
@@ -162,4 +162,4 @@ export function StockStatusBadge({ status }: { status: StockStatus }) {
   return <Badge label={STOCK_STATUS_LABELS[status]} style={STOCK_STATUS_STYLES[status]} />;
 }
 
-export { TASK_STATUS_LABELS, TASK_STATUS_STYLES, TASK_PRIORITY_LABELS };
+export { TASK_PRIORITY_LABELS, TASK_STATUS_LABELS, TASK_STATUS_STYLES };

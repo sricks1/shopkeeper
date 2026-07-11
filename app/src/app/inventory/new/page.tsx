@@ -1,7 +1,7 @@
-import AppShell from "@/components/AppShell";
-import { createClient } from "@/lib/supabase/server";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import AppShell from "@/components/AppShell";
+import { createClient } from "@/lib/supabase/server";
 import NewConsumableForm from "./NewConsumableForm";
 
 export default async function NewConsumablePage() {

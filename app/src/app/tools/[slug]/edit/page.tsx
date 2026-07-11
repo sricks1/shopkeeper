@@ -1,27 +1,19 @@
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import DeleteToolButton from "@/components/tools/DeleteToolButton";
 import ToolForm from "@/components/tools/ToolForm";
 import { canManageTools, getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { ChevronRight } from "lucide-react";
-import Link from "next/link";
-import { notFound } from "next/navigation";
 
-export default async function EditToolPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function EditToolPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const staff = await getCurrentStaff();
   if (!canManageTools(staff?.role)) notFound();
 
   const supabase = await createClient();
-  const { data: tool } = await supabase
-    .from("tools")
-    .select("*")
-    .eq("slug", slug)
-    .single();
+  const { data: tool } = await supabase.from("tools").select("*").eq("slug", slug).single();
 
   if (!tool) notFound();
 

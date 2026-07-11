@@ -1,9 +1,9 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
 import { Wrench } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 const inputCls =
   "w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition-colors focus:border-[#324168] focus:bg-white focus:ring-2 focus:ring-[#324168]/15";
@@ -36,14 +36,16 @@ function LoginForm() {
       return;
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     const { data: staffRow } = await supabase
       .from("staff")
       .select("id, active")
       .eq("id", user?.id ?? "")
       .single();
 
-    if (!staffRow || !staffRow.active) {
+    if (!staffRow?.active) {
       await supabase.auth.signOut();
       setError("Your account isn't set up for ShopKeeper access. Contact Steven.");
       setIsLoading(false);
@@ -113,9 +115,7 @@ export default function LoginPage() {
           <Wrench size={32} className="text-white" strokeWidth={2} />
         </div>
         <h1 className="text-3xl font-bold tracking-tight text-white">ShopKeeper</h1>
-        <p className="mt-2 text-sm text-white/40 uppercase tracking-widest">
-          The Joinery
-        </p>
+        <p className="mt-2 text-sm text-white/40 uppercase tracking-widest">The Joinery</p>
       </div>
 
       {/* Card */}

@@ -1,13 +1,17 @@
 "use client";
 
-import StaffPicker, { type StaffOption } from "@/components/StaffPicker";
-import { ORDER_COLUMN_ORDER, TASK_PRIORITY_LABELS, taskStatusLabel } from "@/components/StatusBadge";
-import { STATUS_DOT } from "@/components/organizer/StatusMenu";
-import { createClient } from "@/lib/supabase/client";
-import type { Enums, TablesUpdate } from "@/lib/types/database.types";
 import { Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { STATUS_DOT } from "@/components/organizer/StatusMenu";
+import StaffPicker, { type StaffOption } from "@/components/StaffPicker";
+import {
+  ORDER_COLUMN_ORDER,
+  TASK_PRIORITY_LABELS,
+  taskStatusLabel,
+} from "@/components/StatusBadge";
+import { createClient } from "@/lib/supabase/client";
+import type { Enums, TablesUpdate } from "@/lib/types/database.types";
 
 type TaskStatus = Enums<"task_status">;
 type TaskPriority = Enums<"task_priority">;
@@ -76,10 +80,7 @@ export default function TaskEditForm({ task, staff, isPurchase = false }: TaskEd
     return () => clearTimeout(t);
   }, [saveState]);
 
-  async function persist(
-    updates: TablesUpdate<"staff_tasks">,
-    revert: () => void,
-  ): Promise<void> {
+  async function persist(updates: TablesUpdate<"staff_tasks">, revert: () => void): Promise<void> {
     setError(null);
     setSaveState("saving");
     const { error: err } = await createClient()
@@ -267,7 +268,7 @@ const inputCls =
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-sm font-medium text-zinc-700">{label}</label>
+      <span className="text-sm font-medium text-zinc-700">{label}</span>
       {children}
     </div>
   );

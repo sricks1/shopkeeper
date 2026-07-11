@@ -1,12 +1,12 @@
 "use client";
 
-import { StockStatusBadge } from "@/components/StatusBadge";
-import { createClient } from "@/lib/supabase/client";
-import type { Enums } from "@/lib/types/database.types";
 import { ChevronRight, Link2Off, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { StockStatusBadge } from "@/components/StatusBadge";
+import { createClient } from "@/lib/supabase/client";
+import type { Enums } from "@/lib/types/database.types";
 
 type StockStatus = Enums<"stock_status">;
 
@@ -51,7 +51,9 @@ export default function ManageConsumables({ toolId, allConsumables, linked, stoc
   async function link(consumableTypeId: string) {
     setIsLoading(consumableTypeId);
     const supabase = createClient();
-    await supabase.from("tool_consumables").insert({ tool_id: toolId, consumable_type_id: consumableTypeId });
+    await supabase
+      .from("tool_consumables")
+      .insert({ tool_id: toolId, consumable_type_id: consumableTypeId });
     setIsLoading(null);
     router.refresh();
   }
@@ -87,10 +89,15 @@ export default function ManageConsumables({ toolId, allConsumables, linked, stoc
                   key={l.id}
                   className="flex items-center rounded-xl bg-white shadow-sm ring-1 ring-zinc-200"
                 >
-                  <Link href={href} className="flex flex-1 items-center gap-3 px-4 py-3 transition-colors active:bg-zinc-50">
+                  <Link
+                    href={href}
+                    className="flex flex-1 items-center gap-3 px-4 py-3 transition-colors active:bg-zinc-50"
+                  >
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-zinc-800">{ct.name}</p>
-                      <p className="text-xs capitalize text-zinc-400">{ct.category.replace("_", " ")}</p>
+                      <p className="text-xs capitalize text-zinc-400">
+                        {ct.category.replace("_", " ")}
+                      </p>
                     </div>
                     {inv ? (
                       <StockStatusBadge status={inv.status} />
@@ -143,7 +150,9 @@ export default function ManageConsumables({ toolId, allConsumables, linked, stoc
                 >
                   <div>
                     <p className="text-sm font-medium text-zinc-800">{c.name}</p>
-                    <p className="text-xs capitalize text-zinc-400">{c.category.replace("_", " ")}</p>
+                    <p className="text-xs capitalize text-zinc-400">
+                      {c.category.replace("_", " ")}
+                    </p>
                   </div>
                   <button
                     type="button"

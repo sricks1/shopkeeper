@@ -1,10 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import StatusMenu from "@/components/organizer/StatusMenu";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/types/database.types";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 type TaskStatus = Enums<"task_status">;
 

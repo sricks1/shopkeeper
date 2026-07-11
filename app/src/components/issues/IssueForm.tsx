@@ -1,10 +1,10 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
-import type { Enums } from "@/lib/types/database.types";
 import { Camera, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useRef, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import type { Enums } from "@/lib/types/database.types";
 
 type IssueSeverity = Enums<"issue_severity">;
 
@@ -90,10 +90,7 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
       photoUrls = uploads.filter((p): p is string => p !== null);
 
       if (photoUrls.length > 0) {
-        await supabase
-          .from("issues")
-          .update({ photo_urls: photoUrls })
-          .eq("id", issue.id);
+        await supabase.from("issues").update({ photo_urls: photoUrls }).eq("id", issue.id);
       }
     }
 
@@ -105,8 +102,11 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       {/* Title */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-zinc-700">What's wrong? *</label>
+        <label htmlFor="issue-title" className="text-sm font-medium text-zinc-700">
+          What's wrong? *
+        </label>
         <input
+          id="issue-title"
           type="text"
           required
           value={title}
@@ -118,8 +118,11 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
 
       {/* Description */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-zinc-700">Details</label>
+        <label htmlFor="issue-details" className="text-sm font-medium text-zinc-700">
+          Details
+        </label>
         <textarea
+          id="issue-details"
           rows={3}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -130,7 +133,7 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
 
       {/* Severity */}
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-zinc-700">Severity *</label>
+        <span className="text-sm font-medium text-zinc-700">Severity *</span>
         <div className="flex flex-col gap-2">
           {SEVERITY_OPTIONS.map((opt) => (
             <label
@@ -165,9 +168,12 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
 
       {/* Photos */}
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-zinc-700">
-          Photos <span className="text-zinc-400 font-normal">({photos.length}/{MAX_PHOTOS})</span>
-        </label>
+        <span className="text-sm font-medium text-zinc-700">
+          Photos{" "}
+          <span className="text-zinc-400 font-normal">
+            ({photos.length}/{MAX_PHOTOS})
+          </span>
+        </span>
 
         {previews.length > 0 && (
           <div className="flex gap-2">
@@ -176,7 +182,7 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={src}
-                  alt={`Photo ${i + 1}`}
+                  alt={`Upload preview ${i + 1}`}
                   className="h-full w-full rounded-lg object-cover"
                 />
                 <button
@@ -214,9 +220,7 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
         )}
       </div>
 
-      {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
-      )}
+      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <div className="flex gap-3">
         <button

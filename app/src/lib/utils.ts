@@ -20,10 +20,7 @@ export function formatDate(iso: string | null | undefined): string {
  * deferred. `dateNeeded` is a date-only string ("YYYY-MM-DD"); it's treated as
  * due by end of that local day.
  */
-export function isOverdue(
-  dateNeeded: string | null | undefined,
-  status: string,
-): boolean {
+export function isOverdue(dateNeeded: string | null | undefined, status: string): boolean {
   if (!dateNeeded) return false;
   if (status === "done" || status === "deferred") return false;
   const due = new Date(`${dateNeeded}T23:59:59`);

@@ -1,11 +1,11 @@
 "use client";
 
-import { TagChip } from "@/components/TagChip";
-import { applyTag, createTag, removeTag } from "@/lib/organizer/api";
-import type { TagRow } from "@/lib/organizer/types";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { TagChip } from "@/components/TagChip";
+import { applyTag, createTag, removeTag } from "@/lib/organizer/api";
+import type { TagRow } from "@/lib/organizer/types";
 
 interface TaskTagsEditorProps {
   taskId: string;
@@ -21,10 +21,7 @@ export default function TaskTagsEditor({ taskId, allTags, initialTagIds }: TaskT
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const selectedTags = useMemo(
-    () => tags.filter((t) => selected.includes(t.id)),
-    [tags, selected],
-  );
+  const selectedTags = useMemo(() => tags.filter((t) => selected.includes(t.id)), [tags, selected]);
 
   const q = query.trim().toLowerCase();
   const suggestions = useMemo(

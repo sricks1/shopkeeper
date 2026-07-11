@@ -1,13 +1,7 @@
-import AppShell from "@/components/AppShell";
-import { IssueStatusBadge, SeverityBadge, ToolStatusBadge } from "@/components/StatusBadge";
-import { canManageTools, getCurrentStaff } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
-import { formatDate, timeAgo } from "@/lib/utils";
 import { differenceInDays } from "date-fns";
 import {
   AlertTriangle,
   CalendarDays,
-  CheckCircle2,
   ChevronRight,
   Clock,
   Download,
@@ -21,21 +15,18 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AppShell from "@/components/AppShell";
+import { IssueStatusBadge, SeverityBadge, ToolStatusBadge } from "@/components/StatusBadge";
+import { canManageTools, getCurrentStaff } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
+import { formatDate, timeAgo } from "@/lib/utils";
 
-export default async function ToolDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function ToolDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createClient();
   const staff = await getCurrentStaff();
 
-  const { data: tool } = await supabase
-    .from("tools")
-    .select("*")
-    .eq("slug", slug)
-    .single();
+  const { data: tool } = await supabase.from("tools").select("*").eq("slug", slug).single();
 
   if (!tool) notFound();
 
@@ -70,8 +61,12 @@ export default async function ToolDetailPage({
     return "ok";
   }
 
-  const overdueCount = (maintenanceTasks ?? []).filter((t) => getTaskStatus(t) === "overdue").length;
-  const dueSoonCount = (maintenanceTasks ?? []).filter((t) => getTaskStatus(t) === "due_soon").length;
+  const overdueCount = (maintenanceTasks ?? []).filter(
+    (t) => getTaskStatus(t) === "overdue",
+  ).length;
+  const dueSoonCount = (maintenanceTasks ?? []).filter(
+    (t) => getTaskStatus(t) === "due_soon",
+  ).length;
 
   const isDown = tool.status === "down";
 
@@ -79,7 +74,10 @@ export default async function ToolDetailPage({
     <AppShell>
       <div className="px-4 pb-6 pt-5">
         {/* Back */}
-        <Link href="/tools" className="mb-4 flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600">
+        <Link
+          href="/tools"
+          className="mb-4 flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600"
+        >
           <ChevronRight size={14} className="rotate-180" />
           All Tools
         </Link>
@@ -169,7 +167,9 @@ export default async function ToolDetailPage({
         </div>
 
         {/* Secondary actions */}
-        <div className={`mb-6 grid gap-2 ${canManageTools(staff?.role) ? "grid-cols-4" : "grid-cols-2"}`}>
+        <div
+          className={`mb-6 grid gap-2 ${canManageTools(staff?.role) ? "grid-cols-4" : "grid-cols-2"}`}
+        >
           {canManageTools(staff?.role) && (
             <Link
               href={`/tools/${slug}/edit`}
@@ -195,7 +195,9 @@ export default async function ToolDetailPage({
             <Wrench size={14} className="shrink-0" />
             <span className="whitespace-nowrap">Maint.</span>
             {(overdueCount > 0 || dueSoonCount > 0) && (
-              <span className={`absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-white ${overdueCount > 0 ? "bg-red-500" : "bg-orange-400"}`}>
+              <span
+                className={`absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-white ${overdueCount > 0 ? "bg-red-500" : "bg-orange-400"}`}
+              >
                 {overdueCount + dueSoonCount}
               </span>
             )}
@@ -211,40 +213,47 @@ export default async function ToolDetailPage({
         </div>
 
         {/* Maintenance summary */}
-        {maintenanceTasks && maintenanceTasks.length > 0 && (overdueCount > 0 || dueSoonCount > 0) && (
-          <section className="mb-5">
-            <h2 className="mb-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-400">
-              <span className="h-px flex-1 bg-zinc-200" />
-              Maintenance
-              <span className="h-px flex-1 bg-zinc-200" />
-            </h2>
-            <ul className="flex flex-col gap-2">
-              {maintenanceTasks
-                .filter((t) => ["overdue", "due_soon"].includes(getTaskStatus(t)))
-                .map((task) => {
-                  const status = getTaskStatus(task);
-                  return (
-                    <li key={task.id}>
-                      <Link
-                        href={`/tools/${slug}/maintenance`}
-                        className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
-                      >
-                        {status === "overdue"
-                          ? <TriangleAlert size={15} className="shrink-0 text-red-500" />
-                          : <Clock size={15} className="shrink-0 text-orange-400" />
-                        }
-                        <span className="flex-1 text-sm font-medium text-zinc-800">{task.description}</span>
-                        <span className={`text-xs font-semibold ${status === "overdue" ? "text-red-500" : "text-orange-500"}`}>
-                          {status === "overdue" ? "Overdue" : "Due soon"}
-                        </span>
-                        <ChevronRight size={13} className="shrink-0 text-zinc-300" />
-                      </Link>
-                    </li>
-                  );
-                })}
-            </ul>
-          </section>
-        )}
+        {maintenanceTasks &&
+          maintenanceTasks.length > 0 &&
+          (overdueCount > 0 || dueSoonCount > 0) && (
+            <section className="mb-5">
+              <h2 className="mb-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-400">
+                <span className="h-px flex-1 bg-zinc-200" />
+                Maintenance
+                <span className="h-px flex-1 bg-zinc-200" />
+              </h2>
+              <ul className="flex flex-col gap-2">
+                {maintenanceTasks
+                  .filter((t) => ["overdue", "due_soon"].includes(getTaskStatus(t)))
+                  .map((task) => {
+                    const status = getTaskStatus(task);
+                    return (
+                      <li key={task.id}>
+                        <Link
+                          href={`/tools/${slug}/maintenance`}
+                          className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
+                        >
+                          {status === "overdue" ? (
+                            <TriangleAlert size={15} className="shrink-0 text-red-500" />
+                          ) : (
+                            <Clock size={15} className="shrink-0 text-orange-400" />
+                          )}
+                          <span className="flex-1 text-sm font-medium text-zinc-800">
+                            {task.description}
+                          </span>
+                          <span
+                            className={`text-xs font-semibold ${status === "overdue" ? "text-red-500" : "text-orange-500"}`}
+                          >
+                            {status === "overdue" ? "Overdue" : "Due soon"}
+                          </span>
+                          <ChevronRight size={13} className="shrink-0 text-zinc-300" />
+                        </Link>
+                      </li>
+                    );
+                  })}
+              </ul>
+            </section>
+          )}
 
         {/* Recent Issues */}
         <section className="mb-5">

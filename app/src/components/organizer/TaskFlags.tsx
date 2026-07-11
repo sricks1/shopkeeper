@@ -1,6 +1,6 @@
+import { Lock, ShoppingCart } from "lucide-react";
 import { TaskPriorityBadge } from "@/components/StatusBadge";
 import type { TaskPriority } from "@/lib/organizer/types";
-import { Lock, ShoppingCart } from "lucide-react";
 
 // The "system flag" cluster for a task — priority, To Buy, Personal — rendered
 // as icons only (color + tooltip), so it reads consistently and compactly in

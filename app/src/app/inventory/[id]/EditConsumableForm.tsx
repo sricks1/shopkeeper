@@ -1,11 +1,11 @@
 "use client";
 
-import CategoryPicker, { type CategoryOption } from "@/components/CategoryPicker";
-import { createClient } from "@/lib/supabase/client";
-import { toHref } from "@/lib/utils";
 import { ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import CategoryPicker, { type CategoryOption } from "@/components/CategoryPicker";
+import { createClient } from "@/lib/supabase/client";
+import { toHref } from "@/lib/utils";
 
 interface EditConsumableFormProps {
   consumableTypeId: string;
@@ -168,7 +168,7 @@ function Field({
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between gap-2">
-        <label className="text-sm font-medium text-zinc-700">{label}</label>
+        <span className="text-sm font-medium text-zinc-700">{label}</span>
         {action}
       </div>
       {children}

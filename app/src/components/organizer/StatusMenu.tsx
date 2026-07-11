@@ -1,8 +1,8 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { ORDER_COLUMN_ORDER, taskStatusLabel } from "@/components/StatusBadge";
 import type { TaskStatus } from "@/lib/organizer/types";
-import { useEffect, useRef, useState } from "react";
 
 const ORDER: TaskStatus[] = ["new", "todo", "in_progress", "done", "deferred"];
 

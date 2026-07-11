@@ -1,10 +1,10 @@
-import AppShell from "@/components/AppShell";
-import RepairForm from "@/components/repairs/RepairForm";
-import type { ConsumableOption, OpenIssue } from "@/components/repairs/RepairForm";
-import { createClient } from "@/lib/supabase/server";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AppShell from "@/components/AppShell";
+import type { ConsumableOption, OpenIssue } from "@/components/repairs/RepairForm";
+import RepairForm from "@/components/repairs/RepairForm";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function NewRepairPage({
   params,

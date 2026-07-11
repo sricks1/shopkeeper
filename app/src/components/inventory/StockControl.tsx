@@ -1,11 +1,11 @@
 "use client";
 
-import { StockStatusBadge } from "@/components/StatusBadge";
-import { createClient } from "@/lib/supabase/client";
-import type { Enums } from "@/lib/types/database.types";
 import { Check, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { StockStatusBadge } from "@/components/StatusBadge";
+import { createClient } from "@/lib/supabase/client";
+import type { Enums } from "@/lib/types/database.types";
 
 type StockStatus = Enums<"stock_status">;
 
@@ -175,9 +175,7 @@ export default function StockControl({
           Ordered — there's an order task on the board. Tap “Mark received” when it arrives.
         </p>
       )}
-      {error && (
-        <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
-      )}
+      {error && <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
     </div>
   );
 }

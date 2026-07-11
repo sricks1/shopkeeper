@@ -1,10 +1,10 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
 import * as api from "@/lib/organizer/api";
 import { loadOrganizerState } from "@/lib/organizer/load";
 import type { FolderRow, OrganizerState, TaskStatus } from "@/lib/organizer/types";
 import { createClient } from "@/lib/supabase/client";
-import { useCallback, useEffect, useState } from "react";
 import type { DragPayload } from "./dnd";
 
 // All folder ids in the subtree rooted at rootId (inclusive).
@@ -196,7 +196,9 @@ export function useOrganizer(initial: OrganizerState, userId: string) {
           (s) => ({
             ...s,
             items: s.items
-              .map((it) => (orderById.has(it.id) ? { ...it, sort_order: orderById.get(it.id)! } : it))
+              .map((it) =>
+                orderById.has(it.id) ? { ...it, sort_order: orderById.get(it.id)! } : it,
+              )
               .sort((a, b) => a.sort_order - b.sort_order),
           }),
           () => api.setItemOrders(orders),

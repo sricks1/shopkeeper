@@ -1,3 +1,6 @@
+import { ChevronRight, Wrench } from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import DeleteConsumableButton from "@/components/inventory/DeleteConsumableButton";
 import StockControl from "@/components/inventory/StockControl";
@@ -5,16 +8,9 @@ import { TaskStatusBadge, ToolStatusBadge } from "@/components/StatusBadge";
 import { canManageTools, getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
-import { ChevronRight, Wrench } from "lucide-react";
-import Link from "next/link";
-import { notFound } from "next/navigation";
 import EditConsumableForm from "./EditConsumableForm";
 
-export default async function InventoryDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function InventoryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
   const staff = await getCurrentStaff();
@@ -43,8 +39,7 @@ export default async function InventoryDetailPage({
     .order("label");
   const categoryList = categories ?? [];
   const categoryLabel =
-    categoryList.find((c) => c.value === ct.category)?.label ??
-    ct.category.replace(/_/g, " ");
+    categoryList.find((c) => c.value === ct.category)?.label ?? ct.category.replace(/_/g, " ");
 
   const { data: orderTasks } = await supabase
     .from("staff_tasks")
@@ -139,7 +134,12 @@ export default async function InventoryDetailPage({
           ) : (
             <ul className="flex flex-col gap-2">
               {linkedTools.map((tc) => {
-                const tool = tc.tools as { id: string; name: string; slug: string; status: string } | null;
+                const tool = tc.tools as {
+                  id: string;
+                  name: string;
+                  slug: string;
+                  status: string;
+                } | null;
                 if (!tool) return null;
                 return (
                   <li key={tc.tool_id}>
@@ -150,7 +150,9 @@ export default async function InventoryDetailPage({
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100">
                         <Wrench size={15} className="text-zinc-500" />
                       </div>
-                      <span className="flex-1 text-sm font-semibold text-zinc-800">{tool.name}</span>
+                      <span className="flex-1 text-sm font-semibold text-zinc-800">
+                        {tool.name}
+                      </span>
                       <ToolStatusBadge status={tool.status as "active" | "down" | "retired"} />
                       <ChevronRight size={14} className="shrink-0 text-zinc-300" />
                     </Link>

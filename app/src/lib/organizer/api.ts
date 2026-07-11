@@ -50,11 +50,7 @@ export async function applyTag(taskId: string, tagId: string): Promise<void> {
 }
 
 export async function removeTag(taskId: string, tagId: string): Promise<void> {
-  const { error } = await db()
-    .from("task_tags")
-    .delete()
-    .eq("task_id", taskId)
-    .eq("tag_id", tagId);
+  const { error } = await db().from("task_tags").delete().eq("task_id", taskId).eq("tag_id", tagId);
   if (error) throw error;
 }
 
@@ -123,7 +119,10 @@ export async function setItemOrders(orders: { id: string; sort_order: number }[]
 export async function setFolderOrders(orders: { id: string; sort_order: number }[]): Promise<void> {
   const supabase = db();
   for (const o of orders) {
-    const { error } = await supabase.from("folders").update({ sort_order: o.sort_order }).eq("id", o.id);
+    const { error } = await supabase
+      .from("folders")
+      .update({ sort_order: o.sort_order })
+      .eq("id", o.id);
     if (error) throw error;
   }
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { type FormEvent, useState } from "react";
 import StaffPicker, { type StaffOption } from "@/components/StaffPicker";
 import { TASK_PRIORITY_LABELS } from "@/components/StatusBadge";
 import TagSelect, { isNewTag } from "@/components/TagSelect";
@@ -7,8 +9,6 @@ import { applyTag, createTag } from "@/lib/organizer/api";
 import type { TagRow } from "@/lib/organizer/types";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/types/database.types";
-import { useRouter } from "next/navigation";
-import { type FormEvent, useState } from "react";
 
 type TaskScope = Enums<"task_scope">;
 type TaskPriority = Enums<"task_priority">;
@@ -120,7 +120,9 @@ export default function NewTaskForm({ staff, allTags, defaultScope, from }: NewT
               type="button"
               onClick={() => setScope(s)}
               className={`flex-1 rounded-lg py-2 text-center text-sm font-medium capitalize transition-colors ${
-                scope === s ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-700"
+                scope === s
+                  ? "bg-white text-zinc-900 shadow-sm"
+                  : "text-zinc-500 hover:text-zinc-700"
               }`}
             >
               {s === "personal" ? "Personal" : "Team"}
@@ -208,7 +210,7 @@ const inputCls =
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-sm font-medium text-zinc-700">{label}</label>
+      <span className="text-sm font-medium text-zinc-700">{label}</span>
       {children}
     </div>
   );

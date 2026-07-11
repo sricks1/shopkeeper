@@ -1,5 +1,7 @@
 "use client";
 
+import { Search, X } from "lucide-react";
+import { useMemo, useState } from "react";
 import { TASK_PRIORITY_LABELS, TASK_STATUS_LABELS } from "@/components/StatusBadge";
 import { TagChip } from "@/components/TagChip";
 import type {
@@ -9,8 +11,6 @@ import type {
   TaskScope,
   TaskStatus,
 } from "@/lib/organizer/types";
-import { Search, X } from "lucide-react";
-import { useMemo, useState } from "react";
 import FilterPanel from "./FilterPanel";
 import TaskCard from "./TaskCard";
 import type { OrganizerController } from "./useOrganizer";
@@ -151,7 +151,9 @@ export default function TaskPool({
               type="button"
               onClick={() => onScopeChange(s)}
               className={`flex-1 rounded-lg py-2 text-center text-sm font-medium capitalize transition-colors ${
-                scope === s ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-700"
+                scope === s
+                  ? "bg-white text-zinc-900 shadow-sm"
+                  : "text-zinc-500 hover:text-zinc-700"
               }`}
             >
               {s === "team" ? "Team" : "Personal"}

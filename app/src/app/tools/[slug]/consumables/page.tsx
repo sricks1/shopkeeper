@@ -1,9 +1,9 @@
-import AppShell from "@/components/AppShell";
-import { canManageTools, getCurrentStaff } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AppShell from "@/components/AppShell";
+import { canManageTools, getCurrentStaff } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import ManageConsumables from "./ManageConsumables";
 
 export default async function ToolConsumablesPage({
@@ -45,9 +45,7 @@ export default async function ToolConsumablesPage({
         .in("consumable_type_id", linkedTypeIds)
     : { data: [] };
 
-  const stockMap = new Map(
-    (inventoryItems ?? []).map((ii) => [ii.consumable_type_id, ii]),
-  );
+  const stockMap = new Map((inventoryItems ?? []).map((ii) => [ii.consumable_type_id, ii]));
 
   return (
     <AppShell>
@@ -68,7 +66,10 @@ export default async function ToolConsumablesPage({
           allConsumables={allConsumables ?? []}
           linked={linked ?? []}
           stockMap={Object.fromEntries(
-            Array.from(stockMap.entries()).map(([k, v]) => [k, { id: v.id, status: v.stock_status }]),
+            Array.from(stockMap.entries()).map(([k, v]) => [
+              k,
+              { id: v.id, status: v.stock_status },
+            ]),
           )}
         />
 

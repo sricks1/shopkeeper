@@ -11,7 +11,9 @@ export interface CurrentStaff {
 
 export async function getCurrentStaff(): Promise<CurrentStaff | null> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return null;
   const { data } = await supabase
     .from("staff")
@@ -32,7 +34,9 @@ export interface CurrentAccount {
 
 export async function getCurrentAccount(): Promise<CurrentAccount> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { email: null, staff: null };
   const { data } = await supabase
     .from("staff")

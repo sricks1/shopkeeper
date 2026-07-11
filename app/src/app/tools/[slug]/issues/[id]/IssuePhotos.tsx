@@ -16,7 +16,7 @@ export default function IssuePhotos({ urls }: { urls: string[] }) {
             className="h-24 w-24 shrink-0 overflow-hidden rounded-xl"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={url} alt="Issue photo" className="h-full w-full object-cover" />
+            <img src={url} alt="Issue attachment" className="h-full w-full object-cover" />
           </button>
         ))}
       </div>
@@ -31,7 +31,7 @@ export default function IssuePhotos({ urls }: { urls: string[] }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={selected}
-            alt="Issue photo fullscreen"
+            alt="Issue attachment at full size"
             className="max-h-full max-w-full rounded-xl object-contain"
           />
         </button>

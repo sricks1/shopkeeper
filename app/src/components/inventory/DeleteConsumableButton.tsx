@@ -1,9 +1,9 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 interface Props {
   consumableTypeId: string;
@@ -11,7 +11,11 @@ interface Props {
   consumableName: string;
 }
 
-export default function DeleteConsumableButton({ consumableTypeId, inventoryItemId, consumableName }: Props) {
+export default function DeleteConsumableButton({
+  consumableTypeId,
+  inventoryItemId,
+  consumableName,
+}: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +40,9 @@ export default function DeleteConsumableButton({ consumableTypeId, inventoryItem
     if (err) {
       // FK violation — consumable has been used in a repair
       if (err.code === "23503") {
-        setError("This consumable has been used in repairs and cannot be deleted — doing so would lose that history.");
+        setError(
+          "This consumable has been used in repairs and cannot be deleted — doing so would lose that history.",
+        );
       } else {
         setError(err.message);
       }

@@ -1,7 +1,7 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
 import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export interface CategoryOption {
   value: string;
@@ -113,11 +113,7 @@ export default function CategoryPicker({
 
   return (
     <div className="flex flex-col gap-2">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={inputCls}
-      >
+      <select value={value} onChange={(e) => onChange(e.target.value)} className={inputCls}>
         {categories.map((c) => (
           <option key={c.value} value={c.value}>
             {c.label}

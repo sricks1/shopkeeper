@@ -1,9 +1,9 @@
-import AppShell from "@/components/AppShell";
-import ToolForm from "@/components/tools/ToolForm";
-import { canManageTools, getCurrentStaff } from "@/lib/auth";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AppShell from "@/components/AppShell";
+import ToolForm from "@/components/tools/ToolForm";
+import { canManageTools, getCurrentStaff } from "@/lib/auth";
 
 export default async function NewToolPage() {
   const staff = await getCurrentStaff();

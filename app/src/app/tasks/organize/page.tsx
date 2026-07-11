@@ -1,9 +1,9 @@
+import { redirect } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import TaskOrganizer from "@/components/organizer/TaskOrganizer";
 import { getCurrentStaff } from "@/lib/auth";
 import { loadOrganizerState } from "@/lib/organizer/load";
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 
 export default async function OrganizePage() {
   const staff = await getCurrentStaff();

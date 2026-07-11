@@ -1,10 +1,10 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
-import type { Enums } from "@/lib/types/database.types";
 import { ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import type { Enums } from "@/lib/types/database.types";
 
 type TaskStatus = Enums<"task_status">;
 

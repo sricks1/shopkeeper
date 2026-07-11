@@ -1,12 +1,12 @@
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import { IssueStatusBadge, SeverityBadge } from "@/components/StatusBadge";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate, timeAgo } from "@/lib/utils";
-import { ChevronRight } from "lucide-react";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import ResolveButtons from "./ResolveButtons";
 import IssuePhotos from "./IssuePhotos";
+import ResolveButtons from "./ResolveButtons";
 
 export default async function IssueDetailPage({
   params,

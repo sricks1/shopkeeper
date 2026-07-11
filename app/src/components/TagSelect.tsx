@@ -1,9 +1,9 @@
 "use client";
 
-import { TagChip } from "@/components/TagChip";
-import type { TagRow } from "@/lib/organizer/types";
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
+import { TagChip } from "@/components/TagChip";
+import type { TagRow } from "@/lib/organizer/types";
 
 // A tag picker for use BEFORE a task exists (e.g. the new-task form). Unlike
 // TaskTagsEditor it persists nothing — it just maintains a local selection and
@@ -24,10 +24,7 @@ export default function TagSelect({ allTags, value, onChange }: TagSelectProps) 
   const [query, setQuery] = useState("");
 
   const selectedIds = useMemo(() => new Set(value.map((t) => t.id)), [value]);
-  const selectedNames = useMemo(
-    () => new Set(value.map((t) => t.name.toLowerCase())),
-    [value],
-  );
+  const selectedNames = useMemo(() => new Set(value.map((t) => t.name.toLowerCase())), [value]);
 
   const q = query.trim().toLowerCase();
   const suggestions = useMemo(

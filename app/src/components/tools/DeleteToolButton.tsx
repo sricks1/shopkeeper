@@ -1,11 +1,17 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
-export default function DeleteToolButton({ toolId, toolName }: { toolId: string; toolName: string }) {
+export default function DeleteToolButton({
+  toolId,
+  toolName,
+}: {
+  toolId: string;
+  toolName: string;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

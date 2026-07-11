@@ -1,8 +1,8 @@
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/types/database.types";
-import { ChevronRight } from "lucide-react";
-import Link from "next/link";
 import NewTaskForm from "./NewTaskForm";
 
 type TaskScope = Enums<"task_scope">;

@@ -1,11 +1,11 @@
+import { ChevronRight, MessageSquare, ShoppingCart } from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/StatusBadge";
 import { TagChip } from "@/components/TagChip";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate, isOverdue, timeAgo } from "@/lib/utils";
-import { ChevronRight, MessageSquare, ShoppingCart } from "lucide-react";
-import Link from "next/link";
-import { notFound } from "next/navigation";
 import AddCommentForm from "./AddCommentForm";
 import DeleteTaskButton from "./DeleteTaskButton";
 import OrderToggle from "./OrderToggle";
@@ -180,7 +180,10 @@ export default async function TaskDetailPage({
           {comments && comments.length > 0 ? (
             <ul className="mb-4 flex flex-col gap-3">
               {comments.map((c) => (
-                <li key={c.id} className="rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200">
+                <li
+                  key={c.id}
+                  className="rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200"
+                >
                   <div className="mb-1 flex items-center justify-between gap-2">
                     <span className="min-w-0 truncate text-sm font-semibold text-zinc-800">
                       {c.author_id ? (nameById.get(c.author_id) ?? "Unknown") : "Unknown"}

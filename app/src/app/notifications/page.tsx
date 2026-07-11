@@ -1,9 +1,9 @@
+import { AlertTriangle, BellOff, MessageSquare, Package, UserPlus } from "lucide-react";
+import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import { getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { timeAgo } from "@/lib/utils";
-import { AlertTriangle, BellOff, MessageSquare, Package, UserPlus } from "lucide-react";
-import Link from "next/link";
 import AcknowledgeButton from "./AcknowledgeButton";
 
 const NO_STAFF = "00000000-0000-0000-0000-000000000000";
@@ -36,7 +36,8 @@ function NotificationIcon({ type }: { type: string }) {
 
 function notificationTitle(type: string, payload: Record<string, string>): string {
   if (type === "tool_down") return `Tool down: ${payload.tool_name ?? "Unknown tool"}`;
-  if (type === "reorder_needed") return `Reorder: ${payload.consumable_name ?? "Unknown consumable"}`;
+  if (type === "reorder_needed")
+    return `Reorder: ${payload.consumable_name ?? "Unknown consumable"}`;
   if (type === "task_assigned") return `Assigned: ${payload.task_name ?? "a task"}`;
   if (type === "task_comment") return `New comment on ${payload.task_name ?? "a task"}`;
   return "System notification";
@@ -139,7 +140,9 @@ export default async function NotificationsPage() {
         {/* Dismissed */}
         {read.length > 0 && (
           <section>
-            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-400">Dismissed</p>
+            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-400">
+              Dismissed
+            </p>
             <ul className="flex flex-col gap-2">
               {read.map((n) => {
                 const payload = (n.payload ?? {}) as Record<string, string>;

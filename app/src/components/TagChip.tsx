@@ -12,9 +12,7 @@ export function TagChip({
   color?: string | null;
   onRemove?: () => void;
 }) {
-  const styled = color
-    ? { backgroundColor: color, color: "#fff" }
-    : undefined;
+  const styled = color ? { backgroundColor: color, color: "#fff" } : undefined;
   return (
     <span
       style={styled}

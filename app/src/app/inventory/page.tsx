@@ -1,9 +1,9 @@
+import { Package, Plus } from "lucide-react";
+import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import StockControl from "@/components/inventory/StockControl";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/types/database.types";
-import { Package, Plus } from "lucide-react";
-import Link from "next/link";
 
 type StockStatus = Enums<"stock_status">;
 

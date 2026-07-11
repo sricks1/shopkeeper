@@ -1,15 +1,11 @@
-import AppShell from "@/components/AppShell";
-import IssueForm from "@/components/issues/IssueForm";
-import { createClient } from "@/lib/supabase/server";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AppShell from "@/components/AppShell";
+import IssueForm from "@/components/issues/IssueForm";
+import { createClient } from "@/lib/supabase/server";
 
-export default async function NewIssuePage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function NewIssuePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createClient();
 
