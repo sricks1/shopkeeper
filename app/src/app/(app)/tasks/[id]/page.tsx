@@ -79,14 +79,14 @@ export default async function TaskDetailPage({
   const overdue = isOverdue(task.date_needed, task.status);
 
   return (
-    <div className="px-4 pb-4 pt-6">
+    <div className="px-4 pb-4 pt-4">
       <Link href={backHref} className="mb-4 flex items-center gap-1 text-sm text-zinc-500">
         <ChevronRight size={14} className="rotate-180" />
         {backLabel}
       </Link>
 
       <div className="mb-1 flex items-start justify-between gap-3">
-        <h1 className="min-w-0 break-words text-xl font-bold text-zinc-900">{task.name}</h1>
+        <h1 className="min-w-0 break-words text-lg font-semibold text-zinc-900">{task.name}</h1>
         <div className="flex shrink-0 items-start gap-2 pt-1">
           <div className="flex flex-col items-end gap-1">
             <TaskStatusBadge status={task.status} purchase={isPurchase} />
@@ -109,7 +109,7 @@ export default async function TaskDetailPage({
               ? `/inventory/${linkedConsumable.inventoryId}`
               : "/inventory"
           }
-          className="mb-4 flex items-center gap-2 rounded-xl bg-accent/5 px-4 py-3 text-sm font-medium text-accent-hover ring-1 ring-accent/20"
+          className="mb-4 flex items-center gap-2 rounded-card bg-accent/5 px-4 py-3 text-sm font-medium text-accent-hover ring-1 ring-accent/20"
         >
           <ShoppingCart size={15} className="shrink-0" />
           <span className="min-w-0 flex-1 truncate">Purchasing: {linkedConsumable.name}</span>
@@ -123,7 +123,7 @@ export default async function TaskDetailPage({
       )}
 
       {/* Metadata */}
-      <div className="mb-4 rounded-xl bg-white px-4 py-4 text-sm shadow-sm ring-1 ring-zinc-200">
+      <div className="mb-4 rounded-card bg-white p-4 text-sm shadow-sm ring-1 ring-zinc-200">
         <dl className="flex flex-col gap-2 text-zinc-600">
           <div className="flex justify-between">
             <dt className="text-zinc-400">Assigned to</dt>
@@ -169,7 +169,7 @@ export default async function TaskDetailPage({
       />
 
       {/* Tags */}
-      <div className="mt-4 rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-zinc-200">
+      <div className="mt-4 rounded-card bg-white p-4 shadow-sm ring-1 ring-zinc-200">
         <TaskTagsEditor taskId={task.id} allTags={tags} initialTagIds={taskTagIds} />
       </div>
 
@@ -185,7 +185,7 @@ export default async function TaskDetailPage({
             {comments.map((c) => (
               <li
                 key={c.id}
-                className="rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200"
+                className="rounded-card bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200"
               >
                 <div className="mb-1 flex items-center justify-between gap-2">
                   <span className="min-w-0 truncate text-sm font-semibold text-zinc-800">
@@ -198,7 +198,7 @@ export default async function TaskDetailPage({
             ))}
           </ul>
         ) : (
-          <p className="mb-4 rounded-xl bg-white px-4 py-4 text-sm text-zinc-400 ring-1 ring-zinc-200">
+          <p className="mb-4 rounded-card bg-white p-4 text-sm text-zinc-400 ring-1 ring-zinc-200">
             No comments yet.
           </p>
         )}

@@ -5,6 +5,10 @@ import { type FormEvent, useState } from "react";
 import StaffPicker, { type StaffOption } from "@/components/StaffPicker";
 import { TASK_PRIORITY_LABELS } from "@/components/StatusBadge";
 import TagSelect, { isNewTag } from "@/components/TagSelect";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
+import { Input, Textarea } from "@/components/ui/Input";
+import { SegmentedButtons } from "@/components/ui/Segmented";
 import { applyTag, createTag } from "@/lib/organizer/api";
 import type { TagRow } from "@/lib/organizer/types";
 import { createClient } from "@/lib/supabase/client";
@@ -100,40 +104,33 @@ export default function NewTaskForm({ staff, allTags, defaultScope, from }: NewT
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <Field label="Task *">
-        <input
+        <Input
           type="text"
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className={inputCls}
           placeholder="Sharpen the jointer knives"
         />
       </Field>
 
-      <Field label="Scope">
-        <div className="flex gap-1 rounded-xl bg-zinc-200/60 p-1">
-          {(["personal", "team"] as const).map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setScope(s)}
-              className={`flex-1 rounded-lg py-2 text-center text-sm font-medium capitalize transition-colors ${
-                scope === s
-                  ? "bg-white text-zinc-900 shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-700"
-              }`}
-            >
-              {s === "personal" ? "Personal" : "Team"}
-            </button>
-          ))}
-        </div>
-        <p className="mt-1 text-xs text-zinc-400">
-          {scope === "personal"
+      <Field
+        label="Scope"
+        hint={
+          scope === "personal"
             ? "Only you can see this until you submit it to the team."
-            : "Visible to all staff on the shared board."}
-        </p>
+            : "Visible to all staff on the shared board."
+        }
+      >
+        <SegmentedButtons
+          options={[
+            { value: "personal", label: "Personal" },
+            { value: "team", label: "Team" },
+          ]}
+          value={scope}
+          onChange={setScope}
+        />
       </Field>
 
       <Field label="Priority">
@@ -143,7 +140,7 @@ export default function NewTaskForm({ staff, allTags, defaultScope, from }: NewT
               key={p}
               type="button"
               onClick={() => setPriority(p)}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium ring-1 ring-inset transition-colors ${
+              className={`rounded-field px-3 py-1.5 text-sm font-medium ring-1 ring-inset transition-colors ${
                 priority === p ? PRIORITY_STYLE[p].on : PRIORITY_STYLE[p].off
               }`}
             >
@@ -160,12 +157,7 @@ export default function NewTaskForm({ staff, allTags, defaultScope, from }: NewT
       )}
 
       <Field label="Date needed">
-        <input
-          type="date"
-          value={dateNeeded}
-          onChange={(e) => setDateNeeded(e.target.value)}
-          className={inputCls}
-        />
+        <Input type="date" value={dateNeeded} onChange={(e) => setDateNeeded(e.target.value)} />
       </Field>
 
       <Field label="Tags">
@@ -173,45 +165,24 @@ export default function NewTaskForm({ staff, allTags, defaultScope, from }: NewT
       </Field>
 
       <Field label="Notes">
-        <textarea
+        <Textarea
           rows={3}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className={inputCls}
           placeholder="Any context — where the part is, what to watch for…"
         />
       </Field>
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="flex-1 rounded-lg border border-zinc-200 py-2.5 text-sm font-medium text-zinc-700"
-        >
+        <Button variant="outline" className="flex-1" onClick={() => router.back()}>
           Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="flex-1 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:opacity-60"
-        >
+        </Button>
+        <Button type="submit" disabled={isLoading} className="flex-1">
           {isLoading ? "Creating…" : "Create Task"}
-        </button>
+        </Button>
       </div>
     </form>
-  );
-}
-
-const inputCls =
-  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20";
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <span className="text-sm font-medium text-zinc-700">{label}</span>
-      {children}
-    </div>
   );
 }

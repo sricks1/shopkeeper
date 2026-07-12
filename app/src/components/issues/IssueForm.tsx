@@ -3,6 +3,9 @@
 import { Camera, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useRef, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
+import { Input, Textarea } from "@/components/ui/Input";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/types/database.types";
 
@@ -99,37 +102,29 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {/* Title */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="issue-title" className="text-sm font-medium text-zinc-700">
-          What's wrong? *
-        </label>
-        <input
+      <Field label="What's wrong? *" htmlFor="issue-title">
+        <Input
           id="issue-title"
           type="text"
           required
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className={inputCls}
           placeholder="Blade guard is cracked"
         />
-      </div>
+      </Field>
 
       {/* Description */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="issue-details" className="text-sm font-medium text-zinc-700">
-          Details
-        </label>
-        <textarea
+      <Field label="Details" htmlFor="issue-details">
+        <Textarea
           id="issue-details"
           rows={3}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className={inputCls}
           placeholder="Any additional context — when it started, what you were doing…"
         />
-      </div>
+      </Field>
 
       {/* Severity */}
       <div className="flex flex-col gap-2">
@@ -138,7 +133,7 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
           {SEVERITY_OPTIONS.map((opt) => (
             <label
               key={opt.value}
-              className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition-colors ${
+              className={`flex cursor-pointer items-start gap-3 rounded-card border p-3.5 transition-colors ${
                 severity === opt.value ? "border-brand bg-brand/5" : "border-zinc-200 bg-white"
               }`}
             >
@@ -158,7 +153,7 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
           ))}
         </div>
         {severity === "down" && (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
+          <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
             This will mark the tool as out of service and alert Steven.
           </p>
         )}
@@ -181,7 +176,7 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
                 <img
                   src={src}
                   alt={`Upload preview ${i + 1}`}
-                  className="h-full w-full rounded-lg object-cover"
+                  className="h-full w-full rounded-field object-cover"
                 />
                 <button
                   type="button"
@@ -200,7 +195,7 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 rounded-xl border border-dashed border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-500"
+              className="flex items-center gap-2 rounded-field border border-dashed border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-500"
             >
               <Camera size={16} />
               Add photo
@@ -218,27 +213,16 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
         )}
       </div>
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="flex-1 rounded-lg border border-zinc-200 py-2.5 text-sm font-medium text-zinc-700"
-        >
+        <Button variant="outline" className="flex-1" onClick={() => router.back()}>
           Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="flex-1 rounded-lg bg-accent py-2.5 text-sm font-semibold text-white disabled:opacity-60"
-        >
+        </Button>
+        <Button type="submit" variant="accent" className="flex-1" disabled={isLoading}>
           {isLoading ? "Submitting…" : "Report Issue"}
-        </button>
+        </Button>
       </div>
     </form>
   );
 }
-
-const inputCls =
-  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20";

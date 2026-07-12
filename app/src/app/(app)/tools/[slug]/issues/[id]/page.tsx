@@ -2,6 +2,7 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { IssueStatusBadge, SeverityBadge } from "@/components/StatusBadge";
+import { Card } from "@/components/ui/Card";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate, timeAgo } from "@/lib/utils";
 import IssuePhotos from "./IssuePhotos";
@@ -37,7 +38,7 @@ export default async function IssueDetailPage({
   const isOpen = issue.status === "open";
 
   return (
-    <div className="px-4 pb-4 pt-6">
+    <div className="px-4 pb-4 pt-4">
       <Link href={`/tools/${slug}`} className="mb-4 flex items-center gap-1 text-sm text-zinc-500">
         <ChevronRight size={14} className="rotate-180" />
         {issue.tool?.name ?? slug}
@@ -46,7 +47,7 @@ export default async function IssueDetailPage({
       {/* Header */}
       <div className="mb-4">
         <div className="mb-2 flex items-start justify-between gap-3">
-          <h1 className="text-xl font-bold text-zinc-900">{issue.title}</h1>
+          <h1 className="text-lg font-semibold text-zinc-900">{issue.title}</h1>
           <IssueStatusBadge status={issue.status} />
         </div>
         <div className="flex items-center gap-2">
@@ -57,9 +58,9 @@ export default async function IssueDetailPage({
 
       {/* Description */}
       {issue.description && (
-        <div className="mb-4 rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-zinc-200">
+        <Card className="mb-4">
           <p className="text-sm text-zinc-700">{issue.description}</p>
-        </div>
+        </Card>
       )}
 
       {/* Photos */}
@@ -70,7 +71,7 @@ export default async function IssueDetailPage({
       )}
 
       {/* Metadata */}
-      <div className="mb-6 rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-zinc-200 text-sm">
+      <Card className="mb-6 text-sm">
         <dl className="flex flex-col gap-2 text-zinc-600">
           <div className="flex justify-between">
             <dt className="text-zinc-400">Reported</dt>
@@ -83,14 +84,14 @@ export default async function IssueDetailPage({
             </div>
           )}
         </dl>
-      </div>
+      </Card>
 
       {/* Resolve actions (open issues only) */}
       {isOpen && (
-        <div className="rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-zinc-200">
+        <Card>
           <p className="mb-3 text-sm font-medium text-zinc-700">Resolve this issue</p>
           <ResolveButtons issueId={id} toolSlug={slug} />
-        </div>
+        </Card>
       )}
     </div>
   );

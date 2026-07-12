@@ -1,6 +1,9 @@
 import { MapPin, Plus, Wrench } from "lucide-react";
 import Link from "next/link";
 import { ToolStatusBadge } from "@/components/StatusBadge";
+import { buttonClasses } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { canManageTools, getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/types/database.types";
@@ -25,54 +28,48 @@ export default async function ToolsPage() {
   const downCount = tools?.filter((t) => t.status === "down").length ?? 0;
 
   return (
-    <div className="px-4 pb-4 pt-5">
-      {/* Header */}
-      <div className="mb-5 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-zinc-900">Shop Tools</h1>
-          <p className="text-sm text-zinc-500">
+    <div className="px-4 pb-4 pt-4">
+      <PageHeader
+        title="Shop Tools"
+        subtitle={
+          <>
             {tools?.length ?? 0} tools
             {downCount > 0 && (
               <span className="ml-2 font-medium text-red-600">· {downCount} down</span>
             )}
-          </p>
-        </div>
-        {canManageTools(staff?.role) && (
-          <Link
-            href="/tools/new"
-            className="flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-hover active:bg-brand-active"
-          >
-            <Plus size={16} />
-            Add Tool
-          </Link>
-        )}
-      </div>
+          </>
+        }
+        action={
+          canManageTools(staff?.role) && (
+            <Link href="/tools/new" className={buttonClasses()}>
+              <Plus size={16} />
+              Add Tool
+            </Link>
+          )
+        }
+      />
 
       {/* Tool list */}
       {!tools?.length ? (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-zinc-200 bg-white px-6 py-14 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100">
-            <Wrench size={22} className="text-zinc-400" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-zinc-600">No tools yet</p>
-            {canManageTools(staff?.role) && (
-              <Link href="/tools/new" className="mt-1 text-sm text-brand underline">
-                Add the first one
-              </Link>
-            )}
-          </div>
-        </div>
+        <EmptyState
+          icon={Wrench}
+          title="No tools yet"
+          action={
+            canManageTools(staff?.role)
+              ? { label: "Add the first one", href: "/tools/new" }
+              : undefined
+          }
+        />
       ) : (
         <ul className="flex flex-col gap-2">
           {tools.map((tool) => (
             <li key={tool.id}>
               <Link
                 href={`/tools/${tool.slug}`}
-                className="flex items-center overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
+                className="flex items-center overflow-hidden rounded-card bg-white shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
               >
                 <div className={`w-1 shrink-0 self-stretch ${STATUS_STRIP[tool.status]}`} />
-                <div className="flex flex-1 items-center justify-between px-4 py-3.5">
+                <div className="flex flex-1 items-center justify-between px-3.5 py-2.5">
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold text-zinc-900">{tool.name}</p>
                     <div className="mt-0.5 flex items-center gap-2 text-xs text-zinc-400">

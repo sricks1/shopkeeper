@@ -9,12 +9,12 @@ export default async function NewToolPage() {
   if (!canManageTools(staff?.role)) notFound();
 
   return (
-    <div className="px-4 pb-4 pt-6">
+    <div className="px-4 pb-4 pt-4">
       <Link href="/tools" className="mb-4 flex items-center gap-1 text-sm text-zinc-500">
         <ChevronRight size={14} className="rotate-180" />
         All Tools
       </Link>
-      <h1 className="mb-6 text-xl font-bold text-zinc-900">Add Tool</h1>
+      <h1 className="mb-6 text-lg font-semibold text-zinc-900">Add Tool</h1>
       <ToolForm />
     </div>
   );

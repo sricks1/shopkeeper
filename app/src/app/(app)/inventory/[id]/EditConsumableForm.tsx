@@ -4,6 +4,9 @@ import { ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import CategoryPicker, { type CategoryOption } from "@/components/CategoryPicker";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
+import { Input, Textarea } from "@/components/ui/Input";
 import { createClient } from "@/lib/supabase/client";
 import { toHref } from "@/lib/utils";
 
@@ -67,16 +70,11 @@ export default function EditConsumableForm({
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-zinc-200">
+    <div className="flex flex-col gap-4 rounded-card bg-white p-4 shadow-sm ring-1 ring-zinc-200">
       <p className="text-sm font-medium text-zinc-700">Edit Details</p>
 
       <Field label="Name">
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className={inputCls}
-        />
+        <Input type="text" value={name} onChange={(e) => setName(e.target.value)} />
       </Field>
 
       <Field label="Category">
@@ -84,21 +82,11 @@ export default function EditConsumableForm({
       </Field>
 
       <Field label="SKU / Part number">
-        <input
-          type="text"
-          value={sku}
-          onChange={(e) => setSku(e.target.value)}
-          className={inputCls}
-        />
+        <Input type="text" value={sku} onChange={(e) => setSku(e.target.value)} />
       </Field>
 
       <Field label="Vendor">
-        <input
-          type="text"
-          value={vendor}
-          onChange={(e) => setVendor(e.target.value)}
-          className={inputCls}
-        />
+        <Input type="text" value={vendor} onChange={(e) => setVendor(e.target.value)} />
       </Field>
 
       <Field
@@ -117,61 +105,27 @@ export default function EditConsumableForm({
           )
         }
       >
-        <input
+        <Input
           type="text"
           inputMode="url"
           value={vendorUrl}
           onChange={(e) => setVendorUrl(e.target.value)}
           placeholder="woodcraft.com/part — https:// optional"
-          className={inputCls}
         />
       </Field>
 
       <Field label="Notes">
-        <textarea
-          rows={2}
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className={inputCls}
-        />
+        <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
       </Field>
 
-      <button
-        type="button"
-        onClick={handleSave}
-        disabled={isSaving}
-        className="w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:opacity-60"
-      >
+      <Button onClick={handleSave} disabled={isSaving} className="w-full">
         {isSaving ? "Saving…" : "Save Details"}
-      </button>
+      </Button>
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {success && (
-        <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{success}</p>
+        <p className="rounded-field bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{success}</p>
       )}
-    </div>
-  );
-}
-
-const inputCls =
-  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20";
-
-function Field({
-  label,
-  action,
-  children,
-}: {
-  label: string;
-  action?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-medium text-zinc-700">{label}</span>
-        {action}
-      </div>
-      {children}
     </div>
   );
 }

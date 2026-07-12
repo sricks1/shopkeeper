@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
+import { Input, Select, Textarea } from "@/components/ui/Input";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums, Tables } from "@/lib/types/database.types";
 import { slugify } from "@/lib/utils";
@@ -88,22 +91,21 @@ export default function ToolForm({ tool }: ToolFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {/* Name */}
       <Field label="Name *">
-        <input
+        <Input
           type="text"
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className={inputCls}
           placeholder="Grizzly 14-inch Bandsaw"
         />
       </Field>
 
       {/* Slug */}
       <Field label="URL slug *" hint="Used in QR codes — lowercase letters, numbers, hyphens only">
-        <input
+        <Input
           type="text"
           required
           pattern="[a-z0-9-]+"
@@ -112,7 +114,6 @@ export default function ToolForm({ tool }: ToolFormProps) {
             setSlug(e.target.value);
             setSlugEdited(true);
           }}
-          className={inputCls}
           placeholder="grizzly-bandsaw"
         />
       </Field>
@@ -120,20 +121,18 @@ export default function ToolForm({ tool }: ToolFormProps) {
       {/* Manufacturer / Model */}
       <div className="flex gap-3">
         <Field label="Manufacturer" className="flex-1">
-          <input
+          <Input
             type="text"
             value={manufacturer}
             onChange={(e) => setManufacturer(e.target.value)}
-            className={inputCls}
             placeholder="Grizzly"
           />
         </Field>
         <Field label="Model" className="flex-1">
-          <input
+          <Input
             type="text"
             value={model}
             onChange={(e) => setModel(e.target.value)}
-            className={inputCls}
             placeholder="G0555"
           />
         </Field>
@@ -142,19 +141,13 @@ export default function ToolForm({ tool }: ToolFormProps) {
       {/* Serial / Location */}
       <div className="flex gap-3">
         <Field label="Serial number" className="flex-1">
-          <input
-            type="text"
-            value={serial}
-            onChange={(e) => setSerial(e.target.value)}
-            className={inputCls}
-          />
+          <Input type="text" value={serial} onChange={(e) => setSerial(e.target.value)} />
         </Field>
         <Field label="Location" className="flex-1">
-          <input
+          <Input
             type="text"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            className={inputCls}
             placeholder="East wall"
           />
         </Field>
@@ -162,92 +155,50 @@ export default function ToolForm({ tool }: ToolFormProps) {
 
       {/* Status */}
       <Field label="Status">
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value as ToolStatus)}
-          className={inputCls}
-        >
+        <Select value={status} onChange={(e) => setStatus(e.target.value as ToolStatus)}>
           {STATUS_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}
             </option>
           ))}
-        </select>
+        </Select>
       </Field>
 
       {/* Purchase date */}
       <Field label="Purchase date">
-        <input
-          type="date"
-          value={purchaseDate}
-          onChange={(e) => setPurchaseDate(e.target.value)}
-          className={inputCls}
-        />
+        <Input type="date" value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} />
       </Field>
 
       {/* Manual URL */}
       <Field label="Manual URL">
-        <input
+        <Input
           type="url"
           value={manualUrl}
           onChange={(e) => setManualUrl(e.target.value)}
-          className={inputCls}
           placeholder="https://..."
         />
       </Field>
 
       {/* Notes */}
       <Field label="Notes">
-        <textarea
+        <Textarea
           rows={3}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className={inputCls}
           placeholder="Any additional details…"
         />
       </Field>
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="flex-1 rounded-lg border border-zinc-200 py-2.5 text-sm font-medium text-zinc-700"
-        >
+        <Button variant="outline" className="flex-1" onClick={() => router.back()}>
           Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="flex-1 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:opacity-60"
-        >
+        </Button>
+        <Button type="submit" className="flex-1" disabled={isLoading}>
           {isLoading ? "Saving…" : isEditing ? "Save Changes" : "Add Tool"}
-        </button>
+        </Button>
       </div>
     </form>
-  );
-}
-
-const inputCls =
-  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20";
-
-function Field({
-  label,
-  hint,
-  children,
-  className,
-}: {
-  label: string;
-  hint?: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={`flex flex-col gap-1.5 ${className ?? ""}`}>
-      <span className="text-sm font-medium text-zinc-700">{label}</span>
-      {children}
-      {hint && <p className="text-xs text-zinc-400">{hint}</p>}
-    </div>
   );
 }

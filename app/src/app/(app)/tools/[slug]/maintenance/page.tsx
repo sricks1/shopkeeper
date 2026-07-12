@@ -25,7 +25,7 @@ export default async function MaintenancePage({ params }: { params: Promise<{ sl
     .order("created_at");
 
   return (
-    <div className="px-4 pb-4 pt-5">
+    <div className="px-4 pb-4 pt-4">
       <Link
         href={`/tools/${slug}`}
         className="mb-4 flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600"
@@ -33,7 +33,7 @@ export default async function MaintenancePage({ params }: { params: Promise<{ sl
         <ChevronRight size={14} className="rotate-180" />
         {tool.name}
       </Link>
-      <h1 className="mb-1 text-xl font-bold text-zinc-900">Maintenance</h1>
+      <h1 className="mb-1 text-lg font-semibold text-zinc-900">Maintenance</h1>
       <p className="mb-6 text-sm text-zinc-500">{tool.name}</p>
 
       <MaintenanceManager

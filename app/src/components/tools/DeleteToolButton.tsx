@@ -3,6 +3,7 @@
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 
 export default function DeleteToolButton({
@@ -44,17 +45,12 @@ export default function DeleteToolButton({
   return (
     <div className="mt-8 border-t border-zinc-200 pt-6">
       <p className="mb-3 text-xs font-bold uppercase tracking-widest text-zinc-400">Danger Zone</p>
-      <button
-        type="button"
-        onClick={handleDelete}
-        disabled={loading}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
-      >
+      <Button variant="danger" className="w-full" onClick={handleDelete} disabled={loading}>
         <Trash2 size={15} />
         {loading ? "Deleting…" : "Delete Tool"}
-      </button>
+      </Button>
       {error && (
-        <p className="mt-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
+        <p className="mt-3 rounded-card bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
           {error}
         </p>
       )}

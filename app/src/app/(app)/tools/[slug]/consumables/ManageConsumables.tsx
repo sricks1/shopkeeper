@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { StockStatusBadge } from "@/components/StatusBadge";
+import { Input } from "@/components/ui/Input";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/types/database.types";
 
@@ -74,7 +75,7 @@ export default function ManageConsumables({ toolId, allConsumables, linked, stoc
           Linked ({linked.length})
         </p>
         {linked.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-zinc-200 px-4 py-3 text-sm text-zinc-400">
+          <p className="rounded-card border border-dashed border-zinc-200 px-4 py-3 text-sm text-zinc-400">
             No consumables linked yet.
           </p>
         ) : (
@@ -87,11 +88,11 @@ export default function ManageConsumables({ toolId, allConsumables, linked, stoc
               return (
                 <li
                   key={l.id}
-                  className="flex items-center rounded-xl bg-white shadow-sm ring-1 ring-zinc-200"
+                  className="flex items-center rounded-card bg-white shadow-sm ring-1 ring-zinc-200"
                 >
                   <Link
                     href={href}
-                    className="flex flex-1 items-center gap-3 px-4 py-3 transition-colors active:bg-zinc-50"
+                    className="flex flex-1 items-center gap-3 px-3.5 py-2.5 transition-colors active:bg-zinc-50"
                   >
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-zinc-800">{ct.name}</p>
@@ -129,12 +130,12 @@ export default function ManageConsumables({ toolId, allConsumables, linked, stoc
           </p>
           <div className="relative mb-2">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-            <input
+            <Input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search consumables…"
-              className="w-full rounded-lg border border-zinc-300 py-2 pl-8 pr-3 text-sm outline-none focus:border-brand"
+              className="pl-8"
             />
           </div>
           {filtered.length === 0 ? (
@@ -146,7 +147,7 @@ export default function ManageConsumables({ toolId, allConsumables, linked, stoc
               {filtered.map((c) => (
                 <li
                   key={c.id}
-                  className="flex items-center justify-between rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200"
+                  className="flex items-center justify-between rounded-card bg-white px-3.5 py-2.5 shadow-sm ring-1 ring-zinc-200"
                 >
                   <div>
                     <p className="text-sm font-medium text-zinc-800">{c.name}</p>
@@ -158,7 +159,7 @@ export default function ManageConsumables({ toolId, allConsumables, linked, stoc
                     type="button"
                     onClick={() => link(c.id)}
                     disabled={isLoading === c.id}
-                    className="flex items-center gap-1 rounded-lg bg-brand/10 px-2 py-1.5 text-xs font-medium text-brand disabled:opacity-40"
+                    className="flex items-center gap-1 rounded-field bg-brand/10 px-2 py-1.5 text-xs font-medium text-brand disabled:opacity-40"
                   >
                     <Plus size={13} />
                     Link

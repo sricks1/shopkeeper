@@ -13,7 +13,7 @@ export default function IssuePhotos({ urls }: { urls: string[] }) {
             key={url}
             type="button"
             onClick={() => setSelected(url)}
-            className="h-24 w-24 shrink-0 overflow-hidden rounded-xl"
+            className="h-24 w-24 shrink-0 overflow-hidden rounded-field"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={url} alt="Issue attachment" className="h-full w-full object-cover" />
@@ -32,7 +32,7 @@ export default function IssuePhotos({ urls }: { urls: string[] }) {
           <img
             src={selected}
             alt="Issue attachment at full size"
-            className="max-h-full max-w-full rounded-xl object-contain"
+            className="max-h-full max-w-full rounded-card object-contain"
           />
         </button>
       )}

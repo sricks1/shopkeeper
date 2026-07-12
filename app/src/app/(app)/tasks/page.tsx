@@ -3,6 +3,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { TaskPriorityBadge, taskStatusLabel } from "@/components/StatusBadge";
 import TaskViewToggle from "@/components/TaskViewToggle";
+import { buttonClasses } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { SegmentedNav } from "@/components/ui/Segmented";
 import { getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/types/database.types";
@@ -77,63 +81,38 @@ export default async function TasksPage({
   const byStatus = (status: TaskStatus) => tasks.filter((t) => t.status === status);
 
   return (
-    <div className="px-4 pb-4 pt-5">
-      {/* Header */}
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-zinc-900">Tasks</h1>
-          <p className="text-sm text-zinc-500">
-            {tasks.length} {view === "mine" ? "assigned to you" : "total"}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <TaskViewToggle current="board" />
-          <Link
-            href="/tasks/new"
-            className="flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-hover active:bg-brand-active"
-          >
-            <Plus size={16} />
-            New
-          </Link>
-        </div>
-      </div>
+    <div className="px-4 pb-4 pt-4">
+      <PageHeader
+        title="Tasks"
+        subtitle={`${tasks.length} ${view === "mine" ? "assigned to you" : "total"}`}
+        action={
+          <>
+            <TaskViewToggle current="board" />
+            <Link href="/tasks/new" className={buttonClasses()}>
+              <Plus size={16} />
+              New
+            </Link>
+          </>
+        }
+      />
 
       {/* All / Mine toggle */}
-      <div className="mb-4 flex gap-1 rounded-xl bg-zinc-200/60 p-1">
-        {(
-          [
-            { value: "all", label: "All", href: "/tasks" },
-            { value: "mine", label: "Mine", href: "/tasks?view=mine" },
-          ] as const
-        ).map((tab) => (
-          <Link
-            key={tab.value}
-            href={tab.href}
-            className={`flex-1 rounded-lg py-2 text-center text-sm font-medium transition-colors ${
-              view === tab.value
-                ? "bg-white text-zinc-900 shadow-sm"
-                : "text-zinc-500 hover:text-zinc-700"
-            }`}
-          >
-            {tab.label}
-          </Link>
-        ))}
-      </div>
+      <SegmentedNav
+        className="mb-4"
+        options={[
+          { value: "all", label: "All" },
+          { value: "mine", label: "Mine" },
+        ]}
+        value={view}
+        hrefFor={(v) => (v === "mine" ? "/tasks?view=mine" : "/tasks")}
+      />
 
       {tasks.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-zinc-200 bg-white px-6 py-14 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100">
-            <ClipboardList size={22} className="text-zinc-400" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-zinc-600">
-              {view === "mine" ? "Nothing assigned to you" : "No tasks yet"}
-            </p>
-            <Link href="/tasks/new" className="mt-1 inline-block text-sm text-brand underline">
-              Create the first one
-            </Link>
-          </div>
-        </div>
+        <EmptyState
+          icon={ClipboardList}
+          title={view === "mine" ? "Nothing assigned to you" : "No tasks yet"}
+          action={{ label: "Create the first one", href: "/tasks/new" }}
+        />
       ) : (
         /* Horizontally-scrollable kanban — one lane dominates on phones, swipe between.
              Columns sized in viewport units and kept inside the page gutters so they
@@ -153,7 +132,7 @@ export default async function TasksPage({
                 </div>
 
                 {colTasks.length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-zinc-200 px-3 py-6 text-center text-xs text-zinc-300">
+                  <div className="rounded-card border border-dashed border-zinc-200 px-3 py-6 text-center text-xs text-zinc-300">
                     Empty
                   </div>
                 ) : (
@@ -183,7 +162,7 @@ export default async function TasksPage({
                       <Link
                         key={task.id}
                         href={`/tasks/${task.id}`}
-                        className="flex flex-col gap-2 rounded-xl bg-white px-3.5 py-3 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
+                        className="flex flex-col gap-2 rounded-card bg-white px-3.5 py-2.5 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
                       >
                         <div className="flex items-start justify-between gap-2">
                           <p className="min-w-0 break-words text-sm font-semibold leading-snug text-zinc-900">
