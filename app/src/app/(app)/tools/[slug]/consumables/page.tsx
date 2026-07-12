@@ -27,7 +27,7 @@ export default async function ToolConsumablesPage({
   // All consumable types in the system
   const { data: allConsumables } = await supabase
     .from("consumable_types")
-    .select("id, name, category")
+    .select("id, name, category, sku, vendor, vendor_url")
     .order("name");
 
   // Currently linked consumable type IDs
@@ -64,12 +64,6 @@ export default async function ToolConsumablesPage({
           Array.from(stockMap.entries()).map(([k, v]) => [k, { id: v.id, status: v.stock_status }]),
         )}
       />
-
-      <div className="mt-4 rounded-card border border-dashed border-zinc-200 px-4 py-3 text-center">
-        <Link href="/inventory/new" className="text-sm text-brand">
-          + Create new consumable type
-        </Link>
-      </div>
     </div>
   );
 }

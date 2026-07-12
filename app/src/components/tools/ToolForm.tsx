@@ -14,6 +14,7 @@ type Tool = Tables<"tools">;
 
 interface ToolFormProps {
   tool?: Tool;
+  toolTypes: { value: string; label: string }[];
 }
 
 const STATUS_OPTIONS: { value: ToolStatus; label: string }[] = [
@@ -22,7 +23,7 @@ const STATUS_OPTIONS: { value: ToolStatus; label: string }[] = [
   { value: "retired", label: "Retired" },
 ];
 
-export default function ToolForm({ tool }: ToolFormProps) {
+export default function ToolForm({ tool, toolTypes }: ToolFormProps) {
   const router = useRouter();
   const isEditing = !!tool;
 
@@ -34,6 +35,7 @@ export default function ToolForm({ tool }: ToolFormProps) {
   const [serial, setSerial] = useState(tool?.serial ?? "");
   const [location, setLocation] = useState(tool?.location ?? "");
   const [status, setStatus] = useState<ToolStatus>(tool?.status ?? "active");
+  const [toolType, setToolType] = useState(tool?.tool_type ?? "");
   const [purchaseDate, setPurchaseDate] = useState(tool?.purchase_date ?? "");
   const [manualUrl, setManualUrl] = useState(tool?.manual_url ?? "");
   const [notes, setNotes] = useState(tool?.notes ?? "");
@@ -61,6 +63,7 @@ export default function ToolForm({ tool }: ToolFormProps) {
       serial: serial.trim() || null,
       location: location.trim() || null,
       status,
+      tool_type: toolType || null,
       purchase_date: purchaseDate || null,
       manual_url: manualUrl.trim() || null,
       notes: notes.trim() || null,
@@ -159,6 +162,18 @@ export default function ToolForm({ tool }: ToolFormProps) {
           {STATUS_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}
+            </option>
+          ))}
+        </Select>
+      </Field>
+
+      {/* Type */}
+      <Field label="Type">
+        <Select value={toolType} onChange={(e) => setToolType(e.target.value)}>
+          <option value="">— No type —</option>
+          {toolTypes.map((t) => (
+            <option key={t.value} value={t.value}>
+              {t.label}
             </option>
           ))}
         </Select>

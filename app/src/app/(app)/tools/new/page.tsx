@@ -3,10 +3,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import ToolForm from "@/components/tools/ToolForm";
 import { canManageTools, getCurrentStaff } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function NewToolPage() {
   const staff = await getCurrentStaff();
   if (!canManageTools(staff?.role)) notFound();
+
+  const supabase = await createClient();
+  const { data: toolTypes } = await supabase
+    .from("tool_types")
+    .select("value, label")
+    .order("sort_order");
 
   return (
     <div className="px-4 pb-4 pt-4">
@@ -15,7 +22,7 @@ export default async function NewToolPage() {
         All Tools
       </Link>
       <h1 className="mb-6 text-lg font-semibold text-zinc-900">Add Tool</h1>
-      <ToolForm />
+      <ToolForm toolTypes={toolTypes ?? []} />
     </div>
   );
 }

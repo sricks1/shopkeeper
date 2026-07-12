@@ -1,8 +1,7 @@
 import { Plus, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import InventoryViewToggle from "@/components/inventory/InventoryViewToggle";
-import type { OrderRow } from "@/components/orders/OrderCard";
-import { OrdersBoard } from "@/components/orders/OrdersBoard";
+import { type OrderRow, OrdersList } from "@/components/orders/OrdersList";
 import { buttonClasses } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -68,7 +67,7 @@ export default async function OrdersPage() {
           action={{ label: "New order", href: "/inventory/orders/new" }}
         />
       ) : (
-        <OrdersBoard orders={orders} />
+        <OrdersList orders={orders} />
       )}
     </div>
   );
