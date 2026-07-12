@@ -181,6 +181,41 @@ export type Database = {
           },
         ];
       };
+      tool_types: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          label: string;
+          sort_order: number;
+          value: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          label: string;
+          sort_order?: number;
+          value: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          label?: string;
+          sort_order?: number;
+          value?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tool_types_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "staff";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       consumable_types: {
         Row: {
           category: string;
@@ -899,6 +934,7 @@ export type Database = {
           serial: string | null;
           slug: string;
           status: Database["public"]["Enums"]["tool_status"];
+          tool_type: string | null;
           updated_at: string;
         };
         Insert: {
@@ -916,6 +952,7 @@ export type Database = {
           serial?: string | null;
           slug: string;
           status?: Database["public"]["Enums"]["tool_status"];
+          tool_type?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -933,6 +970,7 @@ export type Database = {
           serial?: string | null;
           slug?: string;
           status?: Database["public"]["Enums"]["tool_status"];
+          tool_type?: string | null;
           updated_at?: string;
         };
         Relationships: [
