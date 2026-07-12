@@ -1,11 +1,14 @@
-import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import localFont from "next/font/local";
+import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 import "./globals.css";
 
-const geist = Geist({
+// Self-hosted (latin subset, variable weight): next/font/google fetches at
+// build time, and that download hangs indefinitely on some networks.
+const geist = localFont({
+  src: "./fonts/geist-latin.woff2",
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  weight: "100 900",
 });
 
 export const metadata: Metadata = {
@@ -17,16 +20,21 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
   themeColor: "#324168",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geist.variable} h-full antialiased`} data-scroll-behavior="smooth">
+    <html
+      lang="en"
+      className={`${geist.variable} h-full antialiased`}
+      data-scroll-behavior="smooth"
+    >
       <body className="flex min-h-full flex-col bg-zinc-50 font-sans text-zinc-900">
-          <ServiceWorkerRegistrar />
-          {children}
-        </body>
+        <ServiceWorkerRegistrar />
+        {children}
+      </body>
     </html>
   );
 }

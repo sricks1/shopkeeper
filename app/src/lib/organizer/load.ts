@@ -1,5 +1,5 @@
-import type { Database } from "@/lib/types/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/types/database.types";
 import type { OrganizerState } from "./types";
 
 // Loads the full organizer state for one user. Works with either the server or

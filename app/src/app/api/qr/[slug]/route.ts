@@ -1,5 +1,5 @@
-import QRCode from "qrcode";
 import { NextResponse } from "next/server";
+import QRCode from "qrcode";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

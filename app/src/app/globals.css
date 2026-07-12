@@ -3,7 +3,24 @@
 @theme inline {
   --font-sans: var(--font-geist-sans);
 
-  /* ShopKeeper brand palette */
+  /*
+   * ShopKeeper semantic palette.
+   * brand (slate blue) = interactive: buttons, links, active nav, focus rings.
+   * accent (craftsman orange) = attention only: badges, overdue, hot list.
+   * navy = shell chrome: sidebar, mobile header, login backdrop.
+   */
+  --color-brand: #324168;
+  --color-brand-hover: #263352;
+  --color-brand-active: #1e2840;
+  --color-accent: #e06829;
+  --color-accent-hover: #c55a22;
+  --color-navy: #0a112a;
+
+  /* Exactly two radii: fields (inputs, buttons, chips) and cards (panels, rows). */
+  --radius-field: 0.5rem;
+  --radius-card: 0.75rem;
+
+  /* Legacy aliases — remove once no bg-[#324168]-style hexes remain. */
   --color-slate-blue: #324168;
   --color-craftsman-orange: #e06829;
   --color-deep-navy: #0a112a;

@@ -1,10 +1,10 @@
 "use client";
 
-import TaskViewToggle from "@/components/TaskViewToggle";
-import type { OrganizerState, OrganizerTask, TaskScope } from "@/lib/organizer/types";
 import { AlertTriangle, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import TaskViewToggle from "@/components/TaskViewToggle";
+import type { OrganizerState, OrganizerTask, TaskScope } from "@/lib/organizer/types";
 import FolderTree from "./FolderTree";
 import TaskPool from "./TaskPool";
 import { useOrganizer } from "./useOrganizer";
@@ -28,10 +28,7 @@ export default function TaskOrganizer({ initialState, userId, staff }: TaskOrgan
   // default its scope to match (Team pool → team task, Personal pool → personal).
   const [poolScope, setPoolScope] = useState<TaskScope>("team");
 
-  const nameById = useMemo(
-    () => new Map(staff.map((s) => [s.id, s.display_name])),
-    [staff],
-  );
+  const nameById = useMemo(() => new Map(staff.map((s) => [s.id, s.display_name])), [staff]);
   const staffName = (id: string | null) => (id ? (nameById.get(id) ?? "Unknown") : "Unassigned");
 
   const tasksById = useMemo(
@@ -62,7 +59,11 @@ export default function TaskOrganizer({ initialState, userId, staff }: TaskOrgan
         <div className="mb-3 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           <AlertTriangle size={15} className="mt-0.5 shrink-0" />
           <span className="min-w-0 flex-1 break-words">{error}</span>
-          <button type="button" onClick={clearError} className="shrink-0 rounded p-0.5 hover:bg-red-100">
+          <button
+            type="button"
+            onClick={clearError}
+            className="shrink-0 rounded p-0.5 hover:bg-red-100"
+          >
             <X size={14} />
           </button>
         </div>

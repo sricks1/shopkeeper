@@ -1,8 +1,8 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export interface ConsumableOption {
   id: string;
@@ -116,8 +116,11 @@ export default function RepairForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       {/* Description */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-zinc-700">What was done? *</label>
+        <label htmlFor="repair-description" className="text-sm font-medium text-zinc-700">
+          What was done? *
+        </label>
         <textarea
+          id="repair-description"
           required
           rows={3}
           value={description}
@@ -130,8 +133,11 @@ export default function RepairForm({
       {/* Linked issue */}
       {openIssues.length > 0 && (
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-zinc-700">Resolves issue</label>
+          <label htmlFor="repair-issue" className="text-sm font-medium text-zinc-700">
+            Resolves issue
+          </label>
           <select
+            id="repair-issue"
             value={issueId}
             onChange={(e) => setIssueId(e.target.value)}
             className={inputCls}
@@ -151,12 +157,12 @@ export default function RepairForm({
 
       {/* Consumables used */}
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-zinc-700">
+        <span className="text-sm font-medium text-zinc-700">
           Consumables used{" "}
           {selectedCount > 0 && (
             <span className="font-normal text-zinc-400">({selectedCount} selected)</span>
           )}
-        </label>
+        </span>
 
         {consumables.length === 0 ? (
           <p className="rounded-xl border border-dashed border-zinc-200 px-4 py-3 text-sm text-zinc-400">
@@ -199,8 +205,11 @@ export default function RepairForm({
 
       {/* Labor */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-zinc-700">Labor (minutes)</label>
+        <label htmlFor="repair-labor" className="text-sm font-medium text-zinc-700">
+          Labor (minutes)
+        </label>
         <input
+          id="repair-labor"
           type="number"
           min="0"
           value={laborMinutes}
@@ -212,8 +221,11 @@ export default function RepairForm({
 
       {/* Notes */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-zinc-700">Notes</label>
+        <label htmlFor="repair-notes" className="text-sm font-medium text-zinc-700">
+          Notes
+        </label>
         <textarea
+          id="repair-notes"
           rows={2}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
@@ -222,9 +234,7 @@ export default function RepairForm({
         />
       </div>
 
-      {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
-      )}
+      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <div className="flex gap-3">
         <button

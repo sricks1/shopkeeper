@@ -1,9 +1,9 @@
 "use client";
 
-import { TASK_PRIORITY_LABELS, TASK_STATUS_LABELS } from "@/components/StatusBadge";
-import type { TagRow, TaskPriority, TaskStatus } from "@/lib/organizer/types";
 import { Filter, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { TASK_PRIORITY_LABELS, TASK_STATUS_LABELS } from "@/components/StatusBadge";
+import type { TagRow, TaskPriority, TaskStatus } from "@/lib/organizer/types";
 import { STATUS_DOT } from "./StatusMenu";
 
 const STATUS_ORDER: TaskStatus[] = ["new", "todo", "in_progress", "done", "deferred"];
@@ -91,7 +91,10 @@ export default function FilterPanel({
 
           <Group title="Tags">
             <div className="relative mb-1.5">
-              <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+              <Search
+                size={13}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400"
+              />
               <input
                 type="text"
                 value={tagQuery}
@@ -107,7 +110,11 @@ export default function FilterPanel({
             ) : (
               <div className="flex max-h-44 flex-col overflow-y-auto">
                 {shownTags.map((t) => (
-                  <CheckRow key={t.id} checked={tagIds.has(t.id)} onChange={() => onToggleTag(t.id)}>
+                  <CheckRow
+                    key={t.id}
+                    checked={tagIds.has(t.id)}
+                    onChange={() => onToggleTag(t.id)}
+                  >
                     <span
                       className="h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-inset ring-black/10"
                       style={{ backgroundColor: t.color ?? "#d4d4d8" }}
