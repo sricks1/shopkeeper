@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { TagChip } from "@/components/TagChip";
+import { Input } from "@/components/ui/Input";
 import { applyTag, createTag, removeTag } from "@/lib/organizer/api";
 import type { TagRow } from "@/lib/organizer/types";
 
@@ -94,7 +95,7 @@ export default function TaskTagsEditor({ taskId, allTags, initialTagIds }: TaskT
       </div>
 
       <div>
-        <input
+        <Input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -106,7 +107,6 @@ export default function TaskTagsEditor({ taskId, allTags, initialTagIds }: TaskT
             }
           }}
           placeholder="Add a tag…"
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-[#324168] focus:ring-2 focus:ring-[#324168]/20"
         />
 
         {(suggestions.length > 0 || canCreate) && (
@@ -116,7 +116,7 @@ export default function TaskTagsEditor({ taskId, allTags, initialTagIds }: TaskT
                 type="button"
                 onClick={create}
                 disabled={busy}
-                className="inline-flex items-center gap-1 rounded-full bg-[#324168] px-2.5 py-0.5 text-xs font-medium text-white disabled:opacity-60"
+                className="inline-flex items-center gap-1 rounded-full bg-brand px-2.5 py-0.5 text-xs font-medium text-white disabled:opacity-60"
               >
                 <Plus size={12} />
                 Create “{query.trim()}”
@@ -131,7 +131,7 @@ export default function TaskTagsEditor({ taskId, allTags, initialTagIds }: TaskT
         )}
       </div>
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
     </div>
   );
 }

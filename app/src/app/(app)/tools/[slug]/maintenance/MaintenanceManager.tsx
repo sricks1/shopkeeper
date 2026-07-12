@@ -3,6 +3,8 @@
 import { differenceInDays, formatDistanceToNow } from "date-fns";
 import { CheckCircle2, Clock, Plus, Trash2, TriangleAlert } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Input, Select } from "@/components/ui/Input";
 import { createClient } from "@/lib/supabase/client";
 
 interface Task {
@@ -58,9 +60,6 @@ const INTERVAL_OPTIONS = [
   { label: "Annually", days: 365 },
   { label: "No schedule", days: null },
 ];
-
-const inputCls =
-  "w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-[#324168] focus:bg-white focus:ring-2 focus:ring-[#324168]/15";
 
 export default function MaintenanceManager({
   toolId,
@@ -148,7 +147,7 @@ export default function MaintenanceManager({
   return (
     <div className="flex flex-col gap-3">
       {tasks.length === 0 && !showAdd && (
-        <p className="rounded-xl bg-white px-4 py-6 text-center text-sm text-zinc-400 ring-1 ring-zinc-200">
+        <p className="rounded-card bg-white px-4 py-6 text-center text-sm text-zinc-400 ring-1 ring-zinc-200">
           No maintenance tasks yet.
         </p>
       )}
@@ -158,7 +157,7 @@ export default function MaintenanceManager({
         const cfg = STATUS_CONFIG[status];
         const Icon = cfg.icon;
         return (
-          <div key={task.id} className={`rounded-xl px-4 py-4 ring-1 ${cfg.bg}`}>
+          <div key={task.id} className={`rounded-card p-4 ring-1 ${cfg.bg}`}>
             <div className="flex items-start gap-3">
               <Icon size={16} className={`mt-0.5 shrink-0 ${cfg.color}`} />
               <div className="min-w-0 flex-1">
@@ -175,21 +174,21 @@ export default function MaintenanceManager({
               </div>
             </div>
             <div className="mt-3 flex items-center justify-between gap-2">
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => handleMarkDone(task.id)}
                 disabled={markingDone === task.id}
-                className="flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-[#324168] ring-1 ring-zinc-200 transition-colors hover:bg-zinc-50 disabled:opacity-50"
               >
                 <CheckCircle2 size={13} />
                 {markingDone === task.id ? "Saving…" : "Mark Done"}
-              </button>
+              </Button>
               {canManage && (
                 <button
                   type="button"
                   onClick={() => handleDelete(task.id)}
                   disabled={deleting === task.id}
-                  className="rounded-lg px-2 py-1.5 text-xs text-red-400 hover:bg-red-50 disabled:opacity-40"
+                  className="rounded-field px-2 py-1.5 text-xs text-red-400 hover:bg-red-50 disabled:opacity-40"
                 >
                   <Trash2 size={13} />
                 </button>
@@ -203,7 +202,7 @@ export default function MaintenanceManager({
         <button
           type="button"
           onClick={() => setShowAdd(true)}
-          className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-200 py-3.5 text-sm font-medium text-zinc-500 transition-colors hover:border-zinc-300 hover:text-zinc-700"
+          className="flex items-center justify-center gap-2 rounded-card border-2 border-dashed border-zinc-200 py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:border-zinc-300 hover:text-zinc-700"
         >
           <Plus size={15} />
           Add Maintenance Task
@@ -211,54 +210,42 @@ export default function MaintenanceManager({
       )}
 
       {showAdd && (
-        <div className="rounded-xl bg-white p-4 ring-1 ring-zinc-200">
+        <div className="rounded-card bg-white p-4 ring-1 ring-zinc-200">
           <p className="mb-4 text-sm font-semibold text-zinc-700">New Task</p>
           <div className="flex flex-col gap-3">
-            <input
+            <Input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g. Replace bandsaw blade"
-              className={inputCls}
             />
-            <select
+            <Select
               value={intervalDays ?? ""}
               onChange={(e) =>
                 setIntervalDays(e.target.value ? Number.parseInt(e.target.value, 10) : null)
               }
-              className={inputCls}
             >
               {INTERVAL_OPTIONS.map((o) => (
                 <option key={o.label} value={o.days ?? ""}>
                   {o.label}
                 </option>
               ))}
-            </select>
-            <input
+            </Select>
+            <Input
               type="text"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Notes (optional)"
-              className={inputCls}
             />
           </div>
           {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
           <div className="mt-4 flex gap-2">
-            <button
-              type="button"
-              onClick={() => setShowAdd(false)}
-              className="flex-1 rounded-xl border border-zinc-200 py-2.5 text-sm font-medium text-zinc-600"
-            >
+            <Button variant="outline" className="flex-1" onClick={() => setShowAdd(false)}>
               Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleAdd}
-              disabled={saving || !description.trim()}
-              className="flex-1 rounded-xl bg-[#324168] py-2.5 text-sm font-semibold text-white disabled:opacity-50"
-            >
+            </Button>
+            <Button className="flex-1" onClick={handleAdd} disabled={saving || !description.trim()}>
               {saving ? "Saving…" : "Add Task"}
-            </button>
+            </Button>
           </div>
         </div>
       )}

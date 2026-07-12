@@ -1,7 +1,9 @@
-const CACHE = "shopkeeper-v1";
+// v2: orders moved from /tasks?view=purchases to /inventory/orders — bump so
+// installed PWAs drop cached pages with the old navigation.
+const CACHE = "shopkeeper-v2";
 
 // Pages to pre-cache on install
-const PRECACHE_URLS = ["/tools", "/inventory"];
+const PRECACHE_URLS = ["/tools", "/inventory", "/inventory/orders"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

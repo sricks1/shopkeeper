@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AcknowledgeButton({ id }: { id: string }) {
@@ -19,13 +20,8 @@ export default function AcknowledgeButton({ id }: { id: string }) {
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleAck}
-      disabled={loading}
-      className="shrink-0 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-50 disabled:opacity-50"
-    >
+    <Button variant="outline" size="sm" onClick={handleAck} disabled={loading} className="shrink-0">
       {loading ? "..." : "Dismiss"}
-    </button>
+    </Button>
   );
 }

@@ -47,12 +47,12 @@ export default async function ToolConsumablesPage({
   const stockMap = new Map((inventoryItems ?? []).map((ii) => [ii.consumable_type_id, ii]));
 
   return (
-    <div className="px-4 pb-4 pt-6">
+    <div className="px-4 pb-4 pt-4">
       <Link href={`/tools/${slug}`} className="mb-4 flex items-center gap-1 text-sm text-zinc-500">
         <ChevronRight size={14} className="rotate-180" />
         {tool.name}
       </Link>
-      <h1 className="mb-1 text-xl font-bold text-zinc-900">Consumables</h1>
+      <h1 className="mb-1 text-lg font-semibold text-zinc-900">Consumables</h1>
       <p className="mb-6 text-sm text-zinc-500">{tool.name}</p>
 
       <ManageConsumables
@@ -65,8 +65,8 @@ export default async function ToolConsumablesPage({
         )}
       />
 
-      <div className="mt-4 rounded-xl border border-dashed border-zinc-200 px-4 py-3 text-center">
-        <Link href="/inventory/new" className="text-sm text-[#324168]">
+      <div className="mt-4 rounded-card border border-dashed border-zinc-200 px-4 py-3 text-center">
+        <Link href="/inventory/new" className="text-sm text-brand">
           + Create new consumable type
         </Link>
       </div>

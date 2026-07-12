@@ -46,7 +46,7 @@ export default function TaskOrganizer({ initialState, userId, staff }: TaskOrgan
         <div className="flex items-center gap-2">
           <Link
             href={`/tasks/new?scope=${poolScope}&from=organize`}
-            className="flex items-center gap-1.5 rounded-xl bg-[#324168] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#263352] active:bg-[#1e2840]"
+            className="flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-hover active:bg-brand-active"
           >
             <Plus size={16} />
             New Task

@@ -31,7 +31,7 @@ export default function DeleteTaskButton({ taskId }: { taskId: string }) {
       disabled={busy}
       title="Delete task"
       aria-label="Delete task"
-      className="shrink-0 rounded-lg p-2 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+      className="shrink-0 rounded-field p-2 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
     >
       <Trash2 size={18} />
     </button>

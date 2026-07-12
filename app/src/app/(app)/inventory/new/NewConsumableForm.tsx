@@ -4,6 +4,9 @@ import { ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import CategoryPicker, { type CategoryOption } from "@/components/CategoryPicker";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
+import { Input, Textarea } from "@/components/ui/Input";
 import { createClient } from "@/lib/supabase/client";
 import { toHref } from "@/lib/utils";
 
@@ -62,14 +65,13 @@ export default function NewConsumableForm({ categories }: { categories: Category
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <Field label="Name *">
-        <input
+        <Input
           type="text"
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className={inputCls}
           placeholder="1/2-inch bandsaw blade, 3 TPI"
         />
       </Field>
@@ -79,21 +81,19 @@ export default function NewConsumableForm({ categories }: { categories: Category
       </Field>
 
       <Field label="SKU / Part number">
-        <input
+        <Input
           type="text"
           value={sku}
           onChange={(e) => setSku(e.target.value)}
-          className={inputCls}
           placeholder="WC-B-123"
         />
       </Field>
 
       <Field label="Vendor">
-        <input
+        <Input
           type="text"
           value={vendor}
           onChange={(e) => setVendor(e.target.value)}
-          className={inputCls}
           placeholder="Woodcraft"
         />
       </Field>
@@ -106,7 +106,7 @@ export default function NewConsumableForm({ categories }: { categories: Category
               href={toHref(vendorUrl) as string}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-medium text-[#324168] hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
             >
               <ExternalLink size={13} />
               Open
@@ -114,72 +114,34 @@ export default function NewConsumableForm({ categories }: { categories: Category
           )
         }
       >
-        <input
+        <Input
           type="text"
           inputMode="url"
           value={vendorUrl}
           onChange={(e) => setVendorUrl(e.target.value)}
-          className={inputCls}
           placeholder="woodcraft.com/part — https:// optional"
         />
       </Field>
 
       <Field label="Notes">
-        <textarea
+        <Textarea
           rows={2}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className={inputCls}
           placeholder="OEM spec, don't substitute…"
         />
       </Field>
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="flex-1 rounded-lg border border-zinc-200 py-2.5 text-sm font-medium text-zinc-700"
-        >
+        <Button variant="outline" className="flex-1" onClick={() => router.back()}>
           Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="flex-1 rounded-lg bg-[#324168] py-2.5 text-sm font-semibold text-white disabled:opacity-60"
-        >
+        </Button>
+        <Button type="submit" disabled={isLoading} className="flex-1">
           {isLoading ? "Adding…" : "Add Consumable"}
-        </button>
+        </Button>
       </div>
     </form>
-  );
-}
-
-const inputCls =
-  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-[#324168] focus:ring-2 focus:ring-[#324168]/20";
-
-function Field({
-  label,
-  hint,
-  action,
-  children,
-  className,
-}: {
-  label: string;
-  hint?: string;
-  action?: React.ReactNode;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={`flex flex-col gap-1.5 ${className ?? ""}`}>
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-medium text-zinc-700">{label}</span>
-        {action}
-      </div>
-      {children}
-      {hint && <p className="text-xs text-zinc-400">{hint}</p>}
-    </div>
   );
 }

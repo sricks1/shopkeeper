@@ -57,7 +57,7 @@ export default function FilterPanel({
         onClick={() => setOpen((o) => !o)}
         className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset transition-colors ${
           activeCount > 0
-            ? "bg-[#324168] text-white ring-[#324168]"
+            ? "bg-brand text-white ring-brand"
             : "bg-white text-zinc-600 ring-zinc-200 hover:bg-zinc-50"
         }`}
       >
@@ -100,7 +100,7 @@ export default function FilterPanel({
                 value={tagQuery}
                 onChange={(e) => setTagQuery(e.target.value)}
                 placeholder="Search tags…"
-                className="w-full rounded-lg border border-zinc-300 py-1.5 pl-8 pr-2 text-sm outline-none focus:border-[#324168] focus:ring-2 focus:ring-[#324168]/20"
+                className="w-full rounded-lg border border-zinc-300 py-1.5 pl-8 pr-2 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
               />
             </div>
             {tags.length === 0 ? (
@@ -167,7 +167,7 @@ function CheckRow({
         type="checkbox"
         checked={checked}
         onChange={onChange}
-        className="h-3.5 w-3.5 shrink-0 rounded accent-[#324168]"
+        className="h-3.5 w-3.5 shrink-0 rounded accent-brand"
       />
       {children}
     </label>

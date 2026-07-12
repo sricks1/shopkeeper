@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
+import { Input, Select, Textarea } from "@/components/ui/Input";
 import { createClient } from "@/lib/supabase/client";
 
 export interface ConsumableOption {
@@ -113,46 +116,35 @@ export default function RepairForm({
   const selectedCount = selected.size;
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {/* Description */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="repair-description" className="text-sm font-medium text-zinc-700">
-          What was done? *
-        </label>
-        <textarea
+      <Field label="What was done? *" htmlFor="repair-description">
+        <Textarea
           id="repair-description"
           required
           rows={3}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className={inputCls}
           placeholder="Replaced bandsaw blade. Tensioned and tracked."
         />
-      </div>
+      </Field>
 
       {/* Linked issue */}
       {openIssues.length > 0 && (
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="repair-issue" className="text-sm font-medium text-zinc-700">
-            Resolves issue
-          </label>
-          <select
-            id="repair-issue"
-            value={issueId}
-            onChange={(e) => setIssueId(e.target.value)}
-            className={inputCls}
-          >
+        <Field
+          label="Resolves issue"
+          htmlFor="repair-issue"
+          hint={issueId ? "Issue will be marked resolved on save." : undefined}
+        >
+          <Select id="repair-issue" value={issueId} onChange={(e) => setIssueId(e.target.value)}>
             <option value="">— None / preventive maintenance —</option>
             {openIssues.map((issue) => (
               <option key={issue.id} value={issue.id}>
                 {issue.title}
               </option>
             ))}
-          </select>
-          {issueId && (
-            <p className="text-xs text-zinc-400">Issue will be marked resolved on save.</p>
-          )}
-        </div>
+          </Select>
+        </Field>
       )}
 
       {/* Consumables used */}
@@ -165,7 +157,7 @@ export default function RepairForm({
         </span>
 
         {consumables.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-zinc-200 px-4 py-3 text-sm text-zinc-400">
+          <p className="rounded-card border border-dashed border-zinc-200 px-4 py-3 text-sm text-zinc-400">
             No consumables linked to this tool yet. Add them via Edit Tool.
           </p>
         ) : (
@@ -177,8 +169,8 @@ export default function RepairForm({
                   key={c.id}
                   type="button"
                   onClick={() => toggleConsumable(c.id)}
-                  className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
-                    isSelected ? "border-[#324168] bg-[#324168]/5" : "border-zinc-200 bg-white"
+                  className={`flex items-center justify-between gap-3 rounded-card border px-4 py-3 text-left transition-colors ${
+                    isSelected ? "border-brand bg-brand/5" : "border-zinc-200 bg-white"
                   }`}
                 >
                   <div className="min-w-0">
@@ -190,7 +182,7 @@ export default function RepairForm({
                   <span
                     className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[11px] font-bold ${
                       isSelected
-                        ? "border-[#324168] bg-[#324168] text-white"
+                        ? "border-brand bg-brand text-white"
                         : "border-zinc-300 text-transparent"
                     }`}
                   >
@@ -204,57 +196,38 @@ export default function RepairForm({
       </div>
 
       {/* Labor */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="repair-labor" className="text-sm font-medium text-zinc-700">
-          Labor (minutes)
-        </label>
-        <input
+      <Field label="Labor (minutes)" htmlFor="repair-labor">
+        <Input
           id="repair-labor"
           type="number"
           min="0"
           value={laborMinutes}
           onChange={(e) => setLaborMinutes(e.target.value)}
-          className={inputCls}
           placeholder="30"
         />
-      </div>
+      </Field>
 
       {/* Notes */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="repair-notes" className="text-sm font-medium text-zinc-700">
-          Notes
-        </label>
-        <textarea
+      <Field label="Notes" htmlFor="repair-notes">
+        <Textarea
           id="repair-notes"
           rows={2}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className={inputCls}
           placeholder="Parts ordered from Woodcraft, blade spec: 1/2 inch 3 TPI…"
         />
-      </div>
+      </Field>
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="flex-1 rounded-lg border border-zinc-200 py-2.5 text-sm font-medium text-zinc-700"
-        >
+        <Button variant="outline" className="flex-1" onClick={() => router.back()}>
           Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="flex-1 rounded-lg bg-[#324168] py-2.5 text-sm font-semibold text-white disabled:opacity-60"
-        >
+        </Button>
+        <Button type="submit" className="flex-1" disabled={isLoading}>
           {isLoading ? "Saving…" : "Log Repair"}
-        </button>
+        </Button>
       </div>
     </form>
   );
 }
-
-const inputCls =
-  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-[#324168] focus:ring-2 focus:ring-[#324168]/20";

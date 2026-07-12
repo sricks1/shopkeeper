@@ -73,7 +73,7 @@ export default function TaskCard({
             onClick={() => setFiling((v) => !v)}
             title="File into a folder"
             className={`rounded-md p-1 transition-colors ${
-              filing ? "text-[#324168]" : "text-zinc-300 hover:text-[#324168]"
+              filing ? "text-brand" : "text-zinc-300 hover:text-brand"
             }`}
           >
             <FolderPlus size={15} />

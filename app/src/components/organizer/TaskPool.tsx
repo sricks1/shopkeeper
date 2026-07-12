@@ -169,7 +169,7 @@ export default function TaskPool({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search tasks…"
-            className="w-full rounded-lg border border-zinc-300 bg-white py-2 pl-9 pr-3 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-[#324168] focus:ring-2 focus:ring-[#324168]/20"
+            className="w-full rounded-lg border border-zinc-300 bg-white py-2 pl-9 pr-3 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
           />
         </div>
 
@@ -264,7 +264,7 @@ function Chip({
       onClick={onClick}
       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset transition-colors ${
         active
-          ? "bg-[#324168] text-white ring-[#324168]"
+          ? "bg-brand text-white ring-brand"
           : "bg-white text-zinc-600 ring-zinc-200 hover:bg-zinc-50"
       }`}
     >
@@ -275,13 +275,13 @@ function Chip({
 
 function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-[#324168]/10 px-2.5 py-1 text-xs font-medium text-[#324168] ring-1 ring-inset ring-[#324168]/20">
+    <span className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2.5 py-1 text-xs font-medium text-brand ring-1 ring-inset ring-brand/20">
       {label}
       <button
         type="button"
         onClick={onRemove}
         aria-label={`Clear ${label}`}
-        className="rounded-full p-0.5 hover:bg-[#324168]/20"
+        className="rounded-full p-0.5 hover:bg-brand/20"
       >
         <X size={12} />
       </button>

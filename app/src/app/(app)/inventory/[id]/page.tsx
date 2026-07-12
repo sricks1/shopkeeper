@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import DeleteConsumableButton from "@/components/inventory/DeleteConsumableButton";
 import StockControl from "@/components/inventory/StockControl";
-import { TaskStatusBadge, ToolStatusBadge } from "@/components/StatusBadge";
+import OrderStatusControl from "@/components/orders/OrderStatusControl";
+import { ToolStatusBadge } from "@/components/StatusBadge";
 import { canManageTools, getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
@@ -53,13 +54,13 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
     .eq("consumable_type_id", ct.id);
 
   return (
-    <div className="px-4 pb-4 pt-6">
+    <div className="px-4 pb-4 pt-4">
       <Link href="/inventory" className="mb-4 flex items-center gap-1 text-sm text-zinc-500">
         <ChevronRight size={14} className="rotate-180" />
         Inventory
       </Link>
 
-      <h1 className="mb-1 break-words text-xl font-bold text-zinc-900">{ct.name}</h1>
+      <h1 className="mb-1 break-words text-lg font-semibold text-zinc-900">{ct.name}</h1>
       <p className="mb-6 text-sm capitalize text-zinc-400">{categoryLabel}</p>
 
       {/* Stock status — Re-order / In Stock, drives the order task */}
@@ -78,18 +79,22 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
         </p>
       )}
 
-      {/* Linked order task(s) */}
+      {/* Linked order task(s) — inline control, so the whole lifecycle
+          (To Order → Ordered → Received) is reachable from here. */}
       {orderTasks && orderTasks.length > 0 && (
         <ul className="mt-3 flex flex-col gap-2">
           {orderTasks.map((t) => (
-            <li key={t.id}>
+            <li
+              key={t.id}
+              className="flex items-center justify-between gap-3 rounded-card bg-white px-3.5 py-2.5 text-sm shadow-sm ring-1 ring-zinc-200"
+            >
               <Link
-                href={`/tasks/${t.id}`}
-                className="flex items-center justify-between gap-2 rounded-xl bg-white px-4 py-3 text-sm shadow-sm ring-1 ring-zinc-200 active:bg-zinc-50"
+                href={`/tasks/${t.id}?from=orders`}
+                className="min-w-0 truncate font-medium text-zinc-700 hover:underline"
               >
-                <span className="truncate font-medium text-zinc-700">{t.name}</span>
-                <TaskStatusBadge status={t.status} purchase />
+                {t.name}
               </Link>
+              <OrderStatusControl taskId={t.id} status={t.status} />
             </li>
           ))}
         </ul>
@@ -126,7 +131,7 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
           Used in tools
         </p>
         {!linkedTools?.length ? (
-          <p className="rounded-xl bg-white px-4 py-4 text-sm text-zinc-400 ring-1 ring-zinc-200">
+          <p className="rounded-card bg-white p-4 text-sm text-zinc-400 ring-1 ring-zinc-200">
             Not linked to any tools yet.
           </p>
         ) : (
@@ -143,7 +148,7 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
                 <li key={tc.tool_id}>
                   <Link
                     href={`/tools/${tool.slug}`}
-                    className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
+                    className="flex items-center gap-3 rounded-card bg-white px-3.5 py-2.5 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100">
                       <Wrench size={15} className="text-zinc-500" />

@@ -351,14 +351,14 @@ export default function FolderTree({ state, ctrl, tasksById, userId }: FolderTre
       onDragOver={(e) => onItemDragOver(e, folderId, index)}
       onDrop={(e) => onItemDrop(e, folderId, index)}
       className={`group relative flex items-center gap-1.5 rounded-md py-1 pl-1.5 pr-2 ${
-        isSelected("item", itemId) ? "bg-[#324168]/10 ring-1 ring-[#324168]/30" : "hover:bg-zinc-50"
+        isSelected("item", itemId) ? "bg-brand/10 ring-1 ring-brand/30" : "hover:bg-zinc-50"
       }`}
     >
       {dropAt?.folderId === folderId && dropAt.index === index && (
-        <div className="pointer-events-none absolute inset-x-1 -top-px h-0.5 rounded-full bg-[#324168]" />
+        <div className="pointer-events-none absolute inset-x-1 -top-px h-0.5 rounded-full bg-brand" />
       )}
       {dropAt?.folderId === folderId && index === total - 1 && dropAt.index === total && (
-        <div className="pointer-events-none absolute inset-x-1 -bottom-px h-0.5 rounded-full bg-[#324168]" />
+        <div className="pointer-events-none absolute inset-x-1 -bottom-px h-0.5 rounded-full bg-brand" />
       )}
       <Grip onDragStart={(e) => setDrag(e, { kind: "item", itemId, taskId: task.id })} />
       <button
@@ -422,9 +422,9 @@ export default function FolderTree({ state, ctrl, tasksById, userId }: FolderTre
           onDrop={(e) => onFolderDrop(e, node.id)}
           className={`group flex items-center gap-1 rounded-md py-1 pl-1 pr-1 ${
             dragOverFolder === node.id
-              ? "bg-[#324168]/10 ring-1 ring-[#324168]/30"
+              ? "bg-brand/10 ring-1 ring-brand/30"
               : isSelected("folder", node.id)
-                ? "bg-[#324168]/10 ring-1 ring-[#324168]/30"
+                ? "bg-brand/10 ring-1 ring-brand/30"
                 : "hover:bg-zinc-50"
           }`}
         >
@@ -445,9 +445,9 @@ export default function FolderTree({ state, ctrl, tasksById, userId }: FolderTre
           </button>
 
           {isOpen ? (
-            <FolderOpen size={15} className="shrink-0 text-[#324168]/70" />
+            <FolderOpen size={15} className="shrink-0 text-brand/70" />
           ) : (
-            <Folder size={15} className="shrink-0 text-[#324168]/70" />
+            <Folder size={15} className="shrink-0 text-brand/70" />
           )}
 
           {editing ? (
@@ -468,7 +468,7 @@ export default function FolderTree({ state, ctrl, tasksById, userId }: FolderTre
                   treeRef.current?.focus();
                 }
               }}
-              className="min-w-0 flex-1 rounded border border-[#324168] px-1.5 py-0.5 text-sm outline-none"
+              className="min-w-0 flex-1 rounded border border-brand px-1.5 py-0.5 text-sm outline-none"
             />
           ) : (
             <button
@@ -604,7 +604,7 @@ export default function FolderTree({ state, ctrl, tasksById, userId }: FolderTre
           <button
             type="button"
             onClick={() => addFolder(null)}
-            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-[#324168] hover:bg-zinc-100"
+            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-brand hover:bg-zinc-100"
           >
             <FolderPlus size={14} />
             New folder
@@ -634,8 +634,8 @@ export default function FolderTree({ state, ctrl, tasksById, userId }: FolderTre
           }}
           onDragLeave={() => setDragOverRoot(false)}
           onDrop={onRootDrop}
-          className={`min-h-0 flex-1 overflow-y-auto rounded-xl border p-1.5 outline-none focus-visible:ring-1 focus-visible:ring-[#324168]/30 ${
-            dragOverRoot ? "border-[#324168]/40 bg-[#324168]/5" : "border-zinc-200"
+          className={`min-h-0 flex-1 overflow-y-auto rounded-xl border p-1.5 outline-none focus-visible:ring-1 focus-visible:ring-brand/30 ${
+            dragOverRoot ? "border-brand/40 bg-brand/5" : "border-zinc-200"
           }`}
         >
           {tree.length === 0 ? (
@@ -645,7 +645,7 @@ export default function FolderTree({ state, ctrl, tasksById, userId }: FolderTre
               <button
                 type="button"
                 onClick={() => addFolder(null)}
-                className="text-sm font-medium text-[#324168] hover:underline"
+                className="text-sm font-medium text-brand hover:underline"
               >
                 Create your first folder
               </button>

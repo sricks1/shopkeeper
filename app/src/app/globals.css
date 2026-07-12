@@ -19,11 +19,6 @@
   /* Exactly two radii: fields (inputs, buttons, chips) and cards (panels, rows). */
   --radius-field: 0.5rem;
   --radius-card: 0.75rem;
-
-  /* Legacy aliases — remove once no bg-[#324168]-style hexes remain. */
-  --color-slate-blue: #324168;
-  --color-craftsman-orange: #e06829;
-  --color-deep-navy: #0a112a;
 }
 
 /* Smooth scrolling */

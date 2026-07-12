@@ -1,6 +1,11 @@
 import { Package, Plus } from "lucide-react";
 import Link from "next/link";
+import InventoryViewToggle from "@/components/inventory/InventoryViewToggle";
 import StockControl from "@/components/inventory/StockControl";
+import { buttonClasses } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { SegmentedNav } from "@/components/ui/Segmented";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/types/database.types";
 
@@ -50,77 +55,60 @@ export default async function InventoryPage({
   const onOrderCount = items.filter((i) => i.status === "on_order").length;
 
   return (
-    <div className="px-4 pb-4 pt-5">
-      {/* Header */}
-      <div className="mb-5 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-zinc-900">Inventory</h1>
-          <p className="text-sm text-zinc-500">
+    <div className="px-4 pb-4 pt-4">
+      <PageHeader
+        title="Inventory"
+        subtitle={
+          <>
             {items.length} consumables
             {onOrderCount > 0 && (
               <Link
-                href="/tasks?view=purchases"
+                href="/inventory/orders"
                 className="ml-2 font-medium text-amber-600 hover:underline"
               >
                 · {onOrderCount} on order →
               </Link>
             )}
-          </p>
-        </div>
-        <Link
-          href="/inventory/new"
-          className="flex items-center gap-1.5 rounded-xl bg-[#324168] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#263352]"
-        >
-          <Plus size={16} />
-          Add
-        </Link>
-      </div>
+          </>
+        }
+        action={
+          <Link href="/inventory/new" className={buttonClasses()}>
+            <Plus size={16} />
+            Add
+          </Link>
+        }
+      />
+
+      <InventoryViewToggle current="stock" />
 
       {/* Filter tabs */}
-      <div className="mb-4 flex gap-1 rounded-xl bg-zinc-200/60 p-1">
-        {FILTER_TABS.map((tab) => (
-          <Link
-            key={tab.value}
-            href={tab.value === "all" ? "/inventory" : `/inventory?status=${tab.value}`}
-            className={`flex-1 rounded-lg py-2 text-center text-sm font-medium transition-colors ${
-              filter === tab.value
-                ? "bg-white text-zinc-900 shadow-sm"
-                : "text-zinc-500 hover:text-zinc-700"
-            }`}
-          >
-            {tab.label}
-          </Link>
-        ))}
-      </div>
+      <SegmentedNav
+        className="mb-4"
+        options={FILTER_TABS}
+        value={filter}
+        hrefFor={(v) => (v === "all" ? "/inventory" : `/inventory?status=${v}`)}
+      />
 
       {/* List */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-zinc-200 bg-white px-6 py-14 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100">
-            <Package size={22} className="text-zinc-400" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-zinc-600">
-              {filter === "all" ? "No consumables yet" : "Nothing in this filter"}
-            </p>
-            {filter === "all" && (
-              <Link href="/inventory/new" className="mt-1 text-sm text-[#324168] underline">
-                Add the first one
-              </Link>
-            )}
-          </div>
-        </div>
+        <EmptyState
+          icon={Package}
+          title={filter === "all" ? "No consumables yet" : "Nothing in this filter"}
+          action={
+            filter === "all" ? { label: "Add the first one", href: "/inventory/new" } : undefined
+          }
+        />
       ) : (
         <ul className="flex flex-col gap-2">
           {filtered.map((item) => (
             <li
               key={item.id}
-              className="flex items-center overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-zinc-200"
+              className="flex items-center overflow-hidden rounded-card bg-white shadow-sm ring-1 ring-zinc-200"
             >
               <div className={`w-1 shrink-0 self-stretch ${STRIP[item.status]}`} />
               <Link
                 href={item.inventoryId ? `/inventory/${item.inventoryId}` : "/inventory/new"}
-                className="min-w-0 flex-1 px-4 py-3.5 transition-colors active:bg-zinc-50"
+                className="min-w-0 flex-1 px-3.5 py-2.5 transition-colors active:bg-zinc-50"
               >
                 <p className="truncate font-semibold text-zinc-900">{item.name}</p>
                 <p className="mt-0.5 truncate text-xs capitalize text-zinc-400">

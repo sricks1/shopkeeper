@@ -1,5 +1,7 @@
 import { AlertTriangle, BellOff, MessageSquare, Package, UserPlus } from "lucide-react";
 import Link from "next/link";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { timeAgo } from "@/lib/utils";
@@ -28,7 +30,7 @@ function NotificationIcon({ type }: { type: string }) {
     );
   return (
     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-100">
-      <Package size={15} className="text-[#e06829]" />
+      <Package size={15} className="text-accent" />
     </div>
   );
 }
@@ -81,24 +83,17 @@ export default async function NotificationsPage() {
   const read = notifications?.filter((n) => n.acknowledged_at) ?? [];
 
   return (
-    <div className="px-4 pb-4 pt-5">
-      <div className="mb-5">
-        <h1 className="text-xl font-bold text-zinc-900">Notifications</h1>
-        <p className="text-sm text-zinc-500">
-          {unread.length > 0 ? `${unread.length} unread` : "All caught up"}
-        </p>
-      </div>
+    <div className="px-4 pb-4 pt-4">
+      <PageHeader
+        title="Notifications"
+        subtitle={unread.length > 0 ? `${unread.length} unread` : "All caught up"}
+      />
 
       {/* Unread */}
       <section className="mb-6">
         <p className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-400">New</p>
         {unread.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 rounded-2xl bg-white px-6 py-10 text-center ring-1 ring-zinc-200">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100">
-              <BellOff size={18} className="text-zinc-400" />
-            </div>
-            <p className="text-sm text-zinc-400">No new notifications</p>
-          </div>
+          <EmptyState icon={BellOff} title="No new notifications" />
         ) : (
           <ul className="flex flex-col gap-2">
             {unread.map((n) => {
@@ -108,7 +103,7 @@ export default async function NotificationsPage() {
               return (
                 <li
                   key={n.id}
-                  className="flex items-center gap-3 rounded-xl bg-white px-4 py-3.5 shadow-sm ring-1 ring-zinc-200"
+                  className="flex items-center gap-3 rounded-card bg-white px-3.5 py-2.5 shadow-sm ring-1 ring-zinc-200"
                 >
                   <NotificationIcon type={n.type} />
                   <div className="min-w-0 flex-1">
@@ -149,7 +144,7 @@ export default async function NotificationsPage() {
               return (
                 <li
                   key={n.id}
-                  className="flex items-center gap-3 rounded-xl bg-white px-4 py-3.5 ring-1 ring-zinc-200 opacity-50"
+                  className="flex items-center gap-3 rounded-card bg-white px-3.5 py-2.5 ring-1 ring-zinc-200 opacity-50"
                 >
                   <NotificationIcon type={n.type} />
                   <div className="min-w-0 flex-1">

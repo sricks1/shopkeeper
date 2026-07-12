@@ -10,6 +10,8 @@ import {
   TASK_PRIORITY_LABELS,
   taskStatusLabel,
 } from "@/components/StatusBadge";
+import { Field } from "@/components/ui/Field";
+import { Input, Textarea } from "@/components/ui/Input";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums, TablesUpdate } from "@/lib/types/database.types";
 
@@ -27,7 +29,7 @@ const PRIORITY_STYLE: Record<TaskPriority, { on: string; off: string }> = {
     off: "bg-zinc-50 text-zinc-600 ring-zinc-300 hover:bg-zinc-100",
   },
   normal: {
-    on: "bg-[#324168] text-white ring-[#324168]",
+    on: "bg-brand text-white ring-brand",
     off: "bg-white text-zinc-600 ring-zinc-200 hover:bg-zinc-50",
   },
   high: {
@@ -167,7 +169,7 @@ export default function TaskEditForm({ task, staff, isPurchase = false }: TaskEd
       </div>
 
       {/* Status — saves immediately so the board reflects it */}
-      <div className="rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-zinc-200">
+      <div className="rounded-card bg-white p-4 shadow-sm ring-1 ring-zinc-200">
         <p className="mb-2 text-sm font-medium text-zinc-700">Status</p>
         <div className="flex flex-wrap gap-2">
           {(isPurchase ? ORDER_COLUMN_ORDER : STATUS_ORDER).map((s) => (
@@ -177,7 +179,7 @@ export default function TaskEditForm({ task, staff, isPurchase = false }: TaskEd
               onClick={() => updateStatus(s)}
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium ring-1 ring-inset transition-colors ${
                 status === s
-                  ? "bg-[#324168] text-white ring-[#324168]"
+                  ? "bg-brand text-white ring-brand"
                   : "bg-white text-zinc-600 ring-zinc-200 hover:bg-zinc-50"
               }`}
             >
@@ -189,7 +191,7 @@ export default function TaskEditForm({ task, staff, isPurchase = false }: TaskEd
       </div>
 
       {/* Priority — saves immediately so the organizer reflects it */}
-      <div className="rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-zinc-200">
+      <div className="rounded-card bg-white p-4 shadow-sm ring-1 ring-zinc-200">
         <p className="mb-2 text-sm font-medium text-zinc-700">Priority</p>
         <div className="flex flex-wrap gap-2">
           {PRIORITY_ORDER.map((p) => (
@@ -197,7 +199,7 @@ export default function TaskEditForm({ task, staff, isPurchase = false }: TaskEd
               key={p}
               type="button"
               onClick={() => updatePriority(p)}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium ring-1 ring-inset transition-colors ${
+              className={`rounded-field px-3 py-1.5 text-sm font-medium ring-1 ring-inset transition-colors ${
                 priority === p ? PRIORITY_STYLE[p].on : PRIORITY_STYLE[p].off
               }`}
             >
@@ -208,16 +210,15 @@ export default function TaskEditForm({ task, staff, isPurchase = false }: TaskEd
       </div>
 
       {/* Details — each field saves on blur/change */}
-      <div className="flex flex-col gap-4 rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-zinc-200">
+      <div className="flex flex-col gap-4 rounded-card bg-white p-4 shadow-sm ring-1 ring-zinc-200">
         <p className="text-sm font-medium text-zinc-700">Details</p>
 
         <Field label="Task">
-          <input
+          <Input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             onBlur={commitName}
-            className={inputCls}
           />
         </Field>
 
@@ -226,26 +227,20 @@ export default function TaskEditForm({ task, staff, isPurchase = false }: TaskEd
         </Field>
 
         <Field label="Date needed">
-          <input
-            type="date"
-            value={dateNeeded}
-            onChange={(e) => commitDate(e.target.value)}
-            className={inputCls}
-          />
+          <Input type="date" value={dateNeeded} onChange={(e) => commitDate(e.target.value)} />
         </Field>
 
         <Field label="Notes">
-          <textarea
+          <Textarea
             rows={3}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             onBlur={commitNotes}
-            className={inputCls}
           />
         </Field>
       </div>
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
     </div>
   );
 }
@@ -260,16 +255,4 @@ function SaveCue({ state }: { state: SaveState }) {
       </span>
     );
   return null;
-}
-
-const inputCls =
-  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-[#324168] focus:ring-2 focus:ring-[#324168]/20";
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <span className="text-sm font-medium text-zinc-700">{label}</span>
-      {children}
-    </div>
-  );
 }

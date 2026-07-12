@@ -16,6 +16,7 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { IssueStatusBadge, SeverityBadge, ToolStatusBadge } from "@/components/StatusBadge";
+import { buttonClasses } from "@/components/ui/Button";
 import { canManageTools, getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate, timeAgo } from "@/lib/utils";
@@ -70,7 +71,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
   const isDown = tool.status === "down";
 
   return (
-    <div className="px-4 pb-6 pt-5">
+    <div className="px-4 pb-6 pt-4">
       {/* Back */}
       <Link
         href="/tools"
@@ -83,7 +84,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
       {/* Tool header */}
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-bold text-zinc-900">{tool.name}</h1>
+          <h1 className="text-lg font-semibold text-zinc-900">{tool.name}</h1>
           {(tool.manufacturer || tool.model) && (
             <p className="mt-0.5 text-sm text-zinc-500">
               {[tool.manufacturer, tool.model].filter(Boolean).join(" · ")}
@@ -97,7 +98,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
 
       {/* Down banner */}
       {isDown && (
-        <div className="mb-4 flex items-center gap-2.5 rounded-xl bg-red-50 px-4 py-3.5 ring-1 ring-red-200">
+        <div className="mb-4 flex items-center gap-2.5 rounded-card bg-red-50 px-3.5 py-2.5 ring-1 ring-red-200">
           <AlertTriangle size={16} className="shrink-0 text-red-500" />
           <p className="text-sm font-semibold text-red-700">
             This tool is currently out of service.
@@ -107,24 +108,18 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
 
       {/* Primary CTAs */}
       <div className="mb-4 grid grid-cols-2 gap-2">
-        <Link
-          href={`/tools/${slug}/issues/new`}
-          className="flex items-center justify-center gap-2 rounded-xl bg-[#e06829] px-4 py-3.5 text-sm font-semibold text-white shadow-sm shadow-[#e06829]/20 transition-colors hover:bg-[#c55a22] active:bg-[#c55a22]"
-        >
+        <Link href={`/tools/${slug}/issues/new`} className={buttonClasses({ variant: "accent" })}>
           <AlertTriangle size={16} className="shrink-0" />
           <span className="whitespace-nowrap">Report Issue</span>
         </Link>
-        <Link
-          href={`/tools/${slug}/repairs/new`}
-          className="flex items-center justify-center gap-2 rounded-xl bg-[#324168] px-4 py-3.5 text-sm font-semibold text-white shadow-sm shadow-[#324168]/20 transition-colors hover:bg-[#263352] active:bg-[#263352]"
-        >
+        <Link href={`/tools/${slug}/repairs/new`} className={buttonClasses()}>
           <Wrench size={16} className="shrink-0" />
           <span className="whitespace-nowrap">Log Repair</span>
         </Link>
       </div>
 
       {/* Metadata card */}
-      <div className="mb-4 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-zinc-200">
+      <div className="mb-4 overflow-hidden rounded-card bg-white shadow-sm ring-1 ring-zinc-200">
         <div className="flex flex-col divide-y divide-zinc-100">
           {tool.location && (
             <div className="flex items-center gap-3 px-4 py-3 text-sm">
@@ -150,7 +145,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
               href={tool.manual_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-4 py-3 text-sm text-[#324168]"
+              className="flex items-center gap-3 px-4 py-3 text-sm text-brand"
             >
               <ExternalLink size={14} className="shrink-0" />
               View manual
@@ -171,7 +166,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
         {canManageTools(staff?.role) && (
           <Link
             href={`/tools/${slug}/edit`}
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+            className="flex items-center justify-center gap-1.5 rounded-field border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
           >
             <Pencil size={14} className="shrink-0" />
             <span className="whitespace-nowrap">Edit</span>
@@ -180,7 +175,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
         {canManageTools(staff?.role) && (
           <Link
             href={`/tools/${slug}/consumables`}
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+            className="flex items-center justify-center gap-1.5 rounded-field border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
           >
             <Package size={14} className="shrink-0" />
             <span className="whitespace-nowrap">Parts</span>
@@ -188,7 +183,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
         )}
         <Link
           href={`/tools/${slug}/maintenance`}
-          className="relative flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+          className="relative flex items-center justify-center gap-1.5 rounded-field border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
         >
           <Wrench size={14} className="shrink-0" />
           <span className="whitespace-nowrap">Maint.</span>
@@ -203,7 +198,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
         <a
           href={`/api/qr/${slug}`}
           download={`qr-${slug}.png`}
-          className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+          className="flex items-center justify-center gap-1.5 rounded-field border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
         >
           <Download size={14} className="shrink-0" />
           <span className="whitespace-nowrap">QR</span>
@@ -229,7 +224,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
                     <li key={task.id}>
                       <Link
                         href={`/tools/${slug}/maintenance`}
-                        className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
+                        className="flex items-center gap-3 rounded-card bg-white px-3.5 py-2.5 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
                       >
                         {status === "overdue" ? (
                           <TriangleAlert size={15} className="shrink-0 text-red-500" />
@@ -261,7 +256,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
           <span className="h-px flex-1 bg-zinc-200" />
         </h2>
         {!issues?.length ? (
-          <p className="rounded-xl bg-white px-4 py-4 text-sm text-zinc-400 ring-1 ring-zinc-200">
+          <p className="rounded-card bg-white p-4 text-sm text-zinc-400 ring-1 ring-zinc-200">
             No issues reported.
           </p>
         ) : (
@@ -270,7 +265,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
               <li key={issue.id}>
                 <Link
                   href={`/tools/${slug}/issues/${issue.id}`}
-                  className="flex flex-col rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
+                  className="flex flex-col rounded-card bg-white px-3.5 py-2.5 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-sm font-semibold text-zinc-800">{issue.title}</p>
@@ -295,7 +290,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
           <span className="h-px flex-1 bg-zinc-200" />
         </h2>
         {!repairs?.length ? (
-          <p className="rounded-xl bg-white px-4 py-4 text-sm text-zinc-400 ring-1 ring-zinc-200">
+          <p className="rounded-card bg-white p-4 text-sm text-zinc-400 ring-1 ring-zinc-200">
             No repairs logged.
           </p>
         ) : (
@@ -303,7 +298,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
             {repairs.map((repair) => (
               <li
                 key={repair.id}
-                className="rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-200"
+                className="rounded-card bg-white px-3.5 py-2.5 shadow-sm ring-1 ring-zinc-200"
               >
                 <p className="text-sm font-medium text-zinc-800 line-clamp-2">
                   {repair.description}

@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Textarea } from "@/components/ui/Input";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AddCommentForm({ taskId }: { taskId: string }) {
@@ -38,21 +40,21 @@ export default function AddCommentForm({ taskId }: { taskId: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-      <textarea
+      <Textarea
         rows={2}
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder="Add a comment…"
-        className="w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-[#324168] focus:ring-2 focus:ring-[#324168]/20"
       />
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-      <button
+      {error && <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      <Button
         type="submit"
+        variant="accent"
         disabled={isLoading || !body.trim()}
-        className="self-end rounded-lg bg-[#e06829] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+        className="self-end"
       >
         {isLoading ? "Posting…" : "Post Comment"}
-      </button>
+      </Button>
     </form>
   );
 }

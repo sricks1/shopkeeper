@@ -24,7 +24,7 @@ function toValue(label: string): string {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-[#324168] focus:ring-2 focus:ring-[#324168]/20";
+  "w-full rounded-field border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20";
 
 export default function CategoryPicker({
   categories: initial,
@@ -90,7 +90,7 @@ export default function CategoryPicker({
             type="button"
             onClick={addCategory}
             disabled={busy || !newLabel.trim()}
-            className="shrink-0 rounded-lg bg-[#324168] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            className="shrink-0 rounded-field bg-brand px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
           >
             {busy ? "…" : "Add"}
           </button>
@@ -101,7 +101,7 @@ export default function CategoryPicker({
               setNewLabel("");
               setError(null);
             }}
-            className="shrink-0 rounded-lg border border-zinc-200 px-3 text-sm font-medium text-zinc-600"
+            className="shrink-0 rounded-field border border-zinc-200 px-3 text-sm font-medium text-zinc-600"
           >
             Cancel
           </button>
@@ -123,7 +123,7 @@ export default function CategoryPicker({
       <button
         type="button"
         onClick={() => setAdding(true)}
-        className="self-start text-sm font-medium text-[#324168] underline"
+        className="self-start text-sm font-medium text-brand underline"
       >
         + New category
       </button>
