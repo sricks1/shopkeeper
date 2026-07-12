@@ -1,6 +1,7 @@
 "use client";
 
 import { ShoppingCart } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -36,32 +37,41 @@ export default function OrderToggle({
 
   if (isOrder) {
     return (
-      <div className="mb-4 flex items-center justify-between gap-2 rounded-xl bg-[#e06829]/5 px-4 py-3 text-sm ring-1 ring-[#e06829]/20">
-        <span className="flex items-center gap-2 font-medium text-[#c55a22]">
+      <div className="mb-4 flex items-center justify-between gap-2 rounded-card bg-accent/5 px-4 py-3 text-sm ring-1 ring-accent/20">
+        <Link
+          href="/inventory/orders"
+          className="flex min-w-0 items-center gap-2 font-medium text-accent-hover hover:underline"
+        >
           <ShoppingCart size={15} className="shrink-0" />
-          On the Orders board
-        </span>
+          Tracked in Inventory › Orders
+        </Link>
         <button
           type="button"
           onClick={toggle}
           disabled={busy}
           className="shrink-0 text-xs font-medium text-zinc-500 hover:underline disabled:opacity-50"
+          title="Turns it back into a normal task on the Tasks board"
         >
-          {busy ? "…" : "Remove"}
+          {busy ? "…" : "Make it a task again"}
         </button>
       </div>
     );
   }
 
   return (
-    <button
-      type="button"
-      onClick={toggle}
-      disabled={busy}
-      className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border border-[#e06829]/40 bg-white px-4 py-2.5 text-sm font-semibold text-[#c55a22] transition-colors hover:bg-[#e06829]/5 disabled:opacity-60"
-    >
-      <ShoppingCart size={15} />
-      {busy ? "…" : "Make this an order"}
-    </button>
+    <div className="mb-4">
+      <button
+        type="button"
+        onClick={toggle}
+        disabled={busy}
+        className="flex w-full items-center justify-center gap-2 rounded-card border border-accent/40 bg-white px-4 py-2.5 text-sm font-semibold text-accent-hover transition-colors hover:bg-accent/5 disabled:opacity-60"
+      >
+        <ShoppingCart size={15} />
+        {busy ? "…" : "Make this an order"}
+      </button>
+      <p className="mt-1 px-1 text-xs text-zinc-400">
+        Moves it off the Tasks board and into Inventory › Orders.
+      </p>
+    </div>
   );
 }

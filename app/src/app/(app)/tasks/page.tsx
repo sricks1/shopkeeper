@@ -1,7 +1,7 @@
-import { CalendarClock, ClipboardList, Lock, Plus, ShoppingCart, User } from "lucide-react";
+import { CalendarClock, ClipboardList, Lock, Plus, User } from "lucide-react";
 import Link from "next/link";
-import OrderStatusControl from "@/components/OrderStatusControl";
-import { ORDER_COLUMN_ORDER, TaskPriorityBadge, taskStatusLabel } from "@/components/StatusBadge";
+import { redirect } from "next/navigation";
+import { TaskPriorityBadge, taskStatusLabel } from "@/components/StatusBadge";
 import TaskViewToggle from "@/components/TaskViewToggle";
 import { getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -30,8 +30,6 @@ type BoardTask = {
   scope: TaskScope;
   date_needed: string | null;
   assigned_to: string | null;
-  consumable_type_id: string | null;
-  is_order: boolean;
 };
 
 export default async function TasksPage({
@@ -40,8 +38,9 @@ export default async function TasksPage({
   searchParams: Promise<{ view?: string }>;
 }) {
   const { view: rawView } = await searchParams;
-  const view: "all" | "mine" | "purchases" =
-    rawView === "mine" ? "mine" : rawView === "purchases" ? "purchases" : "all";
+  // Orders moved to Inventory › Orders — send old bookmarks there.
+  if (rawView === "purchases") redirect("/inventory/orders");
+  const view: "all" | "mine" = rawView === "mine" ? "mine" : "all";
 
   const supabase = await createClient();
   const staff = await getCurrentStaff();
@@ -57,22 +56,15 @@ export default async function TasksPage({
   // The board is the team overview, so personal drafts are excluded — except on
   // the "Mine" tab, which also surfaces your own personal tasks (RLS already
   // limits personal rows to their owner). They're flagged with a lock.
+  // Orders (consumable-linked or is_order) live in Inventory › Orders, not here.
   let query = supabase
     .from("staff_tasks")
-    .select(
-      "id, name, status, priority, scope, date_needed, assigned_to, consumable_type_id, is_order",
-    );
+    .select("id, name, status, priority, scope, date_needed, assigned_to")
+    .is("consumable_type_id", null)
+    .eq("is_order", false);
 
   if (view === "mine" && staff) {
     query = query.or(`assigned_to.eq.${staff.id},scope.eq.personal`);
-  } else if (view === "purchases") {
-    // Received orders self-clean: drop them off the board 5 days after being
-    // received (updated_at is the received time once status is done).
-    const cutoff = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
-    query = query
-      .eq("scope", "team")
-      .or("consumable_type_id.not.is.null,is_order.is.true")
-      .or(`status.neq.done,updated_at.gte.${cutoff}`);
   } else {
     query = query.eq("scope", "team");
   }
@@ -82,9 +74,6 @@ export default async function TasksPage({
     .order("created_at", { ascending: false });
   const tasks = (data ?? []) as BoardTask[];
 
-  // The Orders view (purchase tasks) uses the 4 order columns + order vocabulary.
-  const isOrders = view === "purchases";
-  const columns = isOrders ? ORDER_COLUMN_ORDER : COLUMN_ORDER;
   const byStatus = (status: TaskStatus) => tasks.filter((t) => t.status === status);
 
   return (
@@ -94,7 +83,7 @@ export default async function TasksPage({
         <div>
           <h1 className="text-xl font-bold text-zinc-900">Tasks</h1>
           <p className="text-sm text-zinc-500">
-            {tasks.length} {view === "mine" ? "assigned to you" : isOrders ? "orders" : "total"}
+            {tasks.length} {view === "mine" ? "assigned to you" : "total"}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -115,7 +104,6 @@ export default async function TasksPage({
           [
             { value: "all", label: "All", href: "/tasks" },
             { value: "mine", label: "Mine", href: "/tasks?view=mine" },
-            { value: "purchases", label: "Orders", href: "/tasks?view=purchases" },
           ] as const
         ).map((tab) => (
           <Link
@@ -139,11 +127,7 @@ export default async function TasksPage({
           </div>
           <div>
             <p className="text-sm font-medium text-zinc-600">
-              {view === "mine"
-                ? "Nothing assigned to you"
-                : isOrders
-                  ? "No orders right now"
-                  : "No tasks yet"}
+              {view === "mine" ? "Nothing assigned to you" : "No tasks yet"}
             </p>
             <Link href="/tasks/new" className="mt-1 inline-block text-sm text-[#324168] underline">
               Create the first one
@@ -155,7 +139,7 @@ export default async function TasksPage({
              Columns sized in viewport units and kept inside the page gutters so they
              frame cleanly (no full-bleed negative margin). */
         <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth pb-2">
-          {columns.map((status) => {
+          {COLUMN_ORDER.map((status) => {
             const colTasks = byStatus(status);
             return (
               <section
@@ -164,9 +148,7 @@ export default async function TasksPage({
               >
                 <div className="flex items-center gap-2 px-1">
                   <span className={`h-2 w-2 rounded-full ${COLUMN_DOT[status]}`} />
-                  <h2 className="text-sm font-semibold text-zinc-700">
-                    {taskStatusLabel(status, isOrders)}
-                  </h2>
+                  <h2 className="text-sm font-semibold text-zinc-700">{taskStatusLabel(status)}</h2>
                   <span className="text-xs font-medium text-zinc-400">{colTasks.length}</span>
                 </div>
 
@@ -197,33 +179,6 @@ export default async function TasksPage({
                       </div>
                     );
 
-                    // Orders board: card carries an inline status control so you can
-                    // advance To Order → Ordered → Received without leaving the board.
-                    if (isOrders) {
-                      return (
-                        <div
-                          key={task.id}
-                          className="flex flex-col gap-2 rounded-xl bg-white px-3.5 py-3 shadow-sm ring-1 ring-zinc-200"
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <Link
-                              href={`/tasks/${task.id}`}
-                              className="min-w-0 break-words text-sm font-semibold leading-snug text-zinc-900 hover:underline"
-                            >
-                              {task.name}
-                            </Link>
-                            <span className="shrink-0 pt-0.5">
-                              <TaskPriorityBadge priority={task.priority} />
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between gap-2">
-                            <OrderStatusControl taskId={task.id} status={task.status} />
-                            {meta}
-                          </div>
-                        </div>
-                      );
-                    }
-
                     return (
                       <Link
                         key={task.id}
@@ -235,11 +190,6 @@ export default async function TasksPage({
                             {task.name}
                           </p>
                           <span className="flex shrink-0 items-center gap-1 pt-0.5">
-                            {(task.consumable_type_id || task.is_order) && (
-                              <span title="Purchase order" className="text-[#e06829]">
-                                <ShoppingCart size={13} />
-                              </span>
-                            )}
                             <TaskPriorityBadge priority={task.priority} />
                             {task.scope === "personal" && (
                               <span

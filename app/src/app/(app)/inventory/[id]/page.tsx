@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import DeleteConsumableButton from "@/components/inventory/DeleteConsumableButton";
 import StockControl from "@/components/inventory/StockControl";
-import { TaskStatusBadge, ToolStatusBadge } from "@/components/StatusBadge";
+import OrderStatusControl from "@/components/orders/OrderStatusControl";
+import { ToolStatusBadge } from "@/components/StatusBadge";
 import { canManageTools, getCurrentStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
@@ -78,18 +79,22 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
         </p>
       )}
 
-      {/* Linked order task(s) */}
+      {/* Linked order task(s) — inline control, so the whole lifecycle
+          (To Order → Ordered → Received) is reachable from here. */}
       {orderTasks && orderTasks.length > 0 && (
         <ul className="mt-3 flex flex-col gap-2">
           {orderTasks.map((t) => (
-            <li key={t.id}>
+            <li
+              key={t.id}
+              className="flex items-center justify-between gap-3 rounded-xl bg-white px-4 py-3 text-sm shadow-sm ring-1 ring-zinc-200"
+            >
               <Link
-                href={`/tasks/${t.id}`}
-                className="flex items-center justify-between gap-2 rounded-xl bg-white px-4 py-3 text-sm shadow-sm ring-1 ring-zinc-200 active:bg-zinc-50"
+                href={`/tasks/${t.id}?from=orders`}
+                className="min-w-0 truncate font-medium text-zinc-700 hover:underline"
               >
-                <span className="truncate font-medium text-zinc-700">{t.name}</span>
-                <TaskStatusBadge status={t.status} purchase />
+                {t.name}
               </Link>
+              <OrderStatusControl taskId={t.id} status={t.status} />
             </li>
           ))}
         </ul>

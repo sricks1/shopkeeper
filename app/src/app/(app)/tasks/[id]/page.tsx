@@ -20,9 +20,14 @@ export default async function TaskDetailPage({
 }) {
   const { id } = await params;
   const { from } = await searchParams;
-  const fromOrganize = from === "organize";
-  const backHref = fromOrganize ? "/tasks/organize" : "/tasks";
-  const backLabel = fromOrganize ? "Organize" : "Tasks";
+  const backTarget =
+    from === "organize"
+      ? { href: "/tasks/organize", label: "Organize" }
+      : from === "orders"
+        ? { href: "/inventory/orders", label: "Orders" }
+        : { href: "/tasks", label: "Tasks" };
+  const backHref = backTarget.href;
+  const backLabel = backTarget.label;
   const supabase = await createClient();
 
   const { data: task } = await supabase

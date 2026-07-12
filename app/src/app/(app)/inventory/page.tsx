@@ -1,5 +1,6 @@
 import { Package, Plus } from "lucide-react";
 import Link from "next/link";
+import InventoryViewToggle from "@/components/inventory/InventoryViewToggle";
 import StockControl from "@/components/inventory/StockControl";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/types/database.types";
@@ -59,7 +60,7 @@ export default async function InventoryPage({
             {items.length} consumables
             {onOrderCount > 0 && (
               <Link
-                href="/tasks?view=purchases"
+                href="/inventory/orders"
                 className="ml-2 font-medium text-amber-600 hover:underline"
               >
                 · {onOrderCount} on order →
@@ -75,6 +76,8 @@ export default async function InventoryPage({
           Add
         </Link>
       </div>
+
+      <InventoryViewToggle current="stock" />
 
       {/* Filter tabs */}
       <div className="mb-4 flex gap-1 rounded-xl bg-zinc-200/60 p-1">
