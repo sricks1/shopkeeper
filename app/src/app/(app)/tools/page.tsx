@@ -40,7 +40,7 @@ export default async function ToolsPage() {
         {canManageTools(staff?.role) && (
           <Link
             href="/tools/new"
-            className="flex items-center gap-1.5 rounded-xl bg-[#324168] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#263352] active:bg-[#1e2840]"
+            className="flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-hover active:bg-brand-active"
           >
             <Plus size={16} />
             Add Tool
@@ -57,7 +57,7 @@ export default async function ToolsPage() {
           <div>
             <p className="text-sm font-medium text-zinc-600">No tools yet</p>
             {canManageTools(staff?.role) && (
-              <Link href="/tools/new" className="mt-1 text-sm text-[#324168] underline">
+              <Link href="/tools/new" className="mt-1 text-sm text-brand underline">
                 Add the first one
               </Link>
             )}

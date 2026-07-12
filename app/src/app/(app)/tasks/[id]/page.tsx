@@ -109,7 +109,7 @@ export default async function TaskDetailPage({
               ? `/inventory/${linkedConsumable.inventoryId}`
               : "/inventory"
           }
-          className="mb-4 flex items-center gap-2 rounded-xl bg-[#e06829]/5 px-4 py-3 text-sm font-medium text-[#c55a22] ring-1 ring-[#e06829]/20"
+          className="mb-4 flex items-center gap-2 rounded-xl bg-accent/5 px-4 py-3 text-sm font-medium text-accent-hover ring-1 ring-accent/20"
         >
           <ShoppingCart size={15} className="shrink-0" />
           <span className="min-w-0 flex-1 truncate">Purchasing: {linkedConsumable.name}</span>

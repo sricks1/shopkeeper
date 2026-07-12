@@ -220,7 +220,7 @@ export default function ToolForm({ tool }: ToolFormProps) {
         <button
           type="submit"
           disabled={isLoading}
-          className="flex-1 rounded-lg bg-[#324168] py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+          className="flex-1 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:opacity-60"
         >
           {isLoading ? "Saving…" : isEditing ? "Save Changes" : "Add Tool"}
         </button>
@@ -230,7 +230,7 @@ export default function ToolForm({ tool }: ToolFormProps) {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-[#324168] focus:ring-2 focus:ring-[#324168]/20";
+  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20";
 
 function Field({
   label,

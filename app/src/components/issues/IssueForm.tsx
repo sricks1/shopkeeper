@@ -139,9 +139,7 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
             <label
               key={opt.value}
               className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition-colors ${
-                severity === opt.value
-                  ? "border-[#324168] bg-[#324168]/5"
-                  : "border-zinc-200 bg-white"
+                severity === opt.value ? "border-brand bg-brand/5" : "border-zinc-200 bg-white"
               }`}
             >
               <input
@@ -150,7 +148,7 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
                 value={opt.value}
                 checked={severity === opt.value}
                 onChange={() => setSeverity(opt.value)}
-                className="mt-0.5 accent-[#324168]"
+                className="mt-0.5 accent-brand"
               />
               <div>
                 <p className="text-sm font-medium text-zinc-800">{opt.label}</p>
@@ -233,7 +231,7 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
         <button
           type="submit"
           disabled={isLoading}
-          className="flex-1 rounded-lg bg-[#e06829] py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+          className="flex-1 rounded-lg bg-accent py-2.5 text-sm font-semibold text-white disabled:opacity-60"
         >
           {isLoading ? "Submitting…" : "Report Issue"}
         </button>
@@ -243,4 +241,4 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-[#324168] focus:ring-2 focus:ring-[#324168]/20";
+  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20";

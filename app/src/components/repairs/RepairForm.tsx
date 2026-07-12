@@ -178,7 +178,7 @@ export default function RepairForm({
                   type="button"
                   onClick={() => toggleConsumable(c.id)}
                   className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
-                    isSelected ? "border-[#324168] bg-[#324168]/5" : "border-zinc-200 bg-white"
+                    isSelected ? "border-brand bg-brand/5" : "border-zinc-200 bg-white"
                   }`}
                 >
                   <div className="min-w-0">
@@ -190,7 +190,7 @@ export default function RepairForm({
                   <span
                     className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[11px] font-bold ${
                       isSelected
-                        ? "border-[#324168] bg-[#324168] text-white"
+                        ? "border-brand bg-brand text-white"
                         : "border-zinc-300 text-transparent"
                     }`}
                   >
@@ -247,7 +247,7 @@ export default function RepairForm({
         <button
           type="submit"
           disabled={isLoading}
-          className="flex-1 rounded-lg bg-[#324168] py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+          className="flex-1 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:opacity-60"
         >
           {isLoading ? "Saving…" : "Log Repair"}
         </button>
@@ -257,4 +257,4 @@ export default function RepairForm({
 }
 
 const inputCls =
-  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-[#324168] focus:ring-2 focus:ring-[#324168]/20";
+  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20";

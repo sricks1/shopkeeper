@@ -109,14 +109,14 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
       <div className="mb-4 grid grid-cols-2 gap-2">
         <Link
           href={`/tools/${slug}/issues/new`}
-          className="flex items-center justify-center gap-2 rounded-xl bg-[#e06829] px-4 py-3.5 text-sm font-semibold text-white shadow-sm shadow-[#e06829]/20 transition-colors hover:bg-[#c55a22] active:bg-[#c55a22]"
+          className="flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3.5 text-sm font-semibold text-white shadow-sm shadow-accent/20 transition-colors hover:bg-accent-hover active:bg-accent-hover"
         >
           <AlertTriangle size={16} className="shrink-0" />
           <span className="whitespace-nowrap">Report Issue</span>
         </Link>
         <Link
           href={`/tools/${slug}/repairs/new`}
-          className="flex items-center justify-center gap-2 rounded-xl bg-[#324168] px-4 py-3.5 text-sm font-semibold text-white shadow-sm shadow-[#324168]/20 transition-colors hover:bg-[#263352] active:bg-[#263352]"
+          className="flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3.5 text-sm font-semibold text-white shadow-sm shadow-brand/20 transition-colors hover:bg-brand-hover active:bg-brand-hover"
         >
           <Wrench size={16} className="shrink-0" />
           <span className="whitespace-nowrap">Log Repair</span>
@@ -150,7 +150,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
               href={tool.manual_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-4 py-3 text-sm text-[#324168]"
+              className="flex items-center gap-3 px-4 py-3 text-sm text-brand"
             >
               <ExternalLink size={14} className="shrink-0" />
               View manual

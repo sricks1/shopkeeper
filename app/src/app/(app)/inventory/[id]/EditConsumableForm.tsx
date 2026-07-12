@@ -109,7 +109,7 @@ export default function EditConsumableForm({
               href={toHref(vendorUrl) as string}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-medium text-[#324168] hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
             >
               <ExternalLink size={13} />
               Open
@@ -140,7 +140,7 @@ export default function EditConsumableForm({
         type="button"
         onClick={handleSave}
         disabled={isSaving}
-        className="w-full rounded-lg bg-[#324168] py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+        className="w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:opacity-60"
       >
         {isSaving ? "Saving…" : "Save Details"}
       </button>
@@ -154,7 +154,7 @@ export default function EditConsumableForm({
 }
 
 const inputCls =
-  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-[#324168] focus:ring-2 focus:ring-[#324168]/20";
+  "w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20";
 
 function Field({
   label,

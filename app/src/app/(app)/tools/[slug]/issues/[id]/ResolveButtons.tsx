@@ -43,7 +43,7 @@ export default function ResolveButtons({
     <div className="flex flex-col gap-2">
       <Link
         href={`/tools/${toolSlug}/repairs/new?issue=${issueId}`}
-        className="flex items-center justify-center gap-2 rounded-lg bg-[#324168] py-2.5 text-sm font-semibold text-white"
+        className="flex items-center justify-center gap-2 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white"
       >
         <Wrench size={15} />
         Log a Repair

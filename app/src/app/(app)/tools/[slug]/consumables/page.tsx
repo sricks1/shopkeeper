@@ -66,7 +66,7 @@ export default async function ToolConsumablesPage({
       />
 
       <div className="mt-4 rounded-xl border border-dashed border-zinc-200 px-4 py-3 text-center">
-        <Link href="/inventory/new" className="text-sm text-[#324168]">
+        <Link href="/inventory/new" className="text-sm text-brand">
           + Create new consumable type
         </Link>
       </div>

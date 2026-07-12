@@ -28,7 +28,7 @@ function NotificationIcon({ type }: { type: string }) {
     );
   return (
     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-100">
-      <Package size={15} className="text-[#e06829]" />
+      <Package size={15} className="text-accent" />
     </div>
   );
 }

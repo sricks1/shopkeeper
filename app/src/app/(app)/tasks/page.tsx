@@ -90,7 +90,7 @@ export default async function TasksPage({
           <TaskViewToggle current="board" />
           <Link
             href="/tasks/new"
-            className="flex items-center gap-1.5 rounded-xl bg-[#324168] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#263352] active:bg-[#1e2840]"
+            className="flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-hover active:bg-brand-active"
           >
             <Plus size={16} />
             New
@@ -129,7 +129,7 @@ export default async function TasksPage({
             <p className="text-sm font-medium text-zinc-600">
               {view === "mine" ? "Nothing assigned to you" : "No tasks yet"}
             </p>
-            <Link href="/tasks/new" className="mt-1 inline-block text-sm text-[#324168] underline">
+            <Link href="/tasks/new" className="mt-1 inline-block text-sm text-brand underline">
               Create the first one
             </Link>
           </div>

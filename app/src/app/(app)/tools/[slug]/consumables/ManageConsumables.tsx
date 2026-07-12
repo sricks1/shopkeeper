@@ -134,7 +134,7 @@ export default function ManageConsumables({ toolId, allConsumables, linked, stoc
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search consumables…"
-              className="w-full rounded-lg border border-zinc-300 py-2 pl-8 pr-3 text-sm outline-none focus:border-[#324168]"
+              className="w-full rounded-lg border border-zinc-300 py-2 pl-8 pr-3 text-sm outline-none focus:border-brand"
             />
           </div>
           {filtered.length === 0 ? (
@@ -158,7 +158,7 @@ export default function ManageConsumables({ toolId, allConsumables, linked, stoc
                     type="button"
                     onClick={() => link(c.id)}
                     disabled={isLoading === c.id}
-                    className="flex items-center gap-1 rounded-lg bg-[#324168]/10 px-2 py-1.5 text-xs font-medium text-[#324168] disabled:opacity-40"
+                    className="flex items-center gap-1 rounded-lg bg-brand/10 px-2 py-1.5 text-xs font-medium text-brand disabled:opacity-40"
                   >
                     <Plus size={13} />
                     Link

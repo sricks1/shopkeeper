@@ -70,7 +70,7 @@ export default async function InventoryPage({
         </div>
         <Link
           href="/inventory/new"
-          className="flex items-center gap-1.5 rounded-xl bg-[#324168] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#263352]"
+          className="flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-hover"
         >
           <Plus size={16} />
           Add
@@ -107,7 +107,7 @@ export default async function InventoryPage({
               {filter === "all" ? "No consumables yet" : "Nothing in this filter"}
             </p>
             {filter === "all" && (
-              <Link href="/inventory/new" className="mt-1 text-sm text-[#324168] underline">
+              <Link href="/inventory/new" className="mt-1 text-sm text-brand underline">
                 Add the first one
               </Link>
             )}

@@ -60,7 +60,7 @@ const INTERVAL_OPTIONS = [
 ];
 
 const inputCls =
-  "w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-[#324168] focus:bg-white focus:ring-2 focus:ring-[#324168]/15";
+  "w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-brand focus:bg-white focus:ring-2 focus:ring-brand/15";
 
 export default function MaintenanceManager({
   toolId,
@@ -179,7 +179,7 @@ export default function MaintenanceManager({
                 type="button"
                 onClick={() => handleMarkDone(task.id)}
                 disabled={markingDone === task.id}
-                className="flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-[#324168] ring-1 ring-zinc-200 transition-colors hover:bg-zinc-50 disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-brand ring-1 ring-zinc-200 transition-colors hover:bg-zinc-50 disabled:opacity-50"
               >
                 <CheckCircle2 size={13} />
                 {markingDone === task.id ? "Saving…" : "Mark Done"}
@@ -255,7 +255,7 @@ export default function MaintenanceManager({
               type="button"
               onClick={handleAdd}
               disabled={saving || !description.trim()}
-              className="flex-1 rounded-xl bg-[#324168] py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+              className="flex-1 rounded-xl bg-brand py-2.5 text-sm font-semibold text-white disabled:opacity-50"
             >
               {saving ? "Saving…" : "Add Task"}
             </button>
