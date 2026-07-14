@@ -222,6 +222,7 @@ export type Database = {
           created_at: string;
           created_by: string | null;
           id: string;
+          kind: Database["public"]["Enums"]["consumable_kind"];
           name: string;
           notes: string | null;
           sku: string | null;
@@ -234,6 +235,7 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           id?: string;
+          kind?: Database["public"]["Enums"]["consumable_kind"];
           name: string;
           notes?: string | null;
           sku?: string | null;
@@ -246,6 +248,7 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           id?: string;
+          kind?: Database["public"]["Enums"]["consumable_kind"];
           name?: string;
           notes?: string | null;
           sku?: string | null;
@@ -1003,6 +1006,7 @@ export type Database = {
         | "brush"
         | "other"
         | "vacuum_bag";
+      consumable_kind: "consumable" | "part";
       issue_severity: "minor" | "needs_attention" | "down";
       issue_status: "open" | "resolved";
       notification_type: "reorder_needed" | "tool_down" | "task_assigned" | "task_comment";
@@ -1150,6 +1154,7 @@ export const Constants = {
         "other",
         "vacuum_bag",
       ],
+      consumable_kind: ["consumable", "part"],
       issue_severity: ["minor", "needs_attention", "down"],
       issue_status: ["open", "resolved"],
       notification_type: ["reorder_needed", "tool_down", "task_assigned", "task_comment"],

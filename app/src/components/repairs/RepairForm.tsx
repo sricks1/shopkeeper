@@ -2,15 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import KindChip from "@/components/inventory/KindChip";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Input, Select, Textarea } from "@/components/ui/Input";
+import type { ConsumableKind } from "@/lib/consumables";
 import { createClient } from "@/lib/supabase/client";
+import AddConsumableControl from "./AddConsumableControl";
 
 export interface ConsumableOption {
   id: string;
   name: string;
   category: string;
+  kind: ConsumableKind;
 }
 
 export interface OpenIssue {
@@ -22,6 +26,7 @@ interface RepairFormProps {
   toolId: string;
   toolSlug: string;
   consumables: ConsumableOption[];
+  catalog: ConsumableOption[];
   openIssues: OpenIssue[];
   prefilledIssueId?: string;
 }
@@ -30,6 +35,7 @@ export default function RepairForm({
   toolId,
   toolSlug,
   consumables,
+  catalog,
   openIssues,
   prefilledIssueId,
 }: RepairFormProps) {
@@ -39,6 +45,9 @@ export default function RepairForm({
   const [laborMinutes, setLaborMinutes] = useState("");
   const [notes, setNotes] = useState("");
   const [issueId, setIssueId] = useState(prefilledIssueId ?? "");
+  // The rows shown as toggles: the tool's linked consumables plus anything
+  // added from the catalog or quick-created during this repair.
+  const [rows, setRows] = useState<ConsumableOption[]>(consumables);
   // consumable_type_ids this repair used
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
@@ -51,6 +60,12 @@ export default function RepairForm({
       else next.add(id);
       return next;
     });
+  }
+
+  // Adding from the picker drops the item into the list and pre-selects it.
+  function addConsumable(option: ConsumableOption) {
+    setRows((prev) => (prev.some((r) => r.id === option.id) ? prev : [...prev, option]));
+    setSelected((prev) => new Set(prev).add(option.id));
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -147,22 +162,22 @@ export default function RepairForm({
         </Field>
       )}
 
-      {/* Consumables used */}
+      {/* Consumables & parts used */}
       <div className="flex flex-col gap-2">
         <span className="text-sm font-medium text-zinc-700">
-          Consumables used{" "}
+          Consumables &amp; parts used{" "}
           {selectedCount > 0 && (
             <span className="font-normal text-zinc-400">({selectedCount} selected)</span>
           )}
         </span>
 
-        {consumables.length === 0 ? (
+        {rows.length === 0 ? (
           <p className="rounded-card border border-dashed border-zinc-200 px-4 py-3 text-sm text-zinc-400">
-            No consumables linked to this tool yet. Add them via Edit Tool.
+            Nothing linked to this tool yet — add a consumable or part below.
           </p>
         ) : (
           <div className="flex flex-col gap-2">
-            {consumables.map((c) => {
+            {rows.map((c) => {
               const isSelected = selected.has(c.id);
               return (
                 <button
@@ -173,11 +188,14 @@ export default function RepairForm({
                     isSelected ? "border-brand bg-brand/5" : "border-zinc-200 bg-white"
                   }`}
                 >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-zinc-800">{c.name}</p>
-                    <p className="truncate text-xs capitalize text-zinc-400">
-                      {c.category.replace(/_/g, " ")}
-                    </p>
+                  <div className="flex min-w-0 items-center gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-zinc-800">{c.name}</p>
+                      <p className="truncate text-xs capitalize text-zinc-400">
+                        {c.category.replace(/_/g, " ")}
+                      </p>
+                    </div>
+                    {c.kind === "part" && <KindChip kind="part" />}
                   </div>
                   <span
                     className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[11px] font-bold ${
@@ -193,6 +211,12 @@ export default function RepairForm({
             })}
           </div>
         )}
+
+        <AddConsumableControl
+          catalog={catalog}
+          excludeIds={new Set(rows.map((r) => r.id))}
+          onAdd={addConsumable}
+        />
       </div>
 
       {/* Labor */}

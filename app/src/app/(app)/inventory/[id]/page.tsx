@@ -2,6 +2,7 @@ import { ChevronRight, Wrench } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import DeleteConsumableButton from "@/components/inventory/DeleteConsumableButton";
+import KindChip from "@/components/inventory/KindChip";
 import StockControl from "@/components/inventory/StockControl";
 import OrderStatusControl from "@/components/orders/OrderStatusControl";
 import { ToolStatusBadge } from "@/components/StatusBadge";
@@ -26,6 +27,7 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
   const ct = item.consumable_types as {
     id: string;
     name: string;
+    kind: "consumable" | "part";
     category: string;
     sku: string | null;
     vendor: string | null;
@@ -61,7 +63,10 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
       </Link>
 
       <h1 className="mb-1 break-words text-lg font-semibold text-zinc-900">{ct.name}</h1>
-      <p className="mb-6 text-sm capitalize text-zinc-400">{categoryLabel}</p>
+      <p className="mb-6 flex items-center gap-2 text-sm capitalize text-zinc-400">
+        <span>{categoryLabel}</span>
+        <KindChip kind={ct.kind} />
+      </p>
 
       {/* Stock status — Re-order / In Stock, drives the order task */}
       <StockControl
@@ -107,6 +112,7 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
           categories={categoryList}
           initial={{
             name: ct.name,
+            kind: ct.kind,
             category: ct.category,
             sku: ct.sku,
             vendor: ct.vendor,

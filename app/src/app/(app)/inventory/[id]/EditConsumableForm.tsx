@@ -7,6 +7,8 @@ import CategoryPicker, { type CategoryOption } from "@/components/CategoryPicker
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Input, Textarea } from "@/components/ui/Input";
+import { SegmentedButtons } from "@/components/ui/Segmented";
+import { type ConsumableKind, KIND_OPTIONS, kindHint } from "@/lib/consumables";
 import { createClient } from "@/lib/supabase/client";
 import { toHref } from "@/lib/utils";
 
@@ -15,6 +17,7 @@ interface EditConsumableFormProps {
   categories: CategoryOption[];
   initial: {
     name: string;
+    kind: ConsumableKind;
     category: string;
     sku: string | null;
     vendor: string | null;
@@ -30,6 +33,7 @@ export default function EditConsumableForm({
 }: EditConsumableFormProps) {
   const router = useRouter();
   const [name, setName] = useState(initial.name);
+  const [kind, setKind] = useState<ConsumableKind>(initial.kind);
   const [category, setCategory] = useState(initial.category);
   const [sku, setSku] = useState(initial.sku ?? "");
   const [vendor, setVendor] = useState(initial.vendor ?? "");
@@ -52,6 +56,7 @@ export default function EditConsumableForm({
       .from("consumable_types")
       .update({
         name: name.trim(),
+        kind,
         category,
         sku: sku.trim() || null,
         vendor: vendor.trim() || null,
@@ -75,6 +80,10 @@ export default function EditConsumableForm({
 
       <Field label="Name">
         <Input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+      </Field>
+
+      <Field label="Type" hint={kindHint(kind)}>
+        <SegmentedButtons options={KIND_OPTIONS} value={kind} onChange={setKind} />
       </Field>
 
       <Field label="Category">

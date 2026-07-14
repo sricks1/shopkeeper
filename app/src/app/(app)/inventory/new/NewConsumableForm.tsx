@@ -7,12 +7,16 @@ import CategoryPicker, { type CategoryOption } from "@/components/CategoryPicker
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Input, Textarea } from "@/components/ui/Input";
+import { SegmentedButtons } from "@/components/ui/Segmented";
+import { KIND_OPTIONS, kindHint } from "@/lib/consumables";
 import { createClient } from "@/lib/supabase/client";
+import type { Enums } from "@/lib/types/database.types";
 import { toHref } from "@/lib/utils";
 
 export default function NewConsumableForm({ categories }: { categories: CategoryOption[] }) {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [kind, setKind] = useState<Enums<"consumable_kind">>("consumable");
   const [category, setCategory] = useState<string>(categories[0]?.value ?? "other");
   const [sku, setSku] = useState("");
   const [vendor, setVendor] = useState("");
@@ -32,6 +36,7 @@ export default function NewConsumableForm({ categories }: { categories: Category
       .from("consumable_types")
       .insert({
         name: name.trim(),
+        kind,
         category,
         sku: sku.trim() || null,
         vendor: vendor.trim() || null,
@@ -74,6 +79,10 @@ export default function NewConsumableForm({ categories }: { categories: Category
           onChange={(e) => setName(e.target.value)}
           placeholder="1/2-inch bandsaw blade, 3 TPI"
         />
+      </Field>
+
+      <Field label="Type" hint={kindHint(kind)}>
+        <SegmentedButtons options={KIND_OPTIONS} value={kind} onChange={setKind} />
       </Field>
 
       <Field label="Category *">

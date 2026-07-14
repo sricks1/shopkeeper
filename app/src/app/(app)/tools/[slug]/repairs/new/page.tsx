@@ -27,15 +27,34 @@ export default async function NewRepairPage({
   // Fetch consumable types linked to this tool
   const { data: toolConsumables } = await supabase
     .from("tool_consumables")
-    .select("consumable_type_id, consumable_types (id, name, category)")
+    .select("consumable_type_id, consumable_types (id, name, category, kind)")
     .eq("tool_id", tool.id);
 
   const consumables: ConsumableOption[] = (toolConsumables ?? [])
     .filter((tc) => tc.consumable_types)
     .map((tc) => {
-      const ct = tc.consumable_types as { id: string; name: string; category: string };
-      return { id: ct.id, name: ct.name, category: ct.category };
+      const ct = tc.consumable_types as {
+        id: string;
+        name: string;
+        category: string;
+        kind: "consumable" | "part";
+      };
+      return { id: ct.id, name: ct.name, category: ct.category, kind: ct.kind };
     });
+
+  // Full catalog — lets the repair attach any consumable or part, not just the
+  // ones pre-linked to this tool.
+  const { data: allConsumables } = await supabase
+    .from("consumable_types")
+    .select("id, name, category, kind")
+    .order("name");
+
+  const catalog: ConsumableOption[] = (allConsumables ?? []).map((ct) => ({
+    id: ct.id,
+    name: ct.name,
+    category: ct.category,
+    kind: ct.kind as "consumable" | "part",
+  }));
 
   // Fetch open issues for this tool
   const { data: openIssues } = await supabase
@@ -59,6 +78,7 @@ export default async function NewRepairPage({
         toolId={tool.id}
         toolSlug={tool.slug}
         consumables={consumables}
+        catalog={catalog}
         openIssues={issues}
         prefilledIssueId={prefilledIssueId}
       />
