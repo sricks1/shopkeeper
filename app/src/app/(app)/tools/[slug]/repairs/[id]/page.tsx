@@ -2,6 +2,7 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ConsumableOption, OpenIssue } from "@/components/repairs/RepairForm";
+import { signedPhotos } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/server";
 import EditRepairForm from "./EditRepairForm";
 
@@ -22,11 +23,13 @@ export default async function EditRepairPage({
 
   const { data: repair } = await supabase
     .from("repairs")
-    .select("id, description, labor_minutes, notes, created_at, issue_id")
+    .select("id, description, labor_minutes, notes, created_at, issue_id, photo_urls")
     .eq("id", id)
     .eq("tool_id", tool.id)
     .single();
   if (!repair) notFound();
+
+  const existingPhotos = await signedPhotos(supabase, repair.photo_urls ?? []);
 
   // Consumables/parts recorded on this repair.
   const { data: repairConsumables } = await supabase
@@ -76,6 +79,7 @@ export default async function EditRepairPage({
           issueId: repair.issue_id ?? "",
         }}
         usedConsumables={usedConsumables}
+        existingPhotos={existingPhotos}
         openIssues={openIssues}
       />
     </div>

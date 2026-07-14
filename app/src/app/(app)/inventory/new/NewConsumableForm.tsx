@@ -4,14 +4,18 @@ import { ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import CategoryPicker, { type CategoryOption } from "@/components/CategoryPicker";
+import PhotoUploader, { type PhotoSelection } from "@/components/PhotoUploader";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Input, Textarea } from "@/components/ui/Input";
 import { SegmentedButtons } from "@/components/ui/Segmented";
 import { KIND_OPTIONS, kindHint } from "@/lib/consumables";
+import { uploadPhotos } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/types/database.types";
 import { toHref } from "@/lib/utils";
+
+const MAX_PHOTOS = 5;
 
 export default function NewConsumableForm({ categories }: { categories: CategoryOption[] }) {
   const router = useRouter();
@@ -22,6 +26,7 @@ export default function NewConsumableForm({ categories }: { categories: Category
   const [vendor, setVendor] = useState("");
   const [vendorUrl, setVendorUrl] = useState("");
   const [notes, setNotes] = useState("");
+  const [photos, setPhotos] = useState<PhotoSelection>({ keptPaths: [], newFiles: [] });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,6 +68,14 @@ export default function NewConsumableForm({ categories }: { categories: Category
       setError(invErr?.message ?? "Failed to create inventory record.");
       setIsLoading(false);
       return;
+    }
+
+    // 3. Upload any photos, then record their paths on the consumable type.
+    if (photos.newFiles.length > 0) {
+      const paths = await uploadPhotos(supabase, photos.newFiles, `consumables/${ct.id}`);
+      if (paths.length > 0) {
+        await supabase.from("consumable_types").update({ photo_urls: paths }).eq("id", ct.id);
+      }
     }
 
     router.push(`/inventory/${inv.id}`);
@@ -140,6 +153,8 @@ export default function NewConsumableForm({ categories }: { categories: Category
           placeholder="OEM spec, don't substitute…"
         />
       </Field>
+
+      <PhotoUploader max={MAX_PHOTOS} onChange={setPhotos} />
 
       {error && <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 

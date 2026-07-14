@@ -4,17 +4,22 @@ import { ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import CategoryPicker, { type CategoryOption } from "@/components/CategoryPicker";
+import PhotoUploader, { type ExistingPhoto, type PhotoSelection } from "@/components/PhotoUploader";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Input, Textarea } from "@/components/ui/Input";
 import { SegmentedButtons } from "@/components/ui/Segmented";
 import { type ConsumableKind, KIND_OPTIONS, kindHint } from "@/lib/consumables";
+import { uploadPhotos } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/client";
 import { toHref } from "@/lib/utils";
+
+const MAX_PHOTOS = 5;
 
 interface EditConsumableFormProps {
   consumableTypeId: string;
   categories: CategoryOption[];
+  existingPhotos: ExistingPhoto[];
   initial: {
     name: string;
     kind: ConsumableKind;
@@ -29,6 +34,7 @@ interface EditConsumableFormProps {
 export default function EditConsumableForm({
   consumableTypeId,
   categories,
+  existingPhotos,
   initial,
 }: EditConsumableFormProps) {
   const router = useRouter();
@@ -39,6 +45,10 @@ export default function EditConsumableForm({
   const [vendor, setVendor] = useState(initial.vendor ?? "");
   const [vendorUrl, setVendorUrl] = useState(initial.vendor_url ?? "");
   const [notes, setNotes] = useState(initial.notes ?? "");
+  const [photos, setPhotos] = useState<PhotoSelection>({
+    keptPaths: existingPhotos.map((p) => p.path),
+    newFiles: [],
+  });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -52,6 +62,15 @@ export default function EditConsumableForm({
     setError(null);
     setSuccess(null);
     const supabase = createClient();
+
+    // Upload any newly picked photos, then persist kept + new paths together.
+    const newPaths = await uploadPhotos(
+      supabase,
+      photos.newFiles,
+      `consumables/${consumableTypeId}`,
+    );
+    const photoUrls = [...photos.keptPaths, ...newPaths];
+
     const { error: err } = await supabase
       .from("consumable_types")
       .update({
@@ -62,6 +81,7 @@ export default function EditConsumableForm({
         vendor: vendor.trim() || null,
         vendor_url: vendorUrl.trim() || null,
         notes: notes.trim() || null,
+        photo_urls: photoUrls,
       })
       .eq("id", consumableTypeId);
     setIsSaving(false);
@@ -126,6 +146,8 @@ export default function EditConsumableForm({
       <Field label="Notes">
         <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
       </Field>
+
+      <PhotoUploader max={MAX_PHOTOS} existing={existingPhotos} onChange={setPhotos} />
 
       <Button onClick={handleSave} disabled={isSaving} className="w-full">
         {isSaving ? "Saving…" : "Save Details"}

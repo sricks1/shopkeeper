@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import DeleteToolButton from "@/components/tools/DeleteToolButton";
 import ToolForm from "@/components/tools/ToolForm";
 import { canManageTools, getCurrentStaff } from "@/lib/auth";
+import { signedPhotos } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function EditToolPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -21,6 +22,8 @@ export default async function EditToolPage({ params }: { params: Promise<{ slug:
     .select("value, label")
     .order("sort_order");
 
+  const existingPhotos = await signedPhotos(supabase, tool.photo_url ? [tool.photo_url] : []);
+
   return (
     <div className="px-4 pb-4 pt-4">
       <Link href={`/tools/${slug}`} className="mb-4 flex items-center gap-1 text-sm text-zinc-500">
@@ -28,7 +31,7 @@ export default async function EditToolPage({ params }: { params: Promise<{ slug:
         {tool.name}
       </Link>
       <h1 className="mb-6 text-lg font-semibold text-zinc-900">Edit Tool</h1>
-      <ToolForm tool={tool} toolTypes={toolTypes ?? []} />
+      <ToolForm tool={tool} toolTypes={toolTypes ?? []} existingPhotos={existingPhotos} />
       <DeleteToolButton toolId={tool.id} toolName={tool.name} />
     </div>
   );

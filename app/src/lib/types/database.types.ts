@@ -225,6 +225,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["consumable_kind"];
           name: string;
           notes: string | null;
+          photo_urls: string[];
           sku: string | null;
           updated_at: string;
           vendor: string | null;
@@ -238,6 +239,7 @@ export type Database = {
           kind?: Database["public"]["Enums"]["consumable_kind"];
           name: string;
           notes?: string | null;
+          photo_urls?: string[];
           sku?: string | null;
           updated_at?: string;
           vendor?: string | null;
@@ -251,6 +253,7 @@ export type Database = {
           kind?: Database["public"]["Enums"]["consumable_kind"];
           name?: string;
           notes?: string | null;
+          photo_urls?: string[];
           sku?: string | null;
           updated_at?: string;
           vendor?: string | null;
@@ -629,6 +632,7 @@ export type Database = {
           labor_minutes: number | null;
           notes: string | null;
           performed_by: string | null;
+          photo_urls: string[];
           tool_id: string;
           updated_at: string;
         };
@@ -640,6 +644,7 @@ export type Database = {
           labor_minutes?: number | null;
           notes?: string | null;
           performed_by?: string | null;
+          photo_urls?: string[];
           tool_id: string;
           updated_at?: string;
         };
@@ -651,6 +656,7 @@ export type Database = {
           labor_minutes?: number | null;
           notes?: string | null;
           performed_by?: string | null;
+          photo_urls?: string[];
           tool_id?: string;
           updated_at?: string;
         };

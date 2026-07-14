@@ -2,9 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
+import PhotoUploader, { type ExistingPhoto, type PhotoSelection } from "@/components/PhotoUploader";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Input, Select, Textarea } from "@/components/ui/Input";
+import { uploadPhotos } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums, Tables } from "@/lib/types/database.types";
 import { slugify } from "@/lib/utils";
@@ -15,6 +17,7 @@ type Tool = Tables<"tools">;
 interface ToolFormProps {
   tool?: Tool;
   toolTypes: { value: string; label: string }[];
+  existingPhotos?: ExistingPhoto[];
 }
 
 const STATUS_OPTIONS: { value: ToolStatus; label: string }[] = [
@@ -23,7 +26,7 @@ const STATUS_OPTIONS: { value: ToolStatus; label: string }[] = [
   { value: "retired", label: "Retired" },
 ];
 
-export default function ToolForm({ tool, toolTypes }: ToolFormProps) {
+export default function ToolForm({ tool, toolTypes, existingPhotos = [] }: ToolFormProps) {
   const router = useRouter();
   const isEditing = !!tool;
 
@@ -39,6 +42,10 @@ export default function ToolForm({ tool, toolTypes }: ToolFormProps) {
   const [purchaseDate, setPurchaseDate] = useState(tool?.purchase_date ?? "");
   const [manualUrl, setManualUrl] = useState(tool?.manual_url ?? "");
   const [notes, setNotes] = useState(tool?.notes ?? "");
+  const [photos, setPhotos] = useState<PhotoSelection>({
+    keptPaths: tool?.photo_url ? [tool.photo_url] : [],
+    newFiles: [],
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,22 +77,43 @@ export default function ToolForm({ tool, toolTypes }: ToolFormProps) {
     };
 
     if (isEditing) {
-      const { error: err } = await supabase.from("tools").update(payload).eq("id", tool.id);
+      // Upload any new photo, then resolve the single photo_url: a new upload
+      // wins, else keep the existing one (or null if it was removed).
+      const newPaths = await uploadPhotos(supabase, photos.newFiles, `tools/${tool.id}`);
+      const photoUrl = photos.newFiles.length
+        ? (newPaths[0] ?? null)
+        : (photos.keptPaths[0] ?? null);
+
+      const { error: err } = await supabase
+        .from("tools")
+        .update({ ...payload, photo_url: photoUrl })
+        .eq("id", tool.id);
       if (err) {
         setError(err.message);
         setIsLoading(false);
         return;
       }
     } else {
-      const { error: err } = await supabase.from("tools").insert(payload);
-      if (err) {
+      const { data: created, error: err } = await supabase
+        .from("tools")
+        .insert(payload)
+        .select("id")
+        .single();
+      if (err || !created) {
         setError(
-          err.code === "23505"
+          err?.code === "23505"
             ? "A tool with that slug already exists. Try a different name or edit the slug."
-            : err.message,
+            : (err?.message ?? "Failed to add tool."),
         );
         setIsLoading(false);
         return;
+      }
+
+      if (photos.newFiles.length > 0) {
+        const paths = await uploadPhotos(supabase, photos.newFiles, `tools/${created.id}`);
+        if (paths.length > 0) {
+          await supabase.from("tools").update({ photo_url: paths[0] }).eq("id", created.id);
+        }
       }
     }
 
@@ -203,6 +231,8 @@ export default function ToolForm({ tool, toolTypes }: ToolFormProps) {
           placeholder="Any additional details…"
         />
       </Field>
+
+      <PhotoUploader max={1} existing={existingPhotos} onChange={setPhotos} label="Photo" />
 
       {error && <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 

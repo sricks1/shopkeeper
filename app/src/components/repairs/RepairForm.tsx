@@ -3,12 +3,16 @@
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import KindChip from "@/components/inventory/KindChip";
+import PhotoUploader, { type PhotoSelection } from "@/components/PhotoUploader";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import type { ConsumableKind } from "@/lib/consumables";
+import { uploadPhotos } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/client";
 import AddConsumableControl from "./AddConsumableControl";
+
+const MAX_PHOTOS = 5;
 
 export interface ConsumableOption {
   id: string;
@@ -50,6 +54,7 @@ export default function RepairForm({
   const [rows, setRows] = useState<ConsumableOption[]>(consumables);
   // consumable_type_ids this repair used
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [photos, setPhotos] = useState<PhotoSelection>({ keptPaths: [], newFiles: [] });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -92,6 +97,14 @@ export default function RepairForm({
       setError(repairErr?.message ?? "Failed to log repair.");
       setIsLoading(false);
       return;
+    }
+
+    // 1b. Upload any photos and record their paths on the repair.
+    if (photos.newFiles.length > 0) {
+      const paths = await uploadPhotos(supabase, photos.newFiles, `repairs/${repair.id}`);
+      if (paths.length > 0) {
+        await supabase.from("repairs").update({ photo_urls: paths }).eq("id", repair.id);
+      }
     }
 
     // 2. Record which consumables this repair used (service history — no stock effect)
@@ -241,6 +254,8 @@ export default function RepairForm({
           placeholder="Parts ordered from Woodcraft, blade spec: 1/2 inch 3 TPI…"
         />
       </Field>
+
+      <PhotoUploader max={MAX_PHOTOS} onChange={setPhotos} />
 
       {error && <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 

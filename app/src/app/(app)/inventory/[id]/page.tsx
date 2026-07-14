@@ -7,6 +7,7 @@ import StockControl from "@/components/inventory/StockControl";
 import OrderStatusControl from "@/components/orders/OrderStatusControl";
 import { ToolStatusBadge } from "@/components/StatusBadge";
 import { canManageTools, getCurrentStaff } from "@/lib/auth";
+import { signedPhotos } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
 import EditConsumableForm from "./EditConsumableForm";
@@ -33,7 +34,10 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
     vendor: string | null;
     vendor_url: string | null;
     notes: string | null;
+    photo_urls: string[];
   };
+
+  const existingPhotos = await signedPhotos(supabase, ct.photo_urls ?? []);
 
   const { data: categories } = await supabase
     .from("consumable_categories")
@@ -110,6 +114,7 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
         <EditConsumableForm
           consumableTypeId={ct.id}
           categories={categoryList}
+          existingPhotos={existingPhotos}
           initial={{
             name: ct.name,
             kind: ct.kind,

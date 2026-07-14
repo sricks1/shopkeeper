@@ -4,11 +4,15 @@ import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import KindChip from "@/components/inventory/KindChip";
+import PhotoUploader, { type ExistingPhoto, type PhotoSelection } from "@/components/PhotoUploader";
 import type { ConsumableOption, OpenIssue } from "@/components/repairs/RepairForm";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Input, Select, Textarea } from "@/components/ui/Input";
+import { uploadPhotos } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/client";
+
+const MAX_PHOTOS = 5;
 
 interface EditRepairFormProps {
   repairId: string;
@@ -22,6 +26,8 @@ interface EditRepairFormProps {
   };
   /** Consumables/parts recorded on this repair (read-only in this view). */
   usedConsumables: ConsumableOption[];
+  /** Photos already attached to this repair. */
+  existingPhotos: ExistingPhoto[];
   /** Open issues for the tool, plus the currently-linked one if resolved. */
   openIssues: OpenIssue[];
 }
@@ -31,6 +37,7 @@ export default function EditRepairForm({
   toolSlug,
   initial,
   usedConsumables,
+  existingPhotos,
   openIssues,
 }: EditRepairFormProps) {
   const router = useRouter();
@@ -41,6 +48,10 @@ export default function EditRepairForm({
   const [notes, setNotes] = useState(initial.notes);
   const [date, setDate] = useState(initialDate);
   const [issueId, setIssueId] = useState(initial.issueId);
+  const [photos, setPhotos] = useState<PhotoSelection>({
+    keptPaths: existingPhotos.map((p) => p.path),
+    newFiles: [],
+  });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,17 +62,23 @@ export default function EditRepairForm({
 
     const supabase = createClient();
 
+    // Upload newly picked photos, then persist kept + new paths together.
+    const newPaths = await uploadPhotos(supabase, photos.newFiles, `repairs/${repairId}`);
+    const photoUrls = [...photos.keptPaths, ...newPaths];
+
     const update: {
       description: string;
       labor_minutes: number | null;
       notes: string | null;
       issue_id: string | null;
+      photo_urls: string[];
       created_at?: string;
     } = {
       description: description.trim(),
       labor_minutes: laborMinutes ? parseInt(laborMinutes, 10) : null,
       notes: notes.trim() || null,
       issue_id: issueId || null,
+      photo_urls: photoUrls,
     };
 
     // Only touch the timestamp if the date actually changed; keep it at noon so
@@ -176,6 +193,8 @@ export default function EditRepairForm({
           onChange={(e) => setNotes(e.target.value)}
         />
       </Field>
+
+      <PhotoUploader max={MAX_PHOTOS} existing={existingPhotos} onChange={setPhotos} />
 
       {error && <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 

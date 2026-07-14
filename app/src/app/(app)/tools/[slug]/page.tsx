@@ -18,6 +18,7 @@ import { notFound } from "next/navigation";
 import { IssueStatusBadge, SeverityBadge, ToolStatusBadge } from "@/components/StatusBadge";
 import { buttonClasses } from "@/components/ui/Button";
 import { canManageTools, getCurrentStaff } from "@/lib/auth";
+import { signedPhotoUrls } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate, timeAgo } from "@/lib/utils";
 
@@ -69,6 +70,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
   ).length;
 
   const isDown = tool.status === "down";
+  const [photoUrl] = await signedPhotoUrls(supabase, tool.photo_url ? [tool.photo_url] : []);
 
   return (
     <div className="px-4 pb-6 pt-4">
@@ -95,6 +97,16 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
           <ToolStatusBadge status={tool.status} />
         </div>
       </div>
+
+      {/* Photo */}
+      {photoUrl && (
+        // biome-ignore lint/performance/noImgElement: signed URL, not a static asset
+        <img
+          src={photoUrl}
+          alt={tool.name}
+          className="mb-4 max-h-56 w-full rounded-card object-cover ring-1 ring-zinc-200"
+        />
+      )}
 
       {/* Down banner */}
       {isDown && (
