@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Wrench } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { IssueStatusBadge, SeverityBadge } from "@/components/StatusBadge";
@@ -34,6 +34,14 @@ export default async function IssueDetailPage({
       signedUrls.push(...signed.map((s) => s.signedUrl).filter((u): u is string => u !== null));
     }
   }
+
+  // Repairs linked to this issue — makes the issue↔repair connection visible
+  // from the issue side (newest first).
+  const { data: linkedRepairs } = await supabase
+    .from("repairs")
+    .select("id, description, created_at")
+    .eq("issue_id", id)
+    .order("created_at", { ascending: false });
 
   const isOpen = issue.status === "open";
 
@@ -85,6 +93,34 @@ export default async function IssueDetailPage({
           )}
         </dl>
       </Card>
+
+      {/* Linked repair(s) — the repair that addressed this issue */}
+      {linkedRepairs && linkedRepairs.length > 0 && (
+        <section className="mb-6">
+          <p className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-400">
+            {linkedRepairs.length > 1 ? "Linked repairs" : "Resolved by repair"}
+          </p>
+          <ul className="flex flex-col gap-2">
+            {linkedRepairs.map((repair) => (
+              <li key={repair.id}>
+                <Link
+                  href={`/tools/${slug}/repairs/${repair.id}`}
+                  className="flex items-start gap-3 rounded-card bg-white px-3.5 py-2.5 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
+                >
+                  <Wrench size={15} className="mt-0.5 shrink-0 text-zinc-400" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-zinc-800 line-clamp-2">
+                      {repair.description}
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-400">{timeAgo(repair.created_at)}</p>
+                  </div>
+                  <ChevronRight size={14} className="mt-0.5 shrink-0 text-zinc-300" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Resolve actions (open issues only) */}
       {isOpen && (
