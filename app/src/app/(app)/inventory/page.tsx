@@ -1,8 +1,7 @@
 import { Package, Plus } from "lucide-react";
 import Link from "next/link";
+import InventoryList, { type InventoryListItem } from "@/components/inventory/InventoryList";
 import InventoryViewToggle from "@/components/inventory/InventoryViewToggle";
-import KindChip from "@/components/inventory/KindChip";
-import StockControl from "@/components/inventory/StockControl";
 import { buttonClasses } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -12,11 +11,6 @@ import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/types/database.types";
 
 type StockStatus = Enums<"stock_status">;
-
-const STRIP: Record<StockStatus, string> = {
-  in_stock: "bg-emerald-400",
-  on_order: "bg-amber-400",
-};
 
 const FILTER_TABS: { value: "all" | StockStatus; label: string }[] = [
   { value: "all", label: "All" },
@@ -58,7 +52,7 @@ export default async function InventoryPage({
     .select("id, name, kind, category, sku, vendor, vendor_url, inventory_items(id, stock_status)")
     .order("name");
 
-  const items = (consumables ?? []).map((c) => {
+  const items: InventoryListItem[] = (consumables ?? []).map((c) => {
     const inv = Array.isArray(c.inventory_items) ? c.inventory_items[0] : c.inventory_items;
     return {
       id: c.id,
@@ -136,43 +130,7 @@ export default async function InventoryPage({
           }
         />
       ) : (
-        <ul className="flex flex-col gap-2">
-          {filtered.map((item) => (
-            <li
-              key={item.id}
-              className="flex items-center overflow-hidden rounded-card bg-white shadow-sm ring-1 ring-zinc-200"
-            >
-              <div className={`w-1 shrink-0 self-stretch ${STRIP[item.status]}`} />
-              <Link
-                href={item.inventoryId ? `/inventory/${item.inventoryId}` : "/inventory/new"}
-                className="min-w-0 flex-1 px-3.5 py-2.5 transition-colors active:bg-zinc-50"
-              >
-                <div className="flex items-center gap-2">
-                  <p className="truncate font-semibold text-zinc-900">{item.name}</p>
-                  {item.kind === "part" && <KindChip kind="part" />}
-                </div>
-                <p className="mt-0.5 truncate text-xs capitalize text-zinc-400">
-                  {item.category.replace(/_/g, " ")}
-                  {item.vendor ? ` · ${item.vendor}` : ""}
-                </p>
-              </Link>
-              <div className="flex shrink-0 items-center py-2 pl-1 pr-3">
-                {item.inventoryId && (
-                  <StockControl
-                    compact
-                    inventoryItemId={item.inventoryId}
-                    consumableTypeId={item.id}
-                    status={item.status}
-                    name={item.name}
-                    vendor={item.vendor}
-                    vendorUrl={item.vendorUrl}
-                    sku={item.sku}
-                  />
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
+        <InventoryList items={filtered} />
       )}
     </div>
   );
