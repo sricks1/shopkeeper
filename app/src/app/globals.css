@@ -21,8 +21,24 @@
   --radius-card: 0.75rem;
 }
 
-/* Smooth scrolling */
+/* Smooth scrolling + an immediate, visible tap flash on iOS so a press is
+   acknowledged the instant it lands (not after the next screen loads). */
 html {
   scroll-behavior: smooth;
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: rgba(50, 65, 104, 0.18);
+}
+
+/* Indeterminate navigation progress bar (see (app)/loading.tsx) */
+@keyframes indeterminate-bar {
+  0% {
+    transform: translateX(-100%);
+    width: 40%;
+  }
+  50% {
+    width: 60%;
+  }
+  100% {
+    transform: translateX(250%);
+    width: 40%;
+  }
 }

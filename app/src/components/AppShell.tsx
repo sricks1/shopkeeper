@@ -1,4 +1,5 @@
 import { AlertTriangle, Wrench } from "lucide-react";
+import NavProgress from "@/components/NavProgress";
 import AppNav from "@/components/nav/AppNav";
 import { getCurrentAccount } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -23,6 +24,7 @@ export default async function AppShell({ children }: { children: React.ReactNode
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50">
+      <NavProgress />
       {/* Mobile top bar — the sidebar carries the branding at md+ */}
       <header className="sticky top-0 z-10 bg-navy pt-[env(safe-area-inset-top)] md:hidden">
         <div className="flex items-center justify-between px-4 py-3">

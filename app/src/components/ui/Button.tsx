@@ -23,7 +23,7 @@ export interface ButtonStyleOptions {
 
 // For <Link> CTAs and other non-<button> elements that need button styling.
 export function buttonClasses({ variant = "primary", size = "md" }: ButtonStyleOptions = {}) {
-  return `inline-flex items-center justify-center rounded-field font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 disabled:pointer-events-none disabled:opacity-60 ${VARIANT_STYLES[variant]} ${SIZE_STYLES[size]}`;
+  return `inline-flex items-center justify-center rounded-field font-semibold transition duration-100 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 disabled:pointer-events-none disabled:opacity-60 ${VARIANT_STYLES[variant]} ${SIZE_STYLES[size]}`;
 }
 
 export function Button({
