@@ -296,14 +296,19 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
         ) : (
           <ul className="flex flex-col gap-2">
             {repairs.map((repair) => (
-              <li
-                key={repair.id}
-                className="rounded-card bg-white px-3.5 py-2.5 shadow-sm ring-1 ring-zinc-200"
-              >
-                <p className="text-sm font-medium text-zinc-800 line-clamp-2">
-                  {repair.description}
-                </p>
-                <p className="mt-1 text-xs text-zinc-400">{timeAgo(repair.created_at)}</p>
+              <li key={repair.id}>
+                <Link
+                  href={`/tools/${slug}/repairs/${repair.id}`}
+                  className="flex items-start gap-2 rounded-card bg-white px-3.5 py-2.5 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-zinc-800 line-clamp-2">
+                      {repair.description}
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-400">{timeAgo(repair.created_at)}</p>
+                  </div>
+                  <ChevronRight size={14} className="mt-0.5 shrink-0 text-zinc-300" />
+                </Link>
               </li>
             ))}
           </ul>
