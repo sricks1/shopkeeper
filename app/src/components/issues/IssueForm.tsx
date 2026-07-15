@@ -1,19 +1,29 @@
 "use client";
 
-import { Camera, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useRef, useState } from "react";
+import { type FormEvent, useState } from "react";
+import PhotoUploader, { type ExistingPhoto, type PhotoSelection } from "@/components/PhotoUploader";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Input, Textarea } from "@/components/ui/Input";
+import { uploadPhotos } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/types/database.types";
 
 type IssueSeverity = Enums<"issue_severity">;
 
+export interface EditableIssue {
+  id: string;
+  title: string;
+  description: string | null;
+  severity: IssueSeverity;
+}
+
 interface IssueFormProps {
   toolId: string;
   toolSlug: string;
+  issue?: EditableIssue;
+  existingPhotos?: ExistingPhoto[];
 }
 
 const SEVERITY_OPTIONS: { value: IssueSeverity; label: string; description: string }[] = [
@@ -24,32 +34,24 @@ const SEVERITY_OPTIONS: { value: IssueSeverity; label: string; description: stri
 
 const MAX_PHOTOS = 3;
 
-export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
+export default function IssueForm({
+  toolId,
+  toolSlug,
+  issue,
+  existingPhotos = [],
+}: IssueFormProps) {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const isEditing = !!issue;
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [severity, setSeverity] = useState<IssueSeverity>("minor");
-  const [photos, setPhotos] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [title, setTitle] = useState(issue?.title ?? "");
+  const [description, setDescription] = useState(issue?.description ?? "");
+  const [severity, setSeverity] = useState<IssueSeverity>(issue?.severity ?? "minor");
+  const [photos, setPhotos] = useState<PhotoSelection>({
+    keptPaths: existingPhotos.map((p) => p.path),
+    newFiles: [],
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  function handlePhotoSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    const remaining = MAX_PHOTOS - photos.length;
-    const toAdd = files.slice(0, remaining);
-    setPhotos((prev) => [...prev, ...toAdd]);
-    setPreviews((prev) => [...prev, ...toAdd.map((f) => URL.createObjectURL(f))]);
-    e.target.value = "";
-  }
-
-  function removePhoto(index: number) {
-    URL.revokeObjectURL(previews[index]);
-    setPhotos((prev) => prev.filter((_, i) => i !== index));
-    setPreviews((prev) => prev.filter((_, i) => i !== index));
-  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -58,8 +60,33 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
 
     const supabase = createClient();
 
-    // 1. Insert issue first to get the ID
-    const { data: issue, error: insertError } = await supabase
+    if (isEditing) {
+      const newPaths = await uploadPhotos(supabase, photos.newFiles, `issues/${issue.id}`);
+      const photoUrls = [...photos.keptPaths, ...newPaths];
+
+      const { error: updateError } = await supabase
+        .from("issues")
+        .update({
+          title: title.trim(),
+          description: description.trim() || null,
+          severity,
+          photo_urls: photoUrls,
+        })
+        .eq("id", issue.id);
+
+      if (updateError) {
+        setError(updateError.message);
+        setIsLoading(false);
+        return;
+      }
+
+      router.push(`/tools/${toolSlug}/issues/${issue.id}`);
+      router.refresh();
+      return;
+    }
+
+    // Create: insert first to get the id, then upload photos under it.
+    const { data: created, error: insertError } = await supabase
       .from("issues")
       .insert({
         tool_id: toolId,
@@ -70,30 +97,16 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
       .select("id")
       .single();
 
-    if (insertError || !issue) {
+    if (insertError || !created) {
       setError(insertError?.message ?? "Failed to create issue.");
       setIsLoading(false);
       return;
     }
 
-    // 2. Upload photos if any
-    let photoUrls: string[] = [];
-    if (photos.length > 0) {
-      const uploads = await Promise.all(
-        photos.map(async (file, i) => {
-          const ext = file.name.split(".").pop() ?? "jpg";
-          const path = `issues/${issue.id}/${i}.${ext}`;
-          const { error: uploadError } = await supabase.storage
-            .from("shopkeeper")
-            .upload(path, file, { upsert: false });
-          if (uploadError) return null;
-          return path;
-        }),
-      );
-      photoUrls = uploads.filter((p): p is string => p !== null);
-
-      if (photoUrls.length > 0) {
-        await supabase.from("issues").update({ photo_urls: photoUrls }).eq("id", issue.id);
+    if (photos.newFiles.length > 0) {
+      const paths = await uploadPhotos(supabase, photos.newFiles, `issues/${created.id}`);
+      if (paths.length > 0) {
+        await supabase.from("issues").update({ photo_urls: paths }).eq("id", created.id);
       }
     }
 
@@ -152,7 +165,7 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
             </label>
           ))}
         </div>
-        {severity === "down" && (
+        {severity === "down" && !isEditing && (
           <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
             This will mark the tool as out of service and alert Steven.
           </p>
@@ -160,58 +173,7 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
       </div>
 
       {/* Photos */}
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium text-zinc-700">
-          Photos{" "}
-          <span className="text-zinc-400 font-normal">
-            ({photos.length}/{MAX_PHOTOS})
-          </span>
-        </span>
-
-        {previews.length > 0 && (
-          <div className="flex gap-2">
-            {previews.map((src, i) => (
-              <div key={src} className="relative h-20 w-20 shrink-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={src}
-                  alt={`Upload preview ${i + 1}`}
-                  className="h-full w-full rounded-field object-cover"
-                />
-                <button
-                  type="button"
-                  onClick={() => removePhoto(i)}
-                  className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white"
-                >
-                  <X size={12} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {photos.length < MAX_PHOTOS && (
-          <>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 rounded-field border border-dashed border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-500"
-            >
-              <Camera size={16} />
-              Add photo
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              multiple
-              className="hidden"
-              onChange={handlePhotoSelect}
-            />
-          </>
-        )}
-      </div>
+      <PhotoUploader max={MAX_PHOTOS} existing={existingPhotos} onChange={setPhotos} />
 
       {error && <p className="rounded-field bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
@@ -220,7 +182,7 @@ export default function IssueForm({ toolId, toolSlug }: IssueFormProps) {
           Cancel
         </Button>
         <Button type="submit" variant="accent" className="flex-1" disabled={isLoading}>
-          {isLoading ? "Submitting…" : "Report Issue"}
+          {isLoading ? "Saving…" : isEditing ? "Save Changes" : "Report Issue"}
         </Button>
       </div>
     </form>

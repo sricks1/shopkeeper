@@ -1,4 +1,4 @@
-import { ChevronRight, Wrench } from "lucide-react";
+import { ChevronRight, Pencil, Wrench } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { IssueStatusBadge, SeverityBadge } from "@/components/StatusBadge";
@@ -61,6 +61,13 @@ export default async function IssueDetailPage({
         <div className="flex items-center gap-2">
           <SeverityBadge severity={issue.severity} />
           <span className="text-xs text-zinc-400">{timeAgo(issue.created_at)}</span>
+          <Link
+            href={`/tools/${slug}/issues/${id}/edit`}
+            className="ml-auto inline-flex items-center gap-1 rounded-field border border-zinc-200 bg-white px-2.5 py-1 text-xs font-medium text-zinc-600 transition-colors active:bg-zinc-50"
+          >
+            <Pencil size={12} />
+            Edit
+          </Link>
         </div>
       </div>
 

@@ -131,11 +131,12 @@ export default function PhotoUploader({
             <Camera size={16} />
             Add photo
           </button>
+          {/* No `capture` attr: iOS then offers Photo Library / Take Photo /
+              Choose File rather than jumping straight to the camera. */}
           <input
             ref={fileRef}
             type="file"
             accept="image/*"
-            capture="environment"
             multiple={max > 1}
             className="hidden"
             onChange={handleSelect}
