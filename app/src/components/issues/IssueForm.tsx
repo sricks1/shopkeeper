@@ -32,6 +32,21 @@ const SEVERITY_OPTIONS: { value: IssueSeverity; label: string; description: stri
   { value: "down", label: "Tool Down", description: "Out of service — blocks use" },
 ];
 
+// Anything past "minor" is something someone has to actually go do, so the
+// task defaults on. Minor issues stay a record on the tool unless asked for.
+const SEVERITY_DEFAULTS_TO_TASK: Record<IssueSeverity, boolean> = {
+  minor: false,
+  needs_attention: true,
+  down: true,
+};
+
+// A down tool blocks members from working — that's the one that jumps the queue.
+const TASK_PRIORITY_FOR_SEVERITY: Record<IssueSeverity, Enums<"task_priority">> = {
+  minor: "low",
+  needs_attention: "normal",
+  down: "high",
+};
+
 const MAX_PHOTOS = 3;
 
 export default function IssueForm({
@@ -52,6 +67,17 @@ export default function IssueForm({
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // The checkbox tracks severity until you touch it yourself, then it stays put.
+  const [addToTasks, setAddToTasks] = useState(
+    SEVERITY_DEFAULTS_TO_TASK[issue?.severity ?? "minor"],
+  );
+  const [taskChoiceTouched, setTaskChoiceTouched] = useState(false);
+
+  function handleSeverityChange(next: IssueSeverity) {
+    setSeverity(next);
+    if (!taskChoiceTouched) setAddToTasks(SEVERITY_DEFAULTS_TO_TASK[next]);
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -110,6 +136,32 @@ export default function IssueForm({
       }
     }
 
+    // Put it on the shared board so it's someone's job, not just a record on the
+    // tool. Links back to both the tool and the issue that spawned it.
+    if (addToTasks) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const { error: taskError } = await supabase.from("staff_tasks").insert({
+        name: title.trim(),
+        notes: description.trim() || null,
+        tool_id: toolId,
+        issue_id: created.id,
+        priority: TASK_PRIORITY_FOR_SEVERITY[severity],
+        scope: "team",
+        created_by: user?.id ?? null,
+      });
+
+      // The issue is already saved — say so plainly rather than pretending the
+      // whole submit failed and tempting a double-report.
+      if (taskError) {
+        setError(`Issue reported, but adding it to the task list failed: ${taskError.message}`);
+        setIsLoading(false);
+        return;
+      }
+    }
+
     router.push(`/tools/${toolSlug}`);
     router.refresh();
   }
@@ -155,7 +207,7 @@ export default function IssueForm({
                 name="severity"
                 value={opt.value}
                 checked={severity === opt.value}
-                onChange={() => setSeverity(opt.value)}
+                onChange={() => handleSeverityChange(opt.value)}
                 className="mt-0.5 accent-brand"
               />
               <div>
@@ -171,6 +223,28 @@ export default function IssueForm({
           </p>
         )}
       </div>
+
+      {/* Add to the task board. Create only — editing an issue shouldn't quietly
+          spawn a second task for something already on the board. */}
+      {!isEditing && (
+        <label className="flex cursor-pointer items-start gap-3 rounded-card border border-zinc-200 bg-white p-3.5">
+          <input
+            type="checkbox"
+            checked={addToTasks}
+            onChange={(e) => {
+              setAddToTasks(e.target.checked);
+              setTaskChoiceTouched(true);
+            }}
+            className="mt-0.5 h-4 w-4 shrink-0 rounded accent-brand"
+          />
+          <div>
+            <p className="text-sm font-medium text-zinc-800">Add to the task list</p>
+            <p className="text-xs text-zinc-400">
+              Puts this on the shared board so it can be assigned and scheduled.
+            </p>
+          </div>
+        </label>
+      )}
 
       {/* Photos */}
       <PhotoUploader max={MAX_PHOTOS} existing={existingPhotos} onChange={setPhotos} />

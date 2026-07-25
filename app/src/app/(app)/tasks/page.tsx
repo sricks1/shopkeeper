@@ -1,4 +1,4 @@
-import { CalendarClock, ClipboardList, Lock, Plus, User } from "lucide-react";
+import { CalendarClock, ClipboardList, Lock, Plus, User, Wrench } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { TaskPriorityBadge, taskStatusLabel } from "@/components/StatusBadge";
@@ -34,6 +34,7 @@ type BoardTask = {
   scope: TaskScope;
   date_needed: string | null;
   assigned_to: string | null;
+  tool: { name: string; slug: string } | null;
 };
 
 export default async function TasksPage({
@@ -63,7 +64,7 @@ export default async function TasksPage({
   // Orders (consumable-linked or is_order) live in Inventory › Orders, not here.
   let query = supabase
     .from("staff_tasks")
-    .select("id, name, status, priority, scope, date_needed, assigned_to")
+    .select("id, name, status, priority, scope, date_needed, assigned_to, tools(name, slug)")
     .is("consumable_type_id", null)
     .eq("is_order", false);
 
@@ -76,7 +77,13 @@ export default async function TasksPage({
   const { data } = await query
     .order("date_needed", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
-  const tasks = (data ?? []) as BoardTask[];
+
+  // Supabase types the joined relation as array-or-object depending on inference,
+  // so normalize it the same way the Orders board does.
+  const tasks: BoardTask[] = (data ?? []).map(({ tools, ...t }) => ({
+    ...t,
+    tool: (Array.isArray(tools) ? tools[0] : tools) ?? null,
+  }));
 
   const byStatus = (status: TaskStatus) => tasks.filter((t) => t.status === status);
 
@@ -141,6 +148,12 @@ export default async function TasksPage({
                     const assignee = task.assigned_to ? nameById.get(task.assigned_to) : null;
                     const meta = (
                       <div className="flex min-w-0 items-center gap-2 text-xs text-zinc-400">
+                        {task.tool && (
+                          <span className="flex min-w-0 items-center gap-1 font-medium text-sky-700">
+                            <Wrench size={11} className="shrink-0" />
+                            <span className="truncate">{task.tool.name}</span>
+                          </span>
+                        )}
                         <span className="flex min-w-0 items-center gap-1">
                           <User size={11} className="shrink-0" />
                           <span className="truncate">{assignee ?? "Unassigned"}</span>

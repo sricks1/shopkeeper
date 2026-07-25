@@ -380,6 +380,8 @@ export default function FolderTree({ state, ctrl, tasksById, userId }: FolderTre
         priority={task.priority}
         isPurchase={task.consumable_type_id != null}
         personal={task.scope === "personal"}
+        isTool={task.tool_id != null}
+        toolName={task.tool?.name}
       />
       <button
         type="button"
@@ -582,6 +584,8 @@ export default function FolderTree({ state, ctrl, tasksById, userId }: FolderTre
                   priority={task.priority}
                   isPurchase={task.consumable_type_id != null}
                   personal={task.scope === "personal"}
+                  isTool={task.tool_id != null}
+                  toolName={task.tool?.name}
                 />
                 <button
                   type="button"

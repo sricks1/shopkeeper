@@ -20,6 +20,10 @@ export interface OrganizerTask {
   consumable_type_id: string | null;
   // A "loose" order — an order not tied to a consumable (e.g. "order soap").
   is_order: boolean;
+  // Non-null when the task is linked to a tool.
+  tool_id: string | null;
+  // The joined tool, for display. Null when tool_id is null.
+  tool: { name: string; slug: string } | null;
 }
 
 // A tag from the shared, team-wide vocabulary.
