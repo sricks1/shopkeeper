@@ -50,6 +50,7 @@ export default function TaskCard({
   const overdue = isOverdue(task.date_needed, task.status);
   const personal = task.scope === "personal";
   const isPurchase = task.consumable_type_id != null || task.is_order;
+  const isTool = task.tool_id != null;
   const [filing, setFiling] = useState(false);
   const flatFolders = filing ? flattenFolders(folders) : [];
 
@@ -67,7 +68,13 @@ export default function TaskCard({
           {task.name}
         </Link>
         <div className="flex shrink-0 items-center gap-1.5">
-          <TaskFlags priority={task.priority} isPurchase={isPurchase} personal={personal} />
+          <TaskFlags
+            priority={task.priority}
+            isPurchase={isPurchase}
+            personal={personal}
+            isTool={isTool}
+            toolName={task.tool?.name}
+          />
           <button
             type="button"
             onClick={() => setFiling((v) => !v)}

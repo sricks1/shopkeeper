@@ -1,4 +1,4 @@
-import { ChevronRight, MessageSquare, ShoppingCart } from "lucide-react";
+import { ChevronRight, MessageSquare, ShoppingCart, Wrench } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TaskPriorityBadge, TaskStatusBadge } from "@/components/StatusBadge";
@@ -33,7 +33,7 @@ export default async function TaskDetailPage({
   const { data: task } = await supabase
     .from("staff_tasks")
     .select(
-      "id, name, status, priority, assigned_to, date_needed, notes, created_by, created_at, updated_at, consumable_type_id, is_order",
+      "id, name, status, priority, assigned_to, date_needed, notes, created_by, created_at, updated_at, consumable_type_id, is_order, tool_id, issue_id, tools(name, slug)",
     )
     .eq("id", id)
     .single();
@@ -54,6 +54,10 @@ export default async function TaskDetailPage({
     }
   }
   const isPurchase = task.consumable_type_id != null || task.is_order;
+
+  // Tool tasks link back to the machine, and to the issue that spawned them when
+  // there is one — that's the round trip from "saw is broken" to "who's fixing it".
+  const linkedTool = (Array.isArray(task.tools) ? task.tools[0] : task.tools) ?? null;
 
   const { data: allStaff } = await supabase.from("staff").select("id, display_name, active");
   const nameById = new Map((allStaff ?? []).map((s) => [s.id, s.display_name]));
@@ -113,6 +117,24 @@ export default async function TaskDetailPage({
         >
           <ShoppingCart size={15} className="shrink-0" />
           <span className="min-w-0 flex-1 truncate">Purchasing: {linkedConsumable.name}</span>
+          <ChevronRight size={15} className="shrink-0" />
+        </Link>
+      )}
+
+      {linkedTool && (
+        <Link
+          href={
+            task.issue_id
+              ? `/tools/${linkedTool.slug}/issues/${task.issue_id}`
+              : `/tools/${linkedTool.slug}`
+          }
+          className="mb-4 flex items-center gap-2 rounded-card bg-sky-50 px-4 py-3 text-sm font-medium text-sky-800 ring-1 ring-sky-200"
+        >
+          <Wrench size={15} className="shrink-0" />
+          <span className="min-w-0 flex-1 truncate">
+            {linkedTool.name}
+            {task.issue_id && <span className="font-normal text-sky-600"> · view issue</span>}
+          </span>
           <ChevronRight size={15} className="shrink-0" />
         </Link>
       )}

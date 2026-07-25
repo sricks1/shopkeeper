@@ -1,7 +1,7 @@
-import { ChevronRight, Pencil, Wrench } from "lucide-react";
+import { ChevronRight, ClipboardList, Pencil, Wrench } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { IssueStatusBadge, SeverityBadge } from "@/components/StatusBadge";
+import { IssueStatusBadge, SeverityBadge, TaskStatusBadge } from "@/components/StatusBadge";
 import { Card } from "@/components/ui/Card";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate, timeAgo } from "@/lib/utils";
@@ -36,12 +36,20 @@ export default async function IssueDetailPage({
   }
 
   // Repairs linked to this issue — makes the issue↔repair connection visible
-  // from the issue side (newest first).
-  const { data: linkedRepairs } = await supabase
-    .from("repairs")
-    .select("id, description, created_at")
-    .eq("issue_id", id)
-    .order("created_at", { ascending: false });
+  // from the issue side (newest first). Tasks likewise: if reporting this issue
+  // put something on the board, say so, so nobody files a duplicate.
+  const [{ data: linkedRepairs }, { data: linkedTasks }] = await Promise.all([
+    supabase
+      .from("repairs")
+      .select("id, description, created_at")
+      .eq("issue_id", id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("staff_tasks")
+      .select("id, name, status")
+      .eq("issue_id", id)
+      .order("created_at", { ascending: false }),
+  ]);
 
   const isOpen = issue.status === "open";
 
@@ -122,6 +130,32 @@ export default async function IssueDetailPage({
                     <p className="mt-1 text-xs text-zinc-400">{timeAgo(repair.created_at)}</p>
                   </div>
                   <ChevronRight size={14} className="mt-0.5 shrink-0 text-zinc-300" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Tasks spawned from this issue */}
+      {linkedTasks && linkedTasks.length > 0 && (
+        <section className="mb-6">
+          <p className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-400">
+            On the task board
+          </p>
+          <ul className="flex flex-col gap-2">
+            {linkedTasks.map((task) => (
+              <li key={task.id}>
+                <Link
+                  href={`/tasks/${task.id}`}
+                  className="flex items-center gap-3 rounded-card bg-white px-3.5 py-2.5 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
+                >
+                  <ClipboardList size={15} className="shrink-0 text-zinc-400" />
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium text-zinc-800">
+                    {task.name}
+                  </span>
+                  <TaskStatusBadge status={task.status} />
+                  <ChevronRight size={14} className="shrink-0 text-zinc-300" />
                 </Link>
               </li>
             ))}

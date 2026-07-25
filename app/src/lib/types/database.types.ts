@@ -720,11 +720,13 @@ export type Database = {
           date_needed: string | null;
           id: string;
           is_order: boolean;
+          issue_id: string | null;
           name: string;
           notes: string | null;
           priority: Database["public"]["Enums"]["task_priority"];
           scope: Database["public"]["Enums"]["task_scope"];
           status: Database["public"]["Enums"]["task_status"];
+          tool_id: string | null;
           updated_at: string;
         };
         Insert: {
@@ -735,11 +737,13 @@ export type Database = {
           date_needed?: string | null;
           id?: string;
           is_order?: boolean;
+          issue_id?: string | null;
           name: string;
           notes?: string | null;
           priority?: Database["public"]["Enums"]["task_priority"];
           scope?: Database["public"]["Enums"]["task_scope"];
           status?: Database["public"]["Enums"]["task_status"];
+          tool_id?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -750,11 +754,13 @@ export type Database = {
           date_needed?: string | null;
           id?: string;
           is_order?: boolean;
+          issue_id?: string | null;
           name?: string;
           notes?: string | null;
           priority?: Database["public"]["Enums"]["task_priority"];
           scope?: Database["public"]["Enums"]["task_scope"];
           status?: Database["public"]["Enums"]["task_status"];
+          tool_id?: string | null;
           updated_at?: string;
         };
         Relationships: [
@@ -777,6 +783,20 @@ export type Database = {
             columns: ["created_by"];
             isOneToOne: false;
             referencedRelation: "staff";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "staff_tasks_issue_id_fkey";
+            columns: ["issue_id"];
+            isOneToOne: false;
+            referencedRelation: "issues";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "staff_tasks_tool_id_fkey";
+            columns: ["tool_id"];
+            isOneToOne: false;
+            referencedRelation: "tools";
             referencedColumns: ["id"];
           },
         ];
