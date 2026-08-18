@@ -57,6 +57,13 @@ See `PRD.md` for full requirements.
 - PR descriptions should reference any related issue and explain the "why," not just the "what."
 - Squash-merge to `main`.
 
+## iOS app (`ios/`)
+
+- Native SwiftUI companion app sharing the same Supabase backend. Scope: `docs/ios-phase1.md`.
+- **House rule:** any migration touching a table the iOS app reads must also update `ios/ShopKeeper/Models`.
+- Supabase URL + anon key live in `ios/Secrets.xcconfig` (gitignored), generated from `app/.env.local` via `ios/scripts/gen-secrets.sh`. Never commit it.
+- Project file is generated: edit `ios/project.yml`, run `xcodegen` in `ios/`. Don't hand-edit the pbxproj.
+
 ## When in doubt
 
 - **Scope creep:** if you find yourself building something not listed in PRD §4 (core flows) or §8 (Phase 1), stop and flag it to Steven before continuing.

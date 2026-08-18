@@ -76,6 +76,6 @@ not a strict restatement of the PRD's phased rollout.
 
 ## Phase 6 — Native iOS & members (PRD Phase 3)
 
-- [ ] Native iOS app (SwiftUI) on the shared Supabase backend
+- [ ] Native iOS app (SwiftUI) on the shared Supabase backend — **in progress**, deliberately moved ahead of Phase 5 (2026-08-18); scope in `docs/ios-phase1.md`
 - [ ] Member-facing read-only tool status board
 - [ ] Photo-based issue reports with tool recognition (stretch)
