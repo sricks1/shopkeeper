@@ -11,6 +11,7 @@ struct ToolDetailView: View {
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var isReportingIssue = false
+    @State private var isLoggingRepair = false
 
     var body: some View {
         content
@@ -18,15 +19,33 @@ struct ToolDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        isReportingIssue = true
+                    Menu {
+                        Button {
+                            isReportingIssue = true
+                        } label: {
+                            Label("Report Issue", systemImage: "exclamationmark.bubble")
+                        }
+                        Button {
+                            isLoggingRepair = true
+                        } label: {
+                            Label("Log Repair", systemImage: "wrench.and.screwdriver")
+                        }
                     } label: {
-                        Label("Report Issue", systemImage: "exclamationmark.bubble")
+                        Label("Actions", systemImage: "ellipsis.circle")
                     }
                 }
             }
             .sheet(isPresented: $isReportingIssue) {
                 ReportIssueView(toolID: toolID) {
+                    Task { await load() }
+                }
+            }
+            .sheet(isPresented: $isLoggingRepair) {
+                LogRepairView(
+                    toolID: toolID,
+                    openIssues: detail?.recentIssues.filter { $0.status == .open } ?? [],
+                    consumables: detail?.consumables ?? []
+                ) {
                     Task { await load() }
                 }
             }
