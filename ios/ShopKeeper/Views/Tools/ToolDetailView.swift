@@ -81,6 +81,23 @@ struct ToolDetailView: View {
                 )
                 ToolMetadataSection(tool: detail.tool)
                 ToolConsumablesSection(consumables: detail.consumables)
+                // A single, deliberately understated row — not a button
+                // styled to compete with Report Issue/Log Repair above —
+                // since linking/unlinking parts is a rarer management task,
+                // not a primary flow through this screen.
+                if session.canManageTools {
+                    Section {
+                        NavigationLink {
+                            ToolConsumablesEditorView(toolID: toolID, toolName: displayName) {
+                                Task { await load() }
+                            }
+                        } label: {
+                            Label("Manage Consumables & Parts", systemImage: "wrench.adjustable")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
                 ToolIssuesSection(issues: detail.recentIssues)
                 ToolRepairsSection(repairs: detail.recentRepairs)
             }

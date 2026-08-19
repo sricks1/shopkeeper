@@ -32,11 +32,14 @@ enum InventoryStockFilter: String, CaseIterable, Identifiable {
 /// Tapping a row pushes a read-only detail screen; there's no fetch there
 /// since the list already has everything the detail needs.
 struct InventoryListView: View {
+    @Environment(SessionModel.self) private var session
+
     @State private var entries: [InventoryEntry] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var searchText = ""
     @State private var stockFilter: InventoryStockFilter = .all
+    @State private var isAddingConsumable = false
 
     var body: some View {
         NavigationStack {
@@ -57,6 +60,20 @@ struct InventoryListView: View {
                         } label: {
                             Label("Filter", systemImage: "line.3.horizontal.decrease.circle\(stockFilter == .all ? "" : ".fill")")
                         }
+                    }
+                    if session.canManageTools {
+                        ToolbarItem(placement: .primaryAction) {
+                            Button {
+                                isAddingConsumable = true
+                            } label: {
+                                Label("Add Consumable", systemImage: "plus")
+                            }
+                        }
+                    }
+                }
+                .sheet(isPresented: $isAddingConsumable) {
+                    ConsumableFormView { _ in
+                        Task { await load() }
                     }
                 }
         }
@@ -154,4 +171,5 @@ private struct InventoryRow: View {
 
 #Preview {
     InventoryListView()
+        .environment(SessionModel())
 }

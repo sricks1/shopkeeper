@@ -1,10 +1,19 @@
 import SwiftUI
 
-/// Read-only detail for one consumable type's stock state. No edit
-/// affordances anywhere on this screen — see `InventoryService` for why
-/// inventory is read-only in this app.
+/// Detail for one consumable type's stock state, plus an edit affordance for
+/// the catalog row (gated on `SessionModel.canManageTools`). The inventory
+/// fields themselves — status, last ordered — stay read-only here; editing
+/// only ever touches the `consumable_types` row, never `inventory_items`.
+/// See `InventoryService` for why inventory stays read-only in this app.
 struct InventoryDetailView: View {
-    let entry: InventoryEntry
+    @Environment(SessionModel.self) private var session
+
+    @State private var entry: InventoryEntry
+    @State private var isEditing = false
+
+    init(entry: InventoryEntry) {
+        _entry = State(initialValue: entry)
+    }
 
     var body: some View {
         List {
@@ -49,6 +58,36 @@ struct InventoryDetailView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(entry.consumableType.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if session.canManageTools {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Edit") {
+                        isEditing = true
+                    }
+                    .accessibilityHint("Edit \(entry.consumableType.name)")
+                }
+            }
+        }
+        .sheet(isPresented: $isEditing) {
+            ConsumableFormView(existingConsumable: entry.consumableType) { updated in
+                applyUpdate(updated)
+            }
+        }
+    }
+
+    /// Rebuilds `entry` around the just-saved catalog row, leaving every
+    /// stock field (`stockStatus`, `lastOrderedAt`, …) exactly as it was —
+    /// editing here never touches `inventory_items`, only `consumable_types`.
+    private func applyUpdate(_ consumableType: ConsumableType) {
+        entry = InventoryEntry(
+            id: entry.id,
+            consumableTypeId: entry.consumableTypeId,
+            stockStatus: entry.stockStatus,
+            lastOrderedAt: entry.lastOrderedAt,
+            createdAt: entry.createdAt,
+            updatedAt: entry.updatedAt,
+            consumableType: consumableType
+        )
     }
 }
 
@@ -79,4 +118,5 @@ struct InventoryDetailView: View {
             )
         )
     }
+    .environment(SessionModel())
 }

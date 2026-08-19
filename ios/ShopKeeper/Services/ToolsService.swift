@@ -411,3 +411,80 @@ struct ToolConsumableDetail: Decodable, Identifiable, Hashable, Sendable {
         case consumableType = "consumable_types"
     }
 }
+
+// MARK: - Consumable links
+
+/// Write access for managing which consumables/parts a tool uses, gated
+/// server-side (RLS) to `owner`/`shop_master` — see
+/// `SessionModel.canManageTools`, which `ToolConsumablesEditorView` uses to
+/// hide its entry point from lesser roles. Mirrors the web app's
+/// `ManageConsumables`: link and unlink are each a single-row
+/// insert/delete against `tool_consumables`, no separate confirmation step.
+extension ToolsService {
+    /// Fetches just this tool's linked consumables, joined with their
+    /// catalog row. A narrower read than `fetchToolDetail(toolID:)` (which
+    /// also loads issues/repairs/photos) for callers — like
+    /// `ToolConsumablesEditorView` — that only need this one list.
+    static func fetchToolConsumables(toolID: UUID) async throws -> [ToolConsumableDetail] {
+        try await SupabaseManager.shared.client
+            .from("tool_consumables")
+            .select("*, consumable_types(*)")
+            .eq("tool_id", value: toolID.uuidString)
+            .execute()
+            .value
+    }
+
+    /// Links a consumable type to a tool, returning the new join row (joined
+    /// with its catalog row, same shape as `fetchToolConsumables` returns).
+    static func linkConsumable(toolID: UUID, consumableTypeID: UUID, notes: String? = nil) async throws -> ToolConsumableDetail {
+        let payload = NewToolConsumablePayload(toolId: toolID, consumableTypeId: consumableTypeID, notes: notes)
+
+        return try await SupabaseManager.shared.client
+            .from("tool_consumables")
+            .insert(payload)
+            .select("*, consumable_types(*)")
+            .single()
+            .execute()
+            .value
+    }
+
+    /// Removes a tool↔consumable link by its `tool_consumables.id`. Does not
+    /// touch the underlying `consumable_types` catalog row or any
+    /// `inventory_items` stock row — only the join between this tool and
+    /// that consumable.
+    static func unlinkConsumable(id: UUID) async throws {
+        try await SupabaseManager.shared.client
+            .from("tool_consumables")
+            .delete()
+            .eq("id", value: id.uuidString)
+            .execute()
+    }
+
+    /// Updates just the `notes` on an existing link.
+    static func updateConsumableLinkNotes(id: UUID, notes: String?) async throws -> ToolConsumableDetail {
+        try await SupabaseManager.shared.client
+            .from("tool_consumables")
+            .update(UpdateToolConsumableNotesPayload(notes: notes))
+            .eq("id", value: id.uuidString)
+            .select("*, consumable_types(*)")
+            .single()
+            .execute()
+            .value
+    }
+}
+
+private struct NewToolConsumablePayload: Encodable {
+    let toolId: UUID
+    let consumableTypeId: UUID
+    let notes: String?
+
+    enum CodingKeys: String, CodingKey {
+        case toolId = "tool_id"
+        case consumableTypeId = "consumable_type_id"
+        case notes
+    }
+}
+
+private struct UpdateToolConsumableNotesPayload: Encodable {
+    let notes: String?
+}
