@@ -36,7 +36,15 @@ The iPhone app is for a person **standing in the shop** with sawdust on their ha
 
 ## Milestones
 
-1. **Weekend 1:** scaffold, auth, tools list + detail read-only. Proves SDK ↔ RLS end to end.
-2. **Weekend 2:** universal links + in-app scanner + report issue with photo. *Stop-anywhere-after-this milestone.*
+1. ~~**Weekend 1:** scaffold, auth, tools list + detail read-only.~~ **Done** — RLS verified in both directions (non-staff account sees zero rows).
+2. ~~**Weekend 2:** universal links + in-app scanner + report issue with photo.~~ **Done, with one caveat** — report-issue verified end to end (a `down` report flipped tool status and generated a notification via the DB triggers). Deep-link routing verified via the `shopkeeper://` scheme; universal links are wired but cannot light up until the web app deploys the AASA file. The VisionKit scanner is build-verified only and needs a real device.
 3. **Weekend 3:** log repair with consumable picker, inventory adjust / record purchase.
-4. **Weekend 4:** polish — error/empty states, haptics, app icon, TestFlight (needs $99/yr developer account).
+4. **Weekend 4:** polish — error/empty states, haptics, app icon, TestFlight.
+
+## Facts worth not re-deriving
+
+- **Apple Team ID: `9R99EUR743`** (from the `Developer ID Application` cert on Steven's MacBook). That cert also confirms an existing **paid** Apple Developer Program membership — the earlier "needs $99/yr" note was wrong.
+- **Universal links require a deploy.** The AASA file is served by the web app at `/.well-known/apple-app-site-association` and must return a bare HTTP 200 (Apple's CDN will not follow redirects). The auth middleware in `app/src/proxy.ts` used to redirect it to `/login`; `/.well-known` is now in `PUBLIC_PATHS`. Universal links stay dead in the wild until that change ships.
+- **Dev vs. prod split.** The iOS app reads `app/.env.local`, so it talks to the **dev** Supabase project. The printed QR labels point at the live `shopkeeper.thejoinery.club`, which is served with production config. A real label scanned by a dev build may hit a slug that doesn't exist in dev. Resolve before the app goes on a phone in the shop.
+- **Storage path convention** (must match the web app): insert the issue first, then upload to `issues/<issue-id>/<ms-timestamp>-<index>.<ext>`, then update `photo_urls`.
+- **Simulator can't test the camera**, so the VisionKit QR scanner is build-verified only — it needs a real device to exercise.

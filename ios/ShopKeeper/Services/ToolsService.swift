@@ -28,6 +28,21 @@ enum ToolsService {
             .value
     }
 
+    /// A single tool by `slug`. Used to resolve deep links — universal
+    /// links, the `shopkeeper://` scheme, and scanned QR codes all carry a
+    /// slug rather than an id (see `DeepLink`) — to a navigable `Tool`.
+    /// Throws if no tool matches, same as `fetchToolDetail(toolID:)` does
+    /// for an unknown id.
+    static func fetchTool(slug: String) async throws -> Tool {
+        try await SupabaseManager.shared.client
+            .from("tools")
+            .select()
+            .eq("slug", value: slug)
+            .single()
+            .execute()
+            .value
+    }
+
     /// A tool plus everything its detail screen needs: assigned
     /// consumables/parts (joined with their catalog row), the 10 most recent
     /// issues, the 10 most recent repairs, and resolved photo URLs.
