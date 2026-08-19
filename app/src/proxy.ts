@@ -2,7 +2,9 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 // Public routes that don't require authentication
-const PUBLIC_PATHS = ["/login"];
+// /.well-known must stay public and redirect-free — Apple's CDN fetches
+// apple-app-site-association directly and requires a bare HTTP 200.
+const PUBLIC_PATHS = ["/login", "/.well-known"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
