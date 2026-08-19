@@ -10,11 +10,26 @@ struct ToolDetailView: View {
     @State private var detail: ToolDetail?
     @State private var isLoading = true
     @State private var errorMessage: String?
+    @State private var isReportingIssue = false
 
     var body: some View {
         content
             .navigationTitle(displayName)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        isReportingIssue = true
+                    } label: {
+                        Label("Report Issue", systemImage: "exclamationmark.bubble")
+                    }
+                }
+            }
+            .sheet(isPresented: $isReportingIssue) {
+                ReportIssueView(toolID: toolID) {
+                    Task { await load() }
+                }
+            }
             .task {
                 await load()
             }
