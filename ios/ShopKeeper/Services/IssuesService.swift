@@ -130,3 +130,81 @@ private struct PhotoURLsPayload: Encodable {
         case photoPaths = "photo_urls"
     }
 }
+
+// MARK: - Detail
+
+/// An issue plus everything `IssueDetailView` needs: the reporter's (and,
+/// once resolved, the resolver's) display name, and resolved photo URLs.
+struct IssueDetail: Identifiable, Sendable {
+    var id: UUID { issue.id }
+
+    let issue: Issue
+    let reportedByName: String?
+    let resolvedByName: String?
+    let photos: [EntityPhoto]
+}
+
+extension IssuesService {
+    /// An issue plus its reporter/resolver names and resolved photos.
+    ///
+    /// `reported_by` and `resolved_by` are both foreign keys to `staff`, so
+    /// the embed needs an explicit constraint hint on each — otherwise
+    /// PostgREST can't tell which column an embedded `staff` row should
+    /// follow.
+    static func fetchIssueDetail(issueID: UUID) async throws -> IssueDetail {
+        let row: IssueWithStaffRow = try await SupabaseManager.shared.client
+            .from("issues")
+            .select(
+                "*, reporter:staff!issues_reported_by_fkey(display_name), resolver:staff!issues_resolved_by_fkey(display_name)"
+            )
+            .eq("id", value: issueID.uuidString)
+            .single()
+            .execute()
+            .value
+
+        let photos = await ToolsService.resolvedPhotos(paths: row.issue.photoPaths, kind: .issue)
+
+        return IssueDetail(
+            issue: row.issue,
+            reportedByName: row.reporter?.displayName,
+            resolvedByName: row.resolver?.displayName,
+            photos: photos
+        )
+    }
+}
+
+/// A `staff` row narrowed to just the display name, for embeds that only
+/// need a human-readable label.
+private struct StaffNameEmbed: Decodable, Sendable {
+    let displayName: String
+
+    enum CodingKeys: String, CodingKey {
+        case displayName = "display_name"
+    }
+}
+
+/// Decodes an `issues` row plus its `reporter`/`resolver` embeds.
+///
+/// `Issue` can't just grow two optional nested properties for this — its
+/// `CodingKeys` decode straight from the top-level object. Instead, this
+/// replays `Issue`'s own `init(from:)` against the same decoder (extra
+/// unknown keys like `reporter`/`resolver` are simply ignored), then reads
+/// those two keys separately via a second keyed container over that same
+/// decoder.
+private struct IssueWithStaffRow: Decodable, Sendable {
+    let issue: Issue
+    let reporter: StaffNameEmbed?
+    let resolver: StaffNameEmbed?
+
+    enum CodingKeys: String, CodingKey {
+        case reporter
+        case resolver
+    }
+
+    init(from decoder: Decoder) throws {
+        issue = try Issue(from: decoder)
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        reporter = try container.decodeIfPresent(StaffNameEmbed.self, forKey: .reporter)
+        resolver = try container.decodeIfPresent(StaffNameEmbed.self, forKey: .resolver)
+    }
+}

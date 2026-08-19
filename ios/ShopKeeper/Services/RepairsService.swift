@@ -191,3 +191,122 @@ private struct ResolveIssuePayload: Encodable {
         case resolvedBy = "resolved_by"
     }
 }
+
+// MARK: - Detail
+
+/// A repair plus everything `RepairDetailView` needs: the performer's
+/// display name, the consumables/parts recorded against it (joined with
+/// their catalog row), the issue it resolved (if any), and resolved photo
+/// URLs.
+struct RepairDetail: Identifiable, Sendable {
+    var id: UUID { repair.id }
+
+    let repair: Repair
+    let performedByName: String?
+    let consumables: [RepairConsumableDetail]
+    let resolvedIssue: Issue?
+    let photos: [EntityPhoto]
+}
+
+/// A `repair_consumables` row joined with its `consumable_types` catalog
+/// row, decoded from PostgREST's embedded-resource syntax. Mirrors
+/// `ToolConsumableDetail` in `ToolsService.swift`.
+struct RepairConsumableDetail: Decodable, Identifiable, Hashable, Sendable {
+    let id: UUID
+    let repairId: UUID
+    let consumableTypeId: UUID
+    let quantityUsed: Int
+    let createdAt: Date
+    let consumableType: ConsumableType
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case repairId = "repair_id"
+        case consumableTypeId = "consumable_type_id"
+        case quantityUsed = "quantity_used"
+        case createdAt = "created_at"
+        case consumableType = "consumable_types"
+    }
+}
+
+extension RepairsService {
+    /// A repair plus its performer name, consumables used, linked issue,
+    /// and resolved photos.
+    ///
+    /// The repair row (with `performer`/`resolvedIssue` embeds) and the
+    /// `repair_consumables` join run concurrently. The consumables list is
+    /// sorted client-side by name — PostgREST's `order` on an embedded
+    /// resource sorts rows within the embed, not this list (see
+    /// `InventoryService.fetchInventory`).
+    static func fetchRepairDetail(repairID: UUID) async throws -> RepairDetail {
+        let client = SupabaseManager.shared.client
+        let idValue = repairID.uuidString
+
+        async let rowTask: RepairWithEmbedsRow = client
+            .from("repairs")
+            .select(
+                "*, performer:staff!repairs_performed_by_fkey(display_name), resolvedIssue:issues!repairs_issue_id_fkey(*)"
+            )
+            .eq("id", value: idValue)
+            .single()
+            .execute()
+            .value
+
+        async let consumablesTask: [RepairConsumableDetail] = client
+            .from("repair_consumables")
+            .select("*, consumable_types(*)")
+            .eq("repair_id", value: idValue)
+            .execute()
+            .value
+
+        let row = try await rowTask
+        let consumables = try await consumablesTask.sorted {
+            $0.consumableType.name.localizedStandardCompare($1.consumableType.name) == .orderedAscending
+        }
+        let photos = await ToolsService.resolvedPhotos(paths: row.repair.photoPaths, kind: .repair)
+
+        return RepairDetail(
+            repair: row.repair,
+            performedByName: row.performer?.displayName,
+            consumables: consumables,
+            resolvedIssue: row.resolvedIssue,
+            photos: photos
+        )
+    }
+}
+
+/// A `staff` row narrowed to just the display name, for embeds that only
+/// need a human-readable label.
+private struct StaffNameEmbed: Decodable, Sendable {
+    let displayName: String
+
+    enum CodingKeys: String, CodingKey {
+        case displayName = "display_name"
+    }
+}
+
+/// Decodes a `repairs` row plus its `performer`/`resolvedIssue` embeds.
+///
+/// `Repair` can't just grow two optional nested properties for this — its
+/// `CodingKeys` decode straight from the top-level object. Instead, this
+/// replays `Repair`'s own `init(from:)` against the same decoder (extra
+/// unknown keys like `performer`/`resolvedIssue` are simply ignored), then
+/// reads those two keys separately via a second keyed container over that
+/// same decoder. Mirrors `IssueWithStaffRow` in `IssuesService.swift`.
+private struct RepairWithEmbedsRow: Decodable, Sendable {
+    let repair: Repair
+    let performer: StaffNameEmbed?
+    let resolvedIssue: Issue?
+
+    enum CodingKeys: String, CodingKey {
+        case performer
+        case resolvedIssue
+    }
+
+    init(from decoder: Decoder) throws {
+        repair = try Repair(from: decoder)
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        performer = try container.decodeIfPresent(StaffNameEmbed.self, forKey: .performer)
+        resolvedIssue = try container.decodeIfPresent(Issue.self, forKey: .resolvedIssue)
+    }
+}

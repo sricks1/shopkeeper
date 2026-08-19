@@ -11,13 +11,18 @@
 		160019C6BEDF36D0FBB2C6C5 /* Issue.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6E768880A133357FFF42B50 /* Issue.swift */; };
 		1C94E29EFFD4D95CE06C54EC /* SessionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0EFF1A43C1EA2A74267D73 /* SessionModel.swift */; };
 		1DAA03DAAB45C592823FE7F0 /* InventoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0085A506D84E6B4645A4709E /* InventoryItem.swift */; };
+		21FD1193891DF7CFD6B54EB2 /* ToolActionsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDB9731E9529DAFB9513CE58 /* ToolActionsSection.swift */; };
 		225E54CEC497090CB12A6361 /* ToolType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4767E777E4D3E12C3FBF6D34 /* ToolType.swift */; };
 		278050E3D44409087083E923 /* ShopKeeperApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 953C7FE387EC42DBFEAFE5E5 /* ShopKeeperApp.swift */; };
 		2A87632F641F6960B618315C /* Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44529CCAB07A24BE02068AEB /* Tool.swift */; };
 		344F5C84359425A6313CD193 /* NotificationsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9D1A0C0F7CA2C1EA2E20C9 /* NotificationsListView.swift */; };
 		397C3FDA3949B5007A6B58E9 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 736E9C85BF6693A9C95DD3BF /* QRScannerView.swift */; };
+		3EA5B72AAA1015AE0B90FDDF /* ToolPhotoSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B95288AE5BECCDDE70A2865 /* ToolPhotoSection.swift */; };
+		4070E69B61CE6A355EF7F1B5 /* IssueDetailSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1A3D3F9D81943144C34E92 /* IssueDetailSections.swift */; };
+		40BFDB6A59E02DB52AFD4CA4 /* ToolHistorySections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DC14215B2CFD43D37E8CCE0 /* ToolHistorySections.swift */; };
 		41B506ABD6730B3019766101 /* ToolsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D5A3DE7AAEDB081CE4D493 /* ToolsListView.swift */; };
 		42BE8CBD170D7E47382A4956 /* RepairsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46F3CCF0E1C823F4658C47A /* RepairsService.swift */; };
+		46EEFAFF20FFB647093FDAAB /* RepairDetailSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6B1408AA3FF18CA57C4A36 /* RepairDetailSections.swift */; };
 		4F6A420DF6837C4194DD9EE2 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A808049E66A5DCD4FF34E7A /* RootView.swift */; };
 		57C94A8434D974F0ABBA1A37 /* DeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC94C7422E3C7F51A1EC278 /* DeepLink.swift */; };
 		5865E50A067AC3B7369B3B39 /* Repair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3797F3629CE1E52516797247 /* Repair.swift */; };
@@ -29,9 +34,12 @@
 		9A90CEF348FD56FA76AF8626 /* IssuePhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2C87328D5C6E4800621D61 /* IssuePhotoPicker.swift */; };
 		9C91BEFA8710F4B54E28F909 /* Staff.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1D6AA35C7631E4FB53723B /* Staff.swift */; };
 		A54FEBC8380029F0E08D7C5F /* ToolsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FB6A7387F2AAFED37C13AC /* ToolsService.swift */; };
+		ABB0A06731BABB435E0CCDC5 /* ToolMetadataSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932BEE7ED47E0F31B736262B /* ToolMetadataSection.swift */; };
 		AD7C1BDDC33C8CC174EF7F93 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = BFC746E523B090CA676E3C17 /* Supabase */; };
 		AE5398AB80F8A87CEDE737E6 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3DF152947CDA04A6E736041 /* SupabaseManager.swift */; };
+		BAB8D3C34308E10E0C2F80B5 /* EntityPhotoThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = B295F0AC92A6B28400B1F62E /* EntityPhotoThumbnail.swift */; };
 		BAE0699351F1A341E390C132 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FFF4E2D44F06F0F0F3DBF2A /* MainTabView.swift */; };
+		BD08BD0B23AAEE3922F710E9 /* RepairDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85812E3762C3FB57C3BA50C8 /* RepairDetailView.swift */; };
 		C7328E13604A012E882BE7A0 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4E4A7BC0985A4B3A3F3273 /* LoginView.swift */; };
 		C7E2E8B5059C954E9C0A3129 /* RepairConsumable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AA40A336A8DBE26D2D485EA /* RepairConsumable.swift */; };
 		D236F7D21A9D538D7C9740AB /* ColorToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA6EB851052DC449469C8FA2 /* ColorToken.swift */; };
@@ -39,6 +47,7 @@
 		D70A4D16813FD9304771121E /* ToolConsumable.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAE4AF4AA925DA4EEFCBD116 /* ToolConsumable.swift */; };
 		DD128D51433134568EDB8B6A /* ToolDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1B7C2ED12BB8BFC68E1D13 /* ToolDetailView.swift */; };
 		DDD9FF3F8BD8FA2B380A9FD1 /* InventoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8790A7F8617CBCCA71A0DE6 /* InventoryListView.swift */; };
+		DF0483D12CFDB15FBA514730 /* IssueDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B28FD23FBCCD3F74EF9D665 /* IssueDetailView.swift */; };
 		E8114B0DC3CFF9BD69A8941B /* NotificationPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B234BA320118C75D02654B3 /* NotificationPresentation.swift */; };
 		E8E2E102D847C8D1AF32415D /* ReportIssueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD8939B622A5513B23BBF011 /* ReportIssueView.swift */; };
 		EC400568AC7B84E049205850 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 254C7D4F2A4E86BB87F78FC7 /* Assets.xcassets */; };
@@ -54,6 +63,7 @@
 		0085A506D84E6B4645A4709E /* InventoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryItem.swift; sourceTree = "<group>"; };
 		0E2C87328D5C6E4800621D61 /* IssuePhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssuePhotoPicker.swift; sourceTree = "<group>"; };
 		254C7D4F2A4E86BB87F78FC7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2B95288AE5BECCDDE70A2865 /* ToolPhotoSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolPhotoSection.swift; sourceTree = "<group>"; };
 		3376F58541FBE613A8681437 /* DataScannerRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataScannerRepresentable.swift; sourceTree = "<group>"; };
 		3797F3629CE1E52516797247 /* Repair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Repair.swift; sourceTree = "<group>"; };
 		396BEAF6242FBCA8D2B6227A /* ShopKeeper.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ShopKeeper.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -66,21 +76,28 @@
 		5ACBAAF264CC76BB00DB0830 /* EntityPhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntityPhoto.swift; sourceTree = "<group>"; };
 		6655B5BF42D908F51CF42DD6 /* InventoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryService.swift; sourceTree = "<group>"; };
 		6B234BA320118C75D02654B3 /* NotificationPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPresentation.swift; sourceTree = "<group>"; };
+		6B28FD23FBCCD3F74EF9D665 /* IssueDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueDetailView.swift; sourceTree = "<group>"; };
 		6FFF4E2D44F06F0F0F3DBF2A /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		736E9C85BF6693A9C95DD3BF /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
 		7A808049E66A5DCD4FF34E7A /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		7B4E4A7BC0985A4B3A3F3273 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		7D6B1408AA3FF18CA57C4A36 /* RepairDetailSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepairDetailSections.swift; sourceTree = "<group>"; };
 		80273589AF7A5EE4A1BA98A5 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
+		85812E3762C3FB57C3BA50C8 /* RepairDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepairDetailView.swift; sourceTree = "<group>"; };
 		8BA846E52535901E28B35EA5 /* ConsumableCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsumableCategory.swift; sourceTree = "<group>"; };
 		8DEA245E8762D21607FFAF97 /* RepairConsumablesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepairConsumablesSection.swift; sourceTree = "<group>"; };
+		932BEE7ED47E0F31B736262B /* ToolMetadataSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolMetadataSection.swift; sourceTree = "<group>"; };
 		935A213482A05CC654468639 /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
 		953C7FE387EC42DBFEAFE5E5 /* ShopKeeperApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopKeeperApp.swift; sourceTree = "<group>"; };
+		9DC14215B2CFD43D37E8CCE0 /* ToolHistorySections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolHistorySections.swift; sourceTree = "<group>"; };
 		9E93E29334D7A808DBCC59E0 /* ConsumableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsumableType.swift; sourceTree = "<group>"; };
 		A1D5A3DE7AAEDB081CE4D493 /* ToolsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsListView.swift; sourceTree = "<group>"; };
 		A3FD7643A22A0D0999B66EB5 /* RepairIssuePickerSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepairIssuePickerSection.swift; sourceTree = "<group>"; };
 		AA6EB851052DC449469C8FA2 /* ColorToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorToken.swift; sourceTree = "<group>"; };
 		AAE4AF4AA925DA4EEFCBD116 /* ToolConsumable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolConsumable.swift; sourceTree = "<group>"; };
 		AB0EFF1A43C1EA2A74267D73 /* SessionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionModel.swift; sourceTree = "<group>"; };
+		AB1A3D3F9D81943144C34E92 /* IssueDetailSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueDetailSections.swift; sourceTree = "<group>"; };
+		B295F0AC92A6B28400B1F62E /* EntityPhotoThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntityPhotoThumbnail.swift; sourceTree = "<group>"; };
 		B8790A7F8617CBCCA71A0DE6 /* InventoryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryListView.swift; sourceTree = "<group>"; };
 		BA1B7C2ED12BB8BFC68E1D13 /* ToolDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDetailView.swift; sourceTree = "<group>"; };
 		C3DF152947CDA04A6E736041 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
@@ -93,6 +110,7 @@
 		EF1D6AA35C7631E4FB53723B /* Staff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Staff.swift; sourceTree = "<group>"; };
 		F46F3CCF0E1C823F4658C47A /* RepairsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepairsService.swift; sourceTree = "<group>"; };
 		F6E768880A133357FFF42B50 /* Issue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Issue.swift; sourceTree = "<group>"; };
+		FDB9731E9529DAFB9513CE58 /* ToolActionsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolActionsSection.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -182,7 +200,11 @@
 		6D2710A126180BCEF0E571D9 /* Tools */ = {
 			isa = PBXGroup;
 			children = (
+				FDB9731E9529DAFB9513CE58 /* ToolActionsSection.swift */,
 				BA1B7C2ED12BB8BFC68E1D13 /* ToolDetailView.swift */,
+				9DC14215B2CFD43D37E8CCE0 /* ToolHistorySections.swift */,
+				932BEE7ED47E0F31B736262B /* ToolMetadataSection.swift */,
+				2B95288AE5BECCDDE70A2865 /* ToolPhotoSection.swift */,
 				A1D5A3DE7AAEDB081CE4D493 /* ToolsListView.swift */,
 			);
 			path = Tools;
@@ -209,6 +231,8 @@
 		7F74D848AB3194AF32A88224 /* Issues */ = {
 			isa = PBXGroup;
 			children = (
+				AB1A3D3F9D81943144C34E92 /* IssueDetailSections.swift */,
+				6B28FD23FBCCD3F74EF9D665 /* IssueDetailView.swift */,
 				0E2C87328D5C6E4800621D61 /* IssuePhotoPicker.swift */,
 				DD8939B622A5513B23BBF011 /* ReportIssueView.swift */,
 			);
@@ -227,6 +251,7 @@
 			isa = PBXGroup;
 			children = (
 				AA6EB851052DC449469C8FA2 /* ColorToken.swift */,
+				B295F0AC92A6B28400B1F62E /* EntityPhotoThumbnail.swift */,
 				935A213482A05CC654468639 /* StatusBadge.swift */,
 			);
 			path = Components;
@@ -279,6 +304,8 @@
 			children = (
 				D00354A7FD44B679426FE82B /* LogRepairView.swift */,
 				8DEA245E8762D21607FFAF97 /* RepairConsumablesSection.swift */,
+				7D6B1408AA3FF18CA57C4A36 /* RepairDetailSections.swift */,
+				85812E3762C3FB57C3BA50C8 /* RepairDetailView.swift */,
 				A3FD7643A22A0D0999B66EB5 /* RepairIssuePickerSection.swift */,
 			);
 			path = Repairs;
@@ -371,11 +398,14 @@
 				57C94A8434D974F0ABBA1A37 /* DeepLink.swift in Sources */,
 				FB17D8C22270E0A043498848 /* DeepLinkRouter.swift in Sources */,
 				FAAEAB193EDBED9FC240FB8B /* EntityPhoto.swift in Sources */,
+				BAB8D3C34308E10E0C2F80B5 /* EntityPhotoThumbnail.swift in Sources */,
 				F0DA1AF6D27F6ED74B9BB020 /* InventoryDetailView.swift in Sources */,
 				1DAA03DAAB45C592823FE7F0 /* InventoryItem.swift in Sources */,
 				DDD9FF3F8BD8FA2B380A9FD1 /* InventoryListView.swift in Sources */,
 				854004C0A3DB83C3221520E7 /* InventoryService.swift in Sources */,
 				160019C6BEDF36D0FBB2C6C5 /* Issue.swift in Sources */,
+				4070E69B61CE6A355EF7F1B5 /* IssueDetailSections.swift in Sources */,
+				DF0483D12CFDB15FBA514730 /* IssueDetailView.swift in Sources */,
 				9A90CEF348FD56FA76AF8626 /* IssuePhotoPicker.swift in Sources */,
 				8D27E1F8E87CA89FA784B3D2 /* IssuesService.swift in Sources */,
 				8BE02373B71BBF3468A20229 /* LogRepairView.swift in Sources */,
@@ -388,6 +418,8 @@
 				5865E50A067AC3B7369B3B39 /* Repair.swift in Sources */,
 				C7E2E8B5059C954E9C0A3129 /* RepairConsumable.swift in Sources */,
 				74DF2B99D865A204B29FC051 /* RepairConsumablesSection.swift in Sources */,
+				46EEFAFF20FFB647093FDAAB /* RepairDetailSections.swift in Sources */,
+				BD08BD0B23AAEE3922F710E9 /* RepairDetailView.swift in Sources */,
 				FDF4F137FC70107AF1066FA7 /* RepairIssuePickerSection.swift in Sources */,
 				42BE8CBD170D7E47382A4956 /* RepairsService.swift in Sources */,
 				E8E2E102D847C8D1AF32415D /* ReportIssueView.swift in Sources */,
@@ -398,8 +430,12 @@
 				F6315B758247295BBC2E96C0 /* StatusBadge.swift in Sources */,
 				AE5398AB80F8A87CEDE737E6 /* SupabaseManager.swift in Sources */,
 				2A87632F641F6960B618315C /* Tool.swift in Sources */,
+				21FD1193891DF7CFD6B54EB2 /* ToolActionsSection.swift in Sources */,
 				D70A4D16813FD9304771121E /* ToolConsumable.swift in Sources */,
 				DD128D51433134568EDB8B6A /* ToolDetailView.swift in Sources */,
+				40BFDB6A59E02DB52AFD4CA4 /* ToolHistorySections.swift in Sources */,
+				ABB0A06731BABB435E0CCDC5 /* ToolMetadataSection.swift in Sources */,
+				3EA5B72AAA1015AE0B90FDDF /* ToolPhotoSection.swift in Sources */,
 				225E54CEC497090CB12A6361 /* ToolType.swift in Sources */,
 				41B506ABD6730B3019766101 /* ToolsListView.swift in Sources */,
 				A54FEBC8380029F0E08D7C5F /* ToolsService.swift in Sources */,
