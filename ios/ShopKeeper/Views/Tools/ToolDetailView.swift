@@ -14,15 +14,30 @@ struct ToolDetailView: View {
     let toolID: UUID
     let displayName: String
 
+    @Environment(SessionModel.self) private var session
+
     @State private var detail: ToolDetail?
     @State private var errorMessage: String?
     @State private var isReportingIssue = false
     @State private var isLoggingRepair = false
+    @State private var isEditingTool = false
 
     var body: some View {
         content
             .navigationTitle(displayName)
             .navigationBarTitleDisplayMode(.inline)
+            // A toolbar item rather than a third button up top, so Report
+            // Issue/Log Repair stay the visually dominant actions here.
+            .toolbar {
+                if let tool = detail?.tool, session.canManageTools {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button("Edit") {
+                            isEditingTool = true
+                        }
+                        .accessibilityHint("Edit \(tool.name)")
+                    }
+                }
+            }
             .sheet(isPresented: $isReportingIssue) {
                 ReportIssueView(toolID: toolID) {
                     Task { await load() }
@@ -35,6 +50,13 @@ struct ToolDetailView: View {
                     consumables: detail?.consumables ?? []
                 ) {
                     Task { await load() }
+                }
+            }
+            .sheet(isPresented: $isEditingTool) {
+                if let tool = detail?.tool {
+                    ToolFormView(existingTool: tool) { _ in
+                        Task { await load() }
+                    }
                 }
             }
             // Keyed on toolID: a deep link arriving while another tool is on
@@ -96,4 +118,5 @@ struct ToolDetailView: View {
     NavigationStack {
         ToolDetailView(toolID: UUID(), displayName: "Table Saw")
     }
+    .environment(SessionModel())
 }

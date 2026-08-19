@@ -14,11 +14,35 @@ final class SessionModel {
     var isLoading = true
     var errorMessage: String?
 
+    /// The signed-in user's own `staff` row. Loaded once the session
+    /// becomes authenticated and cleared on sign-out. `nil` while that load
+    /// is in flight, or if it fails (e.g. offline) — role-gated UI should
+    /// treat `nil` the same as "no permission" rather than guessing.
+    var staff: Staff?
+
     private let client = SupabaseManager.shared.client
+
+    /// True for the roles RLS allows to write `tools` — `owner` and
+    /// `shop_master`. Drives whether create/edit affordances show up at
+    /// all; the database enforces the actual permission independently, so
+    /// this only ever needs to be a UI convenience, not a security
+    /// boundary.
+    var canManageTools: Bool {
+        switch staff?.role {
+        case .owner, .shopMaster: return true
+        case .instructor, .staff, nil: return false
+        }
+    }
 
     func start() async {
         for await (event, session) in client.auth.authStateChanges {
             isAuthenticated = session != nil
+
+            if session != nil {
+                await loadStaff()
+            } else {
+                staff = nil
+            }
 
             if event == .initialSession {
                 isLoading = false
@@ -33,5 +57,10 @@ final class SessionModel {
 
     func signOut() async {
         try? await client.auth.signOut()
+        staff = nil
+    }
+
+    private func loadStaff() async {
+        staff = try? await StaffService.fetchCurrentStaff()
     }
 }

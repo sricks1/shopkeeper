@@ -15,6 +15,7 @@ struct ToolRoute: Hashable {
 /// QR scan) to a known tool.
 struct ToolsListView: View {
     @Environment(DeepLinkRouter.self) private var deepLinkRouter
+    @Environment(SessionModel.self) private var session
 
     @State private var tools: [Tool] = []
     @State private var isLoading = true
@@ -23,6 +24,7 @@ struct ToolsListView: View {
     @State private var path: [ToolRoute] = []
     @State private var isShowingScanner = false
     @State private var isShowingDeepLinkNotFoundAlert = false
+    @State private var isShowingAddTool = false
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -40,6 +42,15 @@ struct ToolsListView: View {
                             Label("Scan QR Code", systemImage: "qrcode.viewfinder")
                         }
                     }
+                    if session.canManageTools {
+                        ToolbarItem(placement: .primaryAction) {
+                            Button {
+                                isShowingAddTool = true
+                            } label: {
+                                Label("Add Tool", systemImage: "plus")
+                            }
+                        }
+                    }
                 }
         }
         .task {
@@ -53,6 +64,11 @@ struct ToolsListView: View {
             QRScannerView { rawValue in
                 guard let url = URL(string: rawValue) else { return }
                 deepLinkRouter.handle(url: url)
+            }
+        }
+        .sheet(isPresented: $isShowingAddTool) {
+            ToolFormView { _ in
+                Task { await load() }
             }
         }
         .alert("No tool matches that code", isPresented: $isShowingDeepLinkNotFoundAlert) {
@@ -171,4 +187,5 @@ private struct ToolRow: View {
 #Preview {
     ToolsListView()
         .environment(DeepLinkRouter())
+        .environment(SessionModel())
 }

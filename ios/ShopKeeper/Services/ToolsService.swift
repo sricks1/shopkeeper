@@ -1,5 +1,6 @@
 import Foundation
 import Supabase
+import UIKit
 
 /// Read access to tools and everything hung off a tool: its assigned
 /// consumables/parts, recent issue and repair history, and photos.
@@ -146,6 +147,246 @@ struct ToolDetail: Identifiable, Sendable {
     let recentIssues: [Issue]
     let recentRepairs: [Repair]
     let photos: [EntityPhoto]
+}
+
+// MARK: - Create / edit
+
+/// Write access for creating and editing tools, gated server-side (RLS) to
+/// `owner`/`shop_master` — see `SessionModel.canManageTools`, which the UI
+/// uses to hide these entry points from lesser roles. Mirrors the web app's
+/// `ToolForm`: insert-then-upload-then-update for a new tool's photo (same
+/// order as `IssuesService.reportIssue`), and a single update carrying every
+/// field (including the resolved `photo_url`) for an edit.
+extension ToolsService {
+    /// Files larger than this are re-compressed at a lower JPEG quality
+    /// before upload — mirrors `IssuesService`'s limit, kept as its own
+    /// constant here rather than shared, matching how `RepairsService`
+    /// duplicates the same constant rather than reaching across files.
+    private static let maxPhotoBytes = 5 * 1024 * 1024
+
+    /// All selectable tool types, in picker order.
+    static func fetchToolTypes() async throws -> [ToolType] {
+        try await SupabaseManager.shared.client
+            .from("tool_types")
+            .select()
+            .order("sort_order", ascending: true)
+            .execute()
+            .value
+    }
+
+    /// Creates a new tool, then — if a photo was supplied — uploads it and
+    /// attaches it in a second call. The insert happens first so the photo's
+    /// Storage path can embed the tool's real id.
+    static func createTool(
+        name: String,
+        slug: String,
+        manufacturer: String?,
+        model: String?,
+        serial: String?,
+        status: ToolStatus,
+        location: String?,
+        toolType: String?,
+        purchaseDate: String?,
+        manualURL: String?,
+        notes: String?,
+        photo: UIImage?
+    ) async throws -> Tool {
+        let client = SupabaseManager.shared.client
+        let createdBy = try await client.auth.session.user.id
+
+        let payload = NewToolPayload(
+            name: name,
+            slug: slug,
+            manufacturer: manufacturer,
+            model: model,
+            serial: serial,
+            status: status,
+            location: location,
+            toolType: toolType,
+            purchaseDate: purchaseDate,
+            manualURL: manualURL,
+            notes: notes,
+            createdBy: createdBy
+        )
+
+        let tool: Tool = try await client
+            .from("tools")
+            .insert(payload)
+            .select()
+            .single()
+            .execute()
+            .value
+
+        guard let photo, let path = await uploadPhoto(photo, toolID: tool.id) else { return tool }
+
+        return try await updatePhotoPath(path, toolID: tool.id)
+    }
+
+    /// Updates an existing tool's fields and photo in one call.
+    ///
+    /// `newPhoto`, if supplied, is uploaded first and its path wins;
+    /// otherwise the resolved path is whatever `existingPhotoPath` was
+    /// passed as (or `nil` if the caller determined the photo was removed).
+    /// `photo_url` is always written explicitly — never left untouched —
+    /// mirroring the web app's edit flow.
+    static func updateTool(
+        id: UUID,
+        name: String,
+        slug: String,
+        manufacturer: String?,
+        model: String?,
+        serial: String?,
+        status: ToolStatus,
+        location: String?,
+        toolType: String?,
+        purchaseDate: String?,
+        manualURL: String?,
+        notes: String?,
+        existingPhotoPath: String?,
+        newPhoto: UIImage?
+    ) async throws -> Tool {
+        var photoPath = existingPhotoPath
+        if let newPhoto, let uploadedPath = await uploadPhoto(newPhoto, toolID: id) {
+            photoPath = uploadedPath
+        }
+
+        let payload = UpdateToolPayload(
+            name: name,
+            slug: slug,
+            manufacturer: manufacturer,
+            model: model,
+            serial: serial,
+            status: status,
+            location: location,
+            toolType: toolType,
+            purchaseDate: purchaseDate,
+            manualURL: manualURL,
+            notes: notes,
+            photoPath: photoPath
+        )
+
+        return try await SupabaseManager.shared.client
+            .from("tools")
+            .update(payload)
+            .eq("id", value: id.uuidString)
+            .select()
+            .single()
+            .execute()
+            .value
+    }
+
+    /// Uploads one photo to `tools/<toolID>/<ms-timestamp>-0.jpg`, matching
+    /// `IssuesService`'s path shape and compression approach. Returns `nil`
+    /// (rather than throwing) on any encode/upload failure — the caller
+    /// already has a saved tool row, which is the part that matters.
+    private static func uploadPhoto(_ image: UIImage, toolID: UUID) async -> String? {
+        guard let data = jpegData(for: image) else { return nil }
+        let timestamp = Int(Date().timeIntervalSince1970 * 1000)
+        let path = "tools/\(toolID.uuidString)/\(timestamp)-0.jpg"
+
+        do {
+            try await SupabaseManager.shared.client.storage
+                .from(photosBucket)
+                .upload(path, data: data, options: FileOptions(contentType: "image/jpeg"))
+            return path
+        } catch {
+            return nil
+        }
+    }
+
+    private static func updatePhotoPath(_ path: String, toolID: UUID) async throws -> Tool {
+        try await SupabaseManager.shared.client
+            .from("tools")
+            .update(ToolPhotoPathPayload(photoPath: path))
+            .eq("id", value: toolID.uuidString)
+            .select()
+            .single()
+            .execute()
+            .value
+    }
+
+    /// JPEG-encodes `image`, stepping compression quality down from 0.8
+    /// until the result fits under `maxPhotoBytes` (or quality bottoms out).
+    private static func jpegData(for image: UIImage) -> Data? {
+        var quality: CGFloat = 0.8
+        guard var data = image.jpegData(compressionQuality: quality) else { return nil }
+
+        while data.count > maxPhotoBytes, quality > 0.1 {
+            quality -= 0.1
+            guard let smaller = image.jpegData(compressionQuality: quality) else { break }
+            data = smaller
+        }
+
+        return data
+    }
+}
+
+private struct NewToolPayload: Encodable {
+    let name: String
+    let slug: String
+    let manufacturer: String?
+    let model: String?
+    let serial: String?
+    let status: ToolStatus
+    let location: String?
+    let toolType: String?
+    let purchaseDate: String?
+    let manualURL: String?
+    let notes: String?
+    let createdBy: UUID
+
+    enum CodingKeys: String, CodingKey {
+        case name
+        case slug
+        case manufacturer
+        case model
+        case serial
+        case status
+        case location
+        case toolType = "tool_type"
+        case purchaseDate = "purchase_date"
+        case manualURL = "manual_url"
+        case notes
+        case createdBy = "created_by"
+    }
+}
+
+private struct UpdateToolPayload: Encodable {
+    let name: String
+    let slug: String
+    let manufacturer: String?
+    let model: String?
+    let serial: String?
+    let status: ToolStatus
+    let location: String?
+    let toolType: String?
+    let purchaseDate: String?
+    let manualURL: String?
+    let notes: String?
+    let photoPath: String?
+
+    enum CodingKeys: String, CodingKey {
+        case name
+        case slug
+        case manufacturer
+        case model
+        case serial
+        case status
+        case location
+        case toolType = "tool_type"
+        case purchaseDate = "purchase_date"
+        case manualURL = "manual_url"
+        case notes
+        case photoPath = "photo_url"
+    }
+}
+
+private struct ToolPhotoPathPayload: Encodable {
+    let photoPath: String?
+
+    enum CodingKeys: String, CodingKey {
+        case photoPath = "photo_url"
+    }
 }
 
 /// A `tool_consumables` row joined with its `consumable_types` catalog row,
