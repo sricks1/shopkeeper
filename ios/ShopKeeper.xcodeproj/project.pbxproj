@@ -94,7 +94,6 @@
 		7A808049E66A5DCD4FF34E7A /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		7B4E4A7BC0985A4B3A3F3273 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		7D6B1408AA3FF18CA57C4A36 /* RepairDetailSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepairDetailSections.swift; sourceTree = "<group>"; };
-		80273589AF7A5EE4A1BA98A5 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		85812E3762C3FB57C3BA50C8 /* RepairDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepairDetailView.swift; sourceTree = "<group>"; };
 		8BA846E52535901E28B35EA5 /* ConsumableCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsumableCategory.swift; sourceTree = "<group>"; };
 		8DEA245E8762D21607FFAF97 /* RepairConsumablesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepairConsumablesSection.swift; sourceTree = "<group>"; };
@@ -102,6 +101,7 @@
 		935A213482A05CC654468639 /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
 		953C7FE387EC42DBFEAFE5E5 /* ShopKeeperApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopKeeperApp.swift; sourceTree = "<group>"; };
 		9BB4A243C9C739D2F545CC7F /* ToolFormPhotoSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolFormPhotoSection.swift; sourceTree = "<group>"; };
+		9BE322C2C048C1764F2777A2 /* Secrets.Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.Release.xcconfig; sourceTree = "<group>"; };
 		9DC14215B2CFD43D37E8CCE0 /* ToolHistorySections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolHistorySections.swift; sourceTree = "<group>"; };
 		9E93E29334D7A808DBCC59E0 /* ConsumableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsumableType.swift; sourceTree = "<group>"; };
 		A024E6C3A00BED1BCC3447C4 /* ConsumableFormPhotoSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsumableFormPhotoSection.swift; sourceTree = "<group>"; };
@@ -126,6 +126,7 @@
 		EF1D6AA35C7631E4FB53723B /* Staff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Staff.swift; sourceTree = "<group>"; };
 		F46F3CCF0E1C823F4658C47A /* RepairsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepairsService.swift; sourceTree = "<group>"; };
 		F6E768880A133357FFF42B50 /* Issue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Issue.swift; sourceTree = "<group>"; };
+		FC381DEA20370208D1C8E360 /* Secrets.Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.Debug.xcconfig; sourceTree = "<group>"; };
 		FDB9731E9529DAFB9513CE58 /* ToolActionsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolActionsSection.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -300,7 +301,8 @@
 		C370F495658F8CC1523491B1 /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				80273589AF7A5EE4A1BA98A5 /* Secrets.xcconfig */,
+				FC381DEA20370208D1C8E360 /* Secrets.Debug.xcconfig */,
+				9BE322C2C048C1764F2777A2 /* Secrets.Release.xcconfig */,
 			);
 			name = ios;
 			path = .;
@@ -375,6 +377,10 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					4D96ACCCF12F41CCBE3725AF = {
+						DevelopmentTeam = 9R99EUR743;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 88B87130673B90944B739FC1 /* Build configuration list for PBXProject "ShopKeeper" */;
@@ -479,12 +485,14 @@
 /* Begin XCBuildConfiguration section */
 		515AE76BB1C00519131508CF /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 80273589AF7A5EE4A1BA98A5 /* Secrets.xcconfig */;
+			baseConfigurationReference = 9BE322C2C048C1764F2777A2 /* Secrets.Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = ShopKeeper.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9R99EUR743;
 				INFOPLIST_FILE = "Generated-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -557,12 +565,14 @@
 		};
 		9A5D618B3DC59A4080805EDB /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 80273589AF7A5EE4A1BA98A5 /* Secrets.xcconfig */;
+			baseConfigurationReference = FC381DEA20370208D1C8E360 /* Secrets.Debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = ShopKeeper.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9R99EUR743;
 				INFOPLIST_FILE = "Generated-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
