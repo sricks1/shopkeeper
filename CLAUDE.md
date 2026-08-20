@@ -12,7 +12,8 @@ See `PRD.md` for full requirements.
 
 - **Local development:** Steven's MacBook. This is where you write code, run tests, run dev servers.
 - **Production services:** Mac mini M4 at Steven's home office runs persistent services.
-- **Database (dev and prod):** Supabase, hosted. Project URL in `.env.local` and `.env.production` — never commit these.
+- **Database:** Supabase, hosted. **There is ONE project, and it is production.** `app/.env.local` and `app/.env.production` both point at it — the split exists for build configuration, not for isolation. This is deliberate: only Steven and Flash use the system.
+- **Therefore local development writes to live shop data.** There is no throwaway database. `supabase/seed.sql` is a 42-line stub and does NOT reflect what is in the project; the ~29 tools, staff, issues, and tasks in there are real records the shop depends on. Do not create test records, and never assume "it's just dev" because a file is named `.env.local`. If you need to exercise a write path, ask first and clean up after.
 - **Deployment target:** TBD frontend hosting (likely Vercel or Cloudflare Pages).
 
 **Never run migrations or schema changes against production Supabase without Steven's explicit approval in the current turn.** "Yes to the plan" from an earlier message does not count. Ask again before applying.
