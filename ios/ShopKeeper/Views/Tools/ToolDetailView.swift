@@ -21,6 +21,11 @@ struct ToolDetailView: View {
     @State private var isReportingIssue = false
     @State private var isLoggingRepair = false
     @State private var isEditingTool = false
+    /// Whether any of this tool's maintenance tasks are overdue — fetched
+    /// alongside `detail` since `ToolDetail` itself doesn't carry
+    /// maintenance data. A failed fetch just leaves this false rather than
+    /// surfacing a second error banner for what's a minor affordance.
+    @State private var hasOverdueMaintenance = false
 
     var body: some View {
         content
@@ -98,6 +103,34 @@ struct ToolDetailView: View {
                         }
                     }
                 }
+                // Deliberately understated, like the "Manage Consumables &
+                // Parts" row above — but reachable by every active staff
+                // member rather than gated to session.canManageTools: the
+                // maintenance list itself is readable by anyone, and
+                // marking a task performed only needs the `update` RLS
+                // policy, which isn't manager-restricted (see
+                // MaintenanceService's doc comment for the full picture).
+                Section {
+                    NavigationLink {
+                        MaintenanceListView(toolID: toolID, toolName: displayName) {
+                            Task { await load() }
+                        }
+                    } label: {
+                        Label {
+                            HStack {
+                                Text("Maintenance")
+                                if hasOverdueMaintenance {
+                                    Spacer()
+                                    StatusBadge(displayName: "Overdue", symbolName: "exclamationmark.triangle.fill", colorToken: "red")
+                                }
+                            }
+                        } icon: {
+                            Image(systemName: "wrench.and.screwdriver")
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    }
+                }
                 ToolIssuesSection(issues: detail.recentIssues)
                 ToolRepairsSection(repairs: detail.recentRepairs)
             }
@@ -128,6 +161,10 @@ struct ToolDetailView: View {
         } catch {
             errorMessage = "Check your connection and try again."
         }
+        // Best-effort: the maintenance row still works as a plain
+        // navigation link if this fails, it just won't show the overdue
+        // flag this time.
+        hasOverdueMaintenance = (try? await MaintenanceService.fetchTasks(toolID: toolID))?.contains { $0.isOverdue } ?? false
     }
 }
 
