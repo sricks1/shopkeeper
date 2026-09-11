@@ -60,7 +60,9 @@ See `PRD.md` for full requirements.
 
 ## iOS app (`ios/`)
 
-- Native SwiftUI companion app sharing the same Supabase backend. Scope: `docs/ios-phase1.md`.
+- Native SwiftUI companion app sharing the same Supabase backend. Scope: `docs/ios-phase1.md` (tools, issues, repairs, inventory) and `docs/ios-phase2.md` (tasks and orders — the shop-floor slice; the kanban board and organizer deliberately stay on the web).
+- `Services/OrdersService.swift` mirrors `app/src/lib/orders.ts` in outcomes (dedupe rule, task naming, notes block, fields written). Change one, change the other. It deliberately writes the `staff_tasks` row *before* `inventory_items`, unlike the web: the sync trigger only fires on `staff_tasks`, so if the connection drops between the two writes the trigger-derived stock value survives instead of a client-written one with no task behind it.
+- Every PostgREST write selects the row back (`.select().single()`): a zero-row update from an RLS denial returns no error otherwise, and the card silently sticks.
 - **House rule:** any migration touching a table the iOS app reads must also update `ios/ShopKeeper/Models`.
 - Supabase URL + anon key live in `ios/Secrets.xcconfig` (gitignored), generated from `app/.env.local` via `ios/scripts/gen-secrets.sh`. Never commit it.
 - Project file is generated: edit `ios/project.yml`, run `xcodegen` in `ios/`. Don't hand-edit the pbxproj.

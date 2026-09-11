@@ -2,12 +2,17 @@ import Foundation
 import Supabase
 import UIKit
 
-/// Read-only access to physical stock state for consumables.
+/// Read access to physical stock state for consumables.
 ///
-/// Inventory is intentionally read-only from this app: a trigger on
-/// `staff_tasks` writes `inventory_items.stock_status` one-directionally,
-/// and the web app's orders board is the source of truth for that field.
-/// This type never writes to `inventory_items` — only fetches.
+/// `stock_status` is not this type's to write, and nothing here writes it.
+/// The rule for the whole app is narrower than "read-only" and worth
+/// stating exactly: **`inventory_items.stock_status` is written in exactly
+/// one place, `OrdersService`, and only in lockstep with creating or
+/// closing the order task that justifies it.** That is safe because the
+/// value written there is precisely what the aggregate
+/// `sync_order_stock_status` trigger on `staff_tasks` computes once the
+/// task exists — the two agree rather than fight. A bare stock toggle with
+/// no task behind it is what would desync, and this app doesn't have one.
 enum InventoryService {
     /// Every inventory row joined with its consumable type, ordered
     /// alphabetically by the consumable's name.
@@ -96,13 +101,18 @@ extension InventoryService {
 /// `SessionModel.canManageTools`, which the UI uses to hide these entry
 /// points from lesser roles.
 ///
-/// The one and only `inventory_items` write in this app happens here:
+/// One of only two `inventory_items` writes in this app happens here:
 /// creating a consumable type also creates its stock row, exactly as the web
 /// app's `NewConsumableForm` does. That is safe — the desync risk this app
 /// avoids is *overwriting `stock_status` on an existing row*, which the
 /// `staff_tasks` trigger owns. A brand-new consumable has no order task, so
 /// there is nothing to desync, and without the row the consumable would not
 /// appear in `fetchInventory` at all.
+///
+/// The other write is `OrdersService`, which sets `stock_status` alongside
+/// creating or closing an order task — the same value the trigger would
+/// compute, so the two agree — and sets `last_ordered_at`, which no trigger
+/// maintains. Those are the only two; a stock write anywhere else is a bug.
 ///
 /// Mirrors `ToolsService`'s tool photo handling but for the `photo_urls[]`
 /// array `consumable_types` uses instead of a single `photo_url` column:

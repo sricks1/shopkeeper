@@ -1,9 +1,30 @@
 import SwiftUI
 
+/// A pushable destination for a task-shaped notification. Carries `title`
+/// alongside the task id for the same reason `ToolRoute` does — so
+/// `TaskDetailView`'s nav bar is populated immediately instead of sitting
+/// blank until the fetch completes — and `notificationID` so the row that
+/// was tapped can be acknowledged once the detail actually appears.
+///
+/// Declared here rather than reusing the Tasks tab's `TaskRoute` because
+/// this stack's rows carry notification identity too; `TaskRoute` is the
+/// Tasks tab's own currency and shouldn't grow a notification field for
+/// this one caller.
+private struct NotificationTaskRoute: Hashable {
+    let notificationID: UUID
+    let taskID: UUID
+    let title: String
+}
+
 /// The Notifications tab: every notification, newest first, with
 /// unacknowledged rows visually distinguished from acknowledged ones.
-/// Swiping (or tapping the row's button) acknowledges a notification in
-/// place. Read + acknowledge only — see `NotificationsService`.
+/// Swiping acknowledges a notification in place. Read + acknowledge only —
+/// see `NotificationsService`.
+///
+/// Task notifications (`task_assigned`, `task_comment`) push
+/// `TaskDetailView`, which is what finally makes the "Tap to view details."
+/// subtitle true; every other type stays a plain, non-navigating row
+/// because there is nowhere for it to go yet.
 ///
 /// `onUnacknowledgedCountChange` lets `MainTabView` keep its tab badge in
 /// sync without this view needing to know anything about tabs.
@@ -18,6 +39,18 @@ struct NotificationsListView: View {
         NavigationStack {
             content
                 .navigationTitle("Notifications")
+                .navigationDestination(for: NotificationTaskRoute.self) { route in
+                    // Acknowledging here rather than from a
+                    // `simultaneousGesture` on the link: a tap gesture
+                    // races the row's own navigation gesture and also
+                    // fires for taps that never push anything (the tap
+                    // that closes an open swipe action, for one), so it
+                    // both under- and over-fires. `.task` on the
+                    // destination runs exactly when the detail is actually
+                    // on screen, whatever route got it there.
+                    TaskDetailView(taskID: route.taskID, title: route.title)
+                        .task { await acknowledgeIfNeeded(notificationID: route.notificationID) }
+                }
         }
         .task {
             await load()
@@ -47,7 +80,7 @@ struct NotificationsListView: View {
             }
         } else {
             List(notifications) { notification in
-                NotificationRow(notification: notification)
+                row(for: notification)
                     .swipeActions(edge: .trailing) {
                         if !notification.isAcknowledged {
                             Button("Acknowledge") {
@@ -61,6 +94,25 @@ struct NotificationsListView: View {
             .refreshable {
                 await load()
             }
+        }
+    }
+
+    @ViewBuilder
+    private func row(for notification: AppNotification) -> some View {
+        let presentation = NotificationPresentation(notification)
+
+        if let taskID = presentation.taskID {
+            NavigationLink(
+                value: NotificationTaskRoute(
+                    notificationID: notification.id,
+                    taskID: taskID,
+                    title: presentation.taskTitle ?? presentation.title
+                )
+            ) {
+                NotificationRow(notification: notification, presentation: presentation)
+            }
+        } else {
+            NotificationRow(notification: notification, presentation: presentation)
         }
     }
 
@@ -85,6 +137,15 @@ struct NotificationsListView: View {
         }
     }
 
+    /// Acknowledges by id, skipping rows already acknowledged — the
+    /// tap-through path, where the same detail can be revisited (back, then
+    /// forward again) and shouldn't re-write the row each time.
+    private func acknowledgeIfNeeded(notificationID: UUID) async {
+        guard let index = notifications.firstIndex(where: { $0.id == notificationID }),
+              !notifications[index].isAcknowledged else { return }
+        await acknowledge(notifications[index])
+    }
+
     private func reportUnacknowledgedCount() {
         onUnacknowledgedCountChange?(notifications.filter { !$0.isAcknowledged }.count)
     }
@@ -92,10 +153,7 @@ struct NotificationsListView: View {
 
 private struct NotificationRow: View {
     let notification: AppNotification
-
-    private var presentation: NotificationPresentation {
-        NotificationPresentation(notification)
-    }
+    let presentation: NotificationPresentation
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {

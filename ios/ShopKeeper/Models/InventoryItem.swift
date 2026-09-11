@@ -5,9 +5,18 @@ import Foundation
 ///
 /// This used to be a count (`quantity_on_hand` + `reorder_threshold`) with
 /// auto-decrement on repair and threshold alerts, but that was never kept
-/// accurate in practice and was replaced by a simple human-driven state in
-/// `20260606000003_simplify_inventory_stock_status.sql`. Pressing "Re-order"
-/// flips `stockStatus` to `.onOrder`; pressing "In stock" flips it back.
+/// accurate in practice and was replaced by a simple two-state flag in
+/// `20260606000003_simplify_inventory_stock_status.sql`.
+///
+/// Nothing toggles `stockStatus` directly. It flips as a consequence of
+/// *orders*: `OrdersService.createConsumableOrder` opens an order task for
+/// the consumable and sets `.onOrder`;
+/// `OrdersService.receiveConsumableOrders` closes those tasks and sets
+/// `.inStock`. The `sync_order_stock_status` trigger on `staff_tasks`
+/// keeps the column honest from then on — a consumable reads `.onOrder`
+/// iff it has any open order task — so the client write is a matter of
+/// immediacy, not authority. `lastOrderedAt` is the exception the trigger
+/// does *not* maintain, which is why the client writes it too.
 struct InventoryItem: Codable, Identifiable, Hashable, Sendable {
     let id: UUID
     let consumableTypeId: UUID

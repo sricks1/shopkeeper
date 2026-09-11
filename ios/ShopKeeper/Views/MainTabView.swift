@@ -1,6 +1,18 @@
 import SwiftUI
 
-/// Root tab bar. Settings just holds sign-out for now.
+/// Root tab bar: Tools, Inventory, Tasks, Notifications, Settings. Settings
+/// just holds sign-out for now.
+///
+/// Five is the cap before iOS collapses the overflow into a "More" tab, so
+/// Tasks spends the last slot — anything further needs a real IA decision
+/// rather than a sixth `Tab`.
+///
+/// This is also the only place that can react to a *pending* deep link by
+/// bringing the right tab to the front. Resolving the link stays with the
+/// tab that owns the destination (`ToolsListView` for `.tool`,
+/// `TaskListView` for `.task`), which drains it through the matching
+/// `DeepLinkRouter` consumer; this view only selects the tab and leaves the
+/// link in place.
 struct MainTabView: View {
     @Environment(DeepLinkRouter.self) private var deepLinkRouter
     @State private var selectedTab: Tab = .tools
@@ -9,53 +21,60 @@ struct MainTabView: View {
     private enum Tab {
         case tools
         case inventory
+        case tasks
         case notifications
         case settings
     }
 
     var body: some View {
+        // `SwiftUI.Tab` is spelled out throughout: the nested `Tab` enum
+        // above shadows the SwiftUI type inside this declaration, so a bare
+        // `Tab(...)` would resolve to the selection enum.
         TabView(selection: $selectedTab) {
-            ToolsListView()
-                .tabItem {
-                    Label("Tools", systemImage: "wrench.and.screwdriver")
-                }
-                .tag(Tab.tools)
+            SwiftUI.Tab("Tools", systemImage: "wrench.and.screwdriver", value: Tab.tools) {
+                ToolsListView()
+            }
 
-            InventoryListView()
-                .tabItem {
-                    Label("Inventory", systemImage: "shippingbox")
-                }
-                .tag(Tab.inventory)
+            SwiftUI.Tab("Inventory", systemImage: "shippingbox", value: Tab.inventory) {
+                InventoryListView()
+            }
 
-            NotificationsListView(onUnacknowledgedCountChange: { unacknowledgedNotificationCount = $0 })
-                .tabItem {
-                    Label("Notifications", systemImage: "bell")
-                }
-                .badge(unacknowledgedNotificationCount)
-                .tag(Tab.notifications)
+            SwiftUI.Tab("Tasks", systemImage: "checklist", value: Tab.tasks) {
+                TaskListView()
+            }
 
-            SettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gearshape")
-                }
-                .tag(Tab.settings)
+            SwiftUI.Tab("Notifications", systemImage: "bell", value: Tab.notifications) {
+                NotificationsListView(onUnacknowledgedCountChange: { unacknowledgedNotificationCount = $0 })
+            }
+            .badge(unacknowledgedNotificationCount)
+
+            SwiftUI.Tab("Settings", systemImage: "gearshape", value: Tab.settings) {
+                SettingsView()
+            }
         }
+        .modifier(TabBarMinimizeOnScrollDown())
         // A link can already be pending by the time this view first
         // appears (it arrived while signed out) or can land while this
-        // view is already on screen — both cases should jump to Tools if
-        // the user is looking at another tab.
+        // view is already on screen — both cases should jump to the tab
+        // that owns the destination if the user is looking elsewhere.
         .task {
-            switchToToolsIfLinkPending()
+            switchTabForPendingLink()
             await loadUnacknowledgedNotificationCount()
         }
         .onChange(of: deepLinkRouter.pendingLink) {
-            switchToToolsIfLinkPending()
+            switchTabForPendingLink()
         }
     }
 
-    private func switchToToolsIfLinkPending() {
-        guard deepLinkRouter.pendingLink != nil else { return }
-        selectedTab = .tools
+    private func switchTabForPendingLink() {
+        switch deepLinkRouter.pendingLink {
+        case .some(.tool):
+            selectedTab = .tools
+        case .some(.task):
+            selectedTab = .tasks
+        case .none:
+            break
+        }
     }
 
     /// Seeds the tab badge before `NotificationsListView` has loaded its
@@ -64,6 +83,21 @@ struct MainTabView: View {
     /// over keeping the count current.
     private func loadUnacknowledgedNotificationCount() async {
         unacknowledgedNotificationCount = (try? await NotificationsService.unacknowledgedCount()) ?? 0
+    }
+}
+
+/// Lets the tab bar shrink out of the way as the user scrolls down a tab's
+/// content — the iOS 26 Liquid Glass behaviour. Wrapped in a modifier so
+/// the availability check lives in exactly one place and the iOS 18 build
+/// path is literally untouched rather than branching inside `body`.
+private struct TabBarMinimizeOnScrollDown: ViewModifier {
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26, *) {
+            content.tabBarMinimizeBehavior(.onScrollDown)
+        } else {
+            content
+        }
     }
 }
 

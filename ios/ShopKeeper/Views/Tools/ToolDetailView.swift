@@ -9,7 +9,9 @@ import SwiftUI
 /// The report/repair actions used to live behind an ellipsis toolbar menu,
 /// which made them easy to miss — they're now two always-visible buttons
 /// near the top of the screen. Issue and repair rows used to be dead ends;
-/// they now push `IssueDetailView`/`RepairDetailView`.
+/// they now push `IssueDetailView`/`RepairDetailView`. Below the primary
+/// actions sit understated rows — Manage Consumables, Maintenance, and Add
+/// Task — for the flows that shouldn't compete with them.
 struct ToolDetailView: View {
     let toolID: UUID
     let displayName: String
@@ -21,6 +23,7 @@ struct ToolDetailView: View {
     @State private var isReportingIssue = false
     @State private var isLoggingRepair = false
     @State private var isEditingTool = false
+    @State private var isAddingTask = false
     /// Whether any of this tool's maintenance tasks are overdue — fetched
     /// alongside `detail` since `ToolDetail` itself doesn't carry
     /// maintenance data. A failed fetch just leaves this false rather than
@@ -56,6 +59,12 @@ struct ToolDetailView: View {
                 ) {
                     Task { await load() }
                 }
+            }
+            .sheet(isPresented: $isAddingTask) {
+                // Nothing on this screen shows tasks, so there's nothing to
+                // refresh once one is created — the new task lands on the
+                // Tasks tab.
+                TaskFormView(toolID: toolID, toolName: displayName) { _ in }
             }
             .sheet(isPresented: $isEditingTool) {
                 if let tool = detail?.tool {
@@ -130,6 +139,25 @@ struct ToolDetailView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     }
+                }
+                // The shop-floor path: you're at the machine, you see the
+                // problem, and it goes on the board with the machine
+                // already attached. A row rather than a third prominent
+                // button — Report Issue and Log Repair stay the dominant
+                // actions here, and an "is this a task or an issue?"
+                // decision presented as three equal buttons is a worse
+                // screen than one where the two tool-health actions lead.
+                // Ungated: any active staff member can create a task (RLS
+                // allows insert for `scope = 'team' OR created_by = me`).
+                Section {
+                    Button {
+                        isAddingTask = true
+                    } label: {
+                        Label("Add Task", systemImage: "checklist")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    .accessibilityHint("Create a task linked to \(displayName)")
                 }
                 ToolIssuesSection(issues: detail.recentIssues)
                 ToolRepairsSection(repairs: detail.recentRepairs)

@@ -12,16 +12,24 @@ enum DeepLink: Equatable, Sendable {
     /// `ToolsService.fetchTool(slug:)`.
     case tool(slug: String)
 
+    /// Resolves to a `StaffTask` by `id` — see `TasksService.fetchTask(id:)`.
+    /// Tasks have no slug, so this is the primary key; a second segment
+    /// that isn't a UUID is not a task link and parses to `nil`.
+    case task(id: UUID)
+
     /// Recognized URL forms:
     ///
     /// - `https://shopkeeper.thejoinery.club/t/<slug>`
     /// - `https://shopkeeper.thejoinery.club/tools/<slug>`
+    /// - `https://shopkeeper.thejoinery.club/tasks/<uuid>`
     /// - `shopkeeper://t/<slug>`
     /// - `shopkeeper://tool/<slug>`
+    /// - `shopkeeper://task/<uuid>`
+    /// - `shopkeeper://tasks/<uuid>`
     ///
     /// For `http`/`https` URLs the host is intentionally **not** checked —
-    /// any URL whose path matches `/t/<slug>` or `/tools/<slug>` is
-    /// accepted, regardless of host. That keeps this parser working
+    /// any URL whose path matches `/t/<slug>`, `/tools/<slug>` or
+    /// `/tasks/<uuid>` is accepted, regardless of host. That keeps this parser working
     /// against a future staging domain, a shortened link, or a bare path
     /// shared without a host, without needing an app update. The
     /// downside — some other site's `/t/<slug>`-shaped link would also
@@ -51,6 +59,8 @@ enum DeepLink: Equatable, Sendable {
         switch segments[0] {
         case "t", "tools":
             return slugLink(segments[1])
+        case "tasks":
+            return taskLink(segments[1])
         default:
             return nil
         }
@@ -71,6 +81,8 @@ enum DeepLink: Equatable, Sendable {
         switch segments[0] {
         case "t", "tool":
             return slugLink(segments[1])
+        case "task", "tasks":
+            return taskLink(segments[1])
         default:
             return nil
         }
@@ -80,6 +92,12 @@ enum DeepLink: Equatable, Sendable {
         let slug = rawSlug.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !slug.isEmpty else { return nil }
         return .tool(slug: slug)
+    }
+
+    private static func taskLink(_ rawID: String) -> DeepLink? {
+        let trimmed = rawID.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let id = UUID(uuidString: trimmed) else { return nil }
+        return .task(id: id)
     }
 
     private static func pathSegments(of url: URL) -> [String] {

@@ -77,5 +77,7 @@ not a strict restatement of the PRD's phased rollout.
 ## Phase 6 — Native iOS & members (PRD Phase 3)
 
 - [ ] Native iOS app (SwiftUI) on the shared Supabase backend — **in progress**, deliberately moved ahead of Phase 5 (2026-08-18); scope in `docs/ios-phase1.md`
+  - [x] Phase 1: auth, tools, QR, report issue, log repair, inventory, maintenance
+  - [x] Phase 2 (2026-09-11): Tasks tab (Mine/Team, detail, comments, create), "Order this" from inventory, Orders board, loose orders, task deep links + notification tap-through — the shop-floor slice only; kanban/organizer stay on the web. Scope in `docs/ios-phase2.md`
 - [ ] Member-facing read-only tool status board
 - [ ] Photo-based issue reports with tool recognition (stretch)

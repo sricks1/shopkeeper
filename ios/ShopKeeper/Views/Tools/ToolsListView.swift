@@ -131,18 +131,17 @@ struct ToolsListView: View {
         isLoading = false
     }
 
-    /// Drains any deep link waiting on `deepLinkRouter` — from a cold
-    /// launch via universal link/custom scheme, one that arrived while
+    /// Drains any *tool* deep link waiting on `deepLinkRouter` — from a
+    /// cold launch via universal link/custom scheme, one that arrived while
     /// this view was already on screen, or a completed QR scan — and
-    /// resolves it to a push onto `path`. A slug that doesn't match any
-    /// tool (deleted, mistyped, or a stale/misprinted label) surfaces as
-    /// an alert rather than failing silently.
+    /// resolves it to a push onto `path`. A `.task` link is left alone for
+    /// the Tasks tab, which is what `consumePendingToolSlug()` guarantees.
+    /// A slug that doesn't match any tool (deleted, mistyped, or a
+    /// stale/misprinted label) surfaces as an alert rather than failing
+    /// silently.
     private func resolvePendingDeepLink() async {
-        guard let link = deepLinkRouter.consumePendingLink() else { return }
-        switch link {
-        case .tool(let slug):
-            await navigateToTool(slug: slug)
-        }
+        guard let slug = deepLinkRouter.consumePendingToolSlug() else { return }
+        await navigateToTool(slug: slug)
     }
 
     private func navigateToTool(slug: String) async {
