@@ -12,7 +12,8 @@ See `PRD.md` for full requirements.
 
 - **Local development:** Steven's MacBook. This is where you write code, run tests, run dev servers.
 - **Production services:** Mac mini M4 at Steven's home office runs persistent services.
-- **Database (dev and prod):** Supabase, hosted. Project URL in `.env.local` and `.env.production` — never commit these.
+- **Database:** Supabase, hosted. **There is ONE project, and it is production.** `app/.env.local` and `app/.env.production` both point at it — the split exists for build configuration, not for isolation. This is deliberate: only Steven and Flash use the system.
+- **Therefore local development writes to live shop data.** There is no throwaway database. `supabase/seed.sql` is a 42-line stub and does NOT reflect what is in the project; the ~29 tools, staff, issues, and tasks in there are real records the shop depends on. Do not create test records, and never assume "it's just dev" because a file is named `.env.local`. If you need to exercise a write path, ask first and clean up after.
 - **Deployment target:** TBD frontend hosting (likely Vercel or Cloudflare Pages).
 
 **Never run migrations or schema changes against production Supabase without Steven's explicit approval in the current turn.** "Yes to the plan" from an earlier message does not count. Ask again before applying.
@@ -56,6 +57,15 @@ See `PRD.md` for full requirements.
 - Commit messages follow Conventional Commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`.
 - PR descriptions should reference any related issue and explain the "why," not just the "what."
 - Squash-merge to `main`.
+
+## iOS app (`ios/`)
+
+- Native SwiftUI companion app sharing the same Supabase backend. Scope: `docs/ios-phase1.md` (tools, issues, repairs, inventory) and `docs/ios-phase2.md` (tasks and orders — the shop-floor slice; the kanban board and organizer deliberately stay on the web).
+- `Services/OrdersService.swift` mirrors `app/src/lib/orders.ts` in outcomes (dedupe rule, task naming, notes block, fields written). Change one, change the other. It deliberately writes the `staff_tasks` row *before* `inventory_items`, unlike the web: the sync trigger only fires on `staff_tasks`, so if the connection drops between the two writes the trigger-derived stock value survives instead of a client-written one with no task behind it.
+- Every PostgREST write selects the row back (`.select().single()`): a zero-row update from an RLS denial returns no error otherwise, and the card silently sticks.
+- **House rule:** any migration touching a table the iOS app reads must also update `ios/ShopKeeper/Models`.
+- Supabase URL + anon key live in `ios/Secrets.xcconfig` (gitignored), generated from `app/.env.local` via `ios/scripts/gen-secrets.sh`. Never commit it.
+- Project file is generated: edit `ios/project.yml`, run `xcodegen` in `ios/`. Don't hand-edit the pbxproj.
 
 ## When in doubt
 

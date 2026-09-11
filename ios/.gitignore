@@ -1,0 +1,8 @@
+Secrets.xcconfig
+build/
+DerivedData/
+*.xcuserdatad/
+xcuserdata/
+Generated-Info.plist
+Secrets.Debug.xcconfig
+Secrets.Release.xcconfig
