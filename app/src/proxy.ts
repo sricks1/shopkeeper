@@ -4,7 +4,10 @@ import { type NextRequest, NextResponse } from "next/server";
 // Public routes that don't require authentication
 // /.well-known must stay public and redirect-free — Apple's CDN fetches
 // apple-app-site-association directly and requires a bare HTTP 200.
-const PUBLIC_PATHS = ["/login", "/.well-known"];
+// The PWA manifest and service worker must be public too: browsers fetch the
+// manifest without cookies, so a login redirect there makes the app
+// uninstallable even for signed-in staff.
+const PUBLIC_PATHS = ["/login", "/.well-known", "/manifest.webmanifest", "/sw.js"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
