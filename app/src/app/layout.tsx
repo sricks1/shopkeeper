@@ -14,7 +14,14 @@ const geist = localFont({
 export const metadata: Metadata = {
   title: "ShopKeeper — The Joinery",
   description: "Tool maintenance and consumables inventory for The Joinery shop.",
-  manifest: "/manifest.json",
+  // The manifest <link> comes from app/manifest.ts and the apple-touch-icon
+  // from app/apple-icon.png. iOS still ignores most of the manifest, so it
+  // needs these to launch full-screen with a proper name.
+  appleWebApp: {
+    capable: true,
+    title: "ShopKeeper",
+    statusBarStyle: "default",
+  },
 };
 
 export const viewport: Viewport = {
