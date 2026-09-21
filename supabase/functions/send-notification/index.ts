@@ -5,6 +5,9 @@
  * Recipients by notification type:
  *   tool_down     → Steven (owner) + Flash (shop_master)
  *   reorder_needed → Steven only (owner)
+ *   order_requested → the row's recipient_id (the trigger writes one row each
+ *                     for the owner and shop master, so role lookup would
+ *                     email everyone twice)
  *
  * Deploy: supabase functions deploy send-notification
  * Set secrets: supabase secrets set RESEND_API_KEY=re_... FROM_EMAIL=shopkeeper@thejoinery.club
@@ -21,6 +24,7 @@ type NotificationRow = {
   id: string;
   type: string;
   payload: Record<string, string>;
+  recipient_id: string | null;
   created_at: string;
 };
 
@@ -62,31 +66,53 @@ function buildEmail(notification: NotificationRow): { subject: string; html: str
     };
   }
 
+  if (type === "order_requested") {
+    const item = payload.consumable_name ?? payload.task_name ?? "Something";
+    const requester = payload.requester_name ?? "Someone";
+    const vendor = payload.vendor ?? "";
+    const vendorUrl = payload.vendor_url ?? "";
+    const taskId = payload.task_id ?? "";
+    return {
+      subject: `[ShopKeeper] To order: ${item}`,
+      html: `
+        <p><strong>${requester}</strong> asked for <strong>${item}</strong> to be ordered.</p>
+        ${vendor ? `<p>Vendor: ${vendorUrl ? `<a href="${vendorUrl}">${vendor}</a>` : vendor}</p>` : ""}
+        <p><a href="https://shopkeeper.thejoinery.club/${taskId ? `tasks/${taskId}` : "inventory"}">View order →</a></p>
+      `,
+    };
+  }
+
   return {
     subject: `[ShopKeeper] New notification`,
     html: `<p>A new notification was generated. <a href="https://shopkeeper.thejoinery.club/notifications">View →</a></p>`,
   };
 }
 
-async function getRecipients(notificationType: string): Promise<string[]> {
+async function getRecipients(notification: NotificationRow): Promise<string[]> {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-  // owner always gets everything; shop_master gets tool_down
-  const roles =
-    notificationType === "tool_down" ? ["owner", "shop_master"] : ["owner"];
+  let ids: string[];
+  if (notification.type === "order_requested") {
+    ids = notification.recipient_id ? [notification.recipient_id] : [];
+  } else {
+    // owner always gets everything; shop_master gets tool_down
+    const roles =
+      notification.type === "tool_down" ? ["owner", "shop_master"] : ["owner"];
 
-  const { data } = await supabase
-    .from("staff")
-    .select("id")
-    .in("role", roles)
-    .eq("active", true);
+    const { data } = await supabase
+      .from("staff")
+      .select("id")
+      .in("role", roles)
+      .eq("active", true);
+    ids = data?.map((row) => row.id) ?? [];
+  }
 
-  if (!data?.length) return [];
+  if (!ids.length) return [];
 
   // Look up emails from auth.users via service role
   const emails: string[] = [];
-  for (const row of data) {
-    const { data: user } = await supabase.auth.admin.getUserById(row.id);
+  for (const id of ids) {
+    const { data: user } = await supabase.auth.admin.getUserById(id);
     if (user?.user?.email) emails.push(user.user.email);
   }
   return emails;
@@ -120,7 +146,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const notification = payload.record;
-    const recipients = await getRecipients(notification.type);
+    const recipients = await getRecipients(notification);
 
     if (!recipients.length) {
       console.log("No recipients for notification type:", notification.type);

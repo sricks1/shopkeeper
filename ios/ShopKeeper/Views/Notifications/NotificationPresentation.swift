@@ -8,9 +8,9 @@ import Supabase
 /// particular can be legacy-shaped (see `AppNotification`).
 ///
 /// `taskID` is what makes a row tappable in `NotificationsListView`: the
-/// `notify_task_assigned` / `notify_task_comment` triggers put `task_id`
-/// (and `task_name`) in the payload, and a row that has one pushes
-/// `TaskDetailView`. A malformed or absent `task_id` leaves it `nil` and
+/// `notify_task_assigned` / `notify_task_comment` / `notify_order_requested`
+/// triggers put `task_id` (and `task_name`) in the payload, and a row that
+/// has one pushes `TaskDetailView`. A malformed or absent `task_id` leaves it `nil` and
 /// the row stays a plain, non-navigating row rather than pushing a detail
 /// screen that can only fail to load.
 struct NotificationPresentation {
@@ -19,7 +19,8 @@ struct NotificationPresentation {
     let symbolName: String
 
     /// The `staff_tasks` row this notification is about, for task-shaped
-    /// types only. `nil` for `tool_down` / `reorder_needed`.
+    /// types only (an order is a task too). `nil` for `tool_down` /
+    /// `reorder_needed`.
     let taskID: UUID?
 
     /// The task's name as recorded in the payload at notification time —
@@ -30,10 +31,10 @@ struct NotificationPresentation {
         let payload = notification.payload
 
         switch notification.type {
-        case .taskAssigned, .taskComment:
+        case .taskAssigned, .taskComment, .orderRequested:
             taskID = payload.uuid("task_id")
             taskTitle = payload.string("task_name")
-        case .toolDown, .reorderNeeded:
+        case .toolDown, .reorderNeeded, .unknown:
             taskID = nil
             taskTitle = nil
         }
@@ -69,6 +70,18 @@ struct NotificationPresentation {
             } else {
                 subtitle = "Stock is running low."
             }
+
+        case .orderRequested:
+            symbolName = "cart.fill"
+            let item = payload.string("consumable_name") ?? payload.string("task_name")
+            title = item.map { "To order: \($0)" } ?? "Something needs ordering"
+            let requester = "Requested by \(payload.string("requester_name") ?? "someone")"
+            subtitle = payload.string("vendor").map { "\(requester) · \($0)" } ?? requester
+
+        case .unknown:
+            symbolName = "bell.fill"
+            title = "Notification"
+            subtitle = "Update ShopKeeper to see the details."
 
         case .taskComment:
             symbolName = "bubble.left.fill"

@@ -83,11 +83,23 @@ private struct AcknowledgePayload: Encodable {
 }
 
 /// A `notifications` row. Matches the Postgres enum `notification_type`.
+///
+/// Anything the enum doesn't know decodes as `.unknown` instead of throwing.
+/// The list is decoded as one array, so a single row of a type added after
+/// this build shipped would otherwise blank the whole Notifications tab on
+/// every phone that hasn't updated yet.
 enum NotificationType: String, Decodable, CaseIterable, Sendable {
     case reorderNeeded = "reorder_needed"
     case toolDown = "tool_down"
     case taskAssigned = "task_assigned"
     case taskComment = "task_comment"
+    case orderRequested = "order_requested"
+    case unknown
+
+    init(from decoder: Decoder) throws {
+        let rawValue = try decoder.singleValueContainer().decode(String.self)
+        self = NotificationType(rawValue: rawValue) ?? .unknown
+    }
 }
 
 /// `payload` is heterogeneous per `type` — and some `reorder_needed` rows
