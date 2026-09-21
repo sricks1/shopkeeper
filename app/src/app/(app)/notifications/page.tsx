@@ -1,4 +1,11 @@
-import { AlertTriangle, BellOff, MessageSquare, Package, UserPlus } from "lucide-react";
+import {
+  AlertTriangle,
+  BellOff,
+  MessageSquare,
+  Package,
+  ShoppingCart,
+  UserPlus,
+} from "lucide-react";
 import Link from "next/link";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -22,6 +29,12 @@ function NotificationIcon({ type }: { type: string }) {
         <UserPlus size={15} className="text-blue-600" />
       </div>
     );
+  if (type === "order_requested")
+    return (
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-100">
+        <ShoppingCart size={15} className="text-accent" />
+      </div>
+    );
   if (type === "task_comment")
     return (
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-100">
@@ -41,6 +54,8 @@ function notificationTitle(type: string, payload: Record<string, string>): strin
     return `Reorder: ${payload.consumable_name ?? "Unknown consumable"}`;
   if (type === "task_assigned") return `Assigned: ${payload.task_name ?? "a task"}`;
   if (type === "task_comment") return `New comment on ${payload.task_name ?? "a task"}`;
+  if (type === "order_requested")
+    return `To order: ${payload.consumable_name ?? payload.task_name ?? "an item"}`;
   return "System notification";
 }
 
@@ -55,6 +70,10 @@ function notificationDetail(type: string, payload: Record<string, string>): stri
   if (type === "task_assigned" && payload.assigner_name) {
     return `Assigned by ${payload.assigner_name}`;
   }
+  if (type === "order_requested") {
+    const requester = `Requested by ${payload.requester_name ?? "someone"}`;
+    return payload.vendor ? `${requester} · ${payload.vendor}` : requester;
+  }
   if (type === "task_comment" && payload.author_name) {
     return `${payload.author_name}: ${payload.excerpt ?? ""}`;
   }
@@ -62,7 +81,10 @@ function notificationDetail(type: string, payload: Record<string, string>): stri
 }
 
 function notificationHref(type: string, payload: Record<string, string>): string | null {
-  if ((type === "task_assigned" || type === "task_comment") && payload.task_id) {
+  if (
+    (type === "task_assigned" || type === "task_comment" || type === "order_requested") &&
+    payload.task_id
+  ) {
     return `/tasks/${payload.task_id}`;
   }
   return null;

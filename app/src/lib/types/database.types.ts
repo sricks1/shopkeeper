@@ -1035,7 +1035,12 @@ export type Database = {
       consumable_kind: "consumable" | "part";
       issue_severity: "minor" | "needs_attention" | "down";
       issue_status: "open" | "resolved";
-      notification_type: "reorder_needed" | "tool_down" | "task_assigned" | "task_comment";
+      notification_type:
+        | "reorder_needed"
+        | "tool_down"
+        | "task_assigned"
+        | "task_comment"
+        | "order_requested";
       staff_role: "owner" | "shop_master" | "instructor" | "staff";
       stock_status: "in_stock" | "on_order";
       task_priority: "low" | "normal" | "high";
@@ -1183,7 +1188,13 @@ export const Constants = {
       consumable_kind: ["consumable", "part"],
       issue_severity: ["minor", "needs_attention", "down"],
       issue_status: ["open", "resolved"],
-      notification_type: ["reorder_needed", "tool_down", "task_assigned", "task_comment"],
+      notification_type: [
+        "reorder_needed",
+        "tool_down",
+        "task_assigned",
+        "task_comment",
+        "order_requested",
+      ],
       staff_role: ["owner", "shop_master", "instructor", "staff"],
       stock_status: ["in_stock", "on_order"],
       task_priority: ["low", "normal", "high"],
