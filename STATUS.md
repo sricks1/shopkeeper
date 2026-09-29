@@ -1,4 +1,5 @@
 ---
+name: ShopKeeper
 status: active
 current_phase: 4
 tags:
