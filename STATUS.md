@@ -19,6 +19,24 @@ Tool maintenance and consumables inventory system for The Joinery, LLC.
 Phases below are inferred from the git history, migrations, and source tree —
 not a strict restatement of the PRD's phased rollout.
 
+**Last updated:** 2026-09-28
+
+## In flight
+
+Nothing known on `main`. Five old feature branches (`feat/link-tasks-to-tools`, `feat/inventory-vendor-url`, `feat/organizer-task-creation-filters`, `feat/to-buy-badge`, `feat/task-organizer-tags-priority`) are already merged and can be deleted.
+
+## Needs Steven
+
+- **Organizer pool model:** ranked worklist or triage inbox? (Leaning inbox, since the kanban already covers the ranked view.) This blocks the sort-order rework in Phase 3.
+- **Member tool-status board:** is it ShopKeeper's (Phase 6 below) or the Woody member PWA's "Today" board? Pick one owner.
+- **Deployment target:** `CLAUDE.md` still says TBD, but `ToDo.md` treats Vercel as the build gate. Confirm Vercel and update `CLAUDE.md`.
+
+## Recently done
+
+- 2026-09-21: Notify owner and shop master when something needs ordering (#11)
+- 2026-09-16: Web app installable as a PWA (#10)
+- 2026-09-11: Native iOS companion, phase 2 (#9)
+
 ## Phase 1 — Backend foundation
 
 - [x] Supabase project and config (`supabase/config.toml`)
