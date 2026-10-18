@@ -40,6 +40,7 @@ struct ToolFormView: View {
     @State private var toolTypes: [ToolType] = []
     @State private var isSubmitting = false
     @State private var errorMessage: String?
+    @FocusState private var slugFocused: Bool
 
     init(existingTool: Tool? = nil, onSaved: @escaping (Tool) -> Void) {
         self.existingTool = existingTool
@@ -95,11 +96,18 @@ struct ToolFormView: View {
                         TextField("URL slug", text: slugField)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                            .focused($slugFocused)
+                            .onChange(of: slugFocused) { _, focused in
+                                // Normalise on focus loss, like the web form's
+                                // onBlur: a pasted URL becomes a valid slug the
+                                // user can see and shorten before saving.
+                                if !focused, slugEdited { slug = Self.slugify(slug) }
+                            }
                         Text("Used in QR codes — lowercase letters, numbers, hyphens only")
                             .font(.rubik(.caption))
                             .foregroundStyle(.secondary)
                         if slugEdited, !trimmedSlug.isEmpty, !isSlugValid {
-                            Text("Only lowercase letters, numbers, and hyphens are allowed.")
+                            Text("Use lowercase letters and numbers separated by single hyphens — no slashes, spaces, or URLs.")
                                 .font(.rubik(.caption))
                                 .foregroundStyle(.red)
                         }
@@ -176,8 +184,10 @@ struct ToolFormView: View {
         effectiveSlug.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    /// Same rule as the web's `isValidSlug` and the `tools_slug_format`
+    /// CHECK constraint. A bad slug 404s the tool's web pages and QR code.
     private var isSlugValid: Bool {
-        !trimmedSlug.isEmpty && trimmedSlug.unicodeScalars.allSatisfy { Self.slugValidCharacters.contains($0) }
+        trimmedSlug.wholeMatch(of: /[a-z0-9]+(-[a-z0-9]+)*/) != nil
     }
 
     private var canSubmit: Bool {
@@ -251,7 +261,6 @@ struct ToolFormView: View {
 
     // MARK: - Slug helpers
 
-    private static let slugValidCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz0123456789-")
     private static let slugContentCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz0123456789")
 
     /// Mirrors the web app's `slugify`: lowercase, collapse any run of
