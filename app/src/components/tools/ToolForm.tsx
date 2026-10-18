@@ -9,7 +9,7 @@ import { Input, Select, Textarea } from "@/components/ui/Input";
 import { uploadPhotos } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums, Tables } from "@/lib/types/database.types";
-import { slugify } from "@/lib/utils";
+import { isValidSlug, slugify } from "@/lib/utils";
 
 type ToolStatus = Enums<"tool_status">;
 type Tool = Tables<"tools">;
@@ -26,6 +26,9 @@ const STATUS_OPTIONS: { value: ToolStatus; label: string }[] = [
   { value: "retired", label: "Retired" },
 ];
 
+const SLUG_ERROR =
+  "Use lowercase letters and numbers separated by single hyphens — no slashes, spaces, or URLs.";
+
 export default function ToolForm({ tool, toolTypes, existingPhotos = [] }: ToolFormProps) {
   const router = useRouter();
   const isEditing = !!tool;
@@ -33,6 +36,7 @@ export default function ToolForm({ tool, toolTypes, existingPhotos = [] }: ToolF
   const [name, setName] = useState(tool?.name ?? "");
   const [slug, setSlug] = useState(tool?.slug ?? "");
   const [slugEdited, setSlugEdited] = useState(isEditing);
+  const [slugError, setSlugError] = useState<string | null>(null);
   const [manufacturer, setManufacturer] = useState(tool?.manufacturer ?? "");
   const [model, setModel] = useState(tool?.model ?? "");
   const [serial, setSerial] = useState(tool?.serial ?? "");
@@ -59,6 +63,14 @@ export default function ToolForm({ tool, toolTypes, existingPhotos = [] }: ToolF
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+
+    // A bad slug 404s both the tool page and its edit page, leaving the tool
+    // unfixable from the UI — so it never reaches the database.
+    if (!isValidSlug(slug.trim())) {
+      setSlugError(SLUG_ERROR);
+      return;
+    }
+
     setIsLoading(true);
 
     const supabase = createClient();
@@ -135,15 +147,26 @@ export default function ToolForm({ tool, toolTypes, existingPhotos = [] }: ToolF
       </Field>
 
       {/* Slug */}
-      <Field label="URL slug *" hint="Used in QR codes — lowercase letters, numbers, hyphens only">
+      <Field
+        label="URL slug *"
+        hint="Used in QR codes — lowercase letters, numbers, hyphens only"
+        error={slugError}
+      >
         <Input
           type="text"
           required
-          pattern="[a-z0-9-]+"
           value={slug}
           onChange={(e) => {
             setSlug(e.target.value);
             setSlugEdited(true);
+            setSlugError(null);
+          }}
+          onBlur={() => {
+            // Normalise on blur, not per keystroke, so typing "band-" isn't
+            // eaten mid-word. A pasted URL becomes a valid (if long) slug the
+            // user can see and shorten before saving.
+            setSlug(slugify(slug));
+            setSlugError(null);
           }}
           placeholder="grizzly-bandsaw"
         />
