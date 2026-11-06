@@ -412,6 +412,19 @@ struct ToolConsumableDetail: Decodable, Identifiable, Hashable, Sendable {
     }
 }
 
+/// A `tool_consumables` row carrying only its embedded `tools` row, decoded
+/// from `select=tools(*)`. Used by `fetchToolsUsing(consumableTypeID:)` to go
+/// from a consumable back to the tools that use it. `tool` is optional purely
+/// defensively — `tool_id` is a required FK, so the embed is present in
+/// practice. The embed nests as a single object (many-to-one FK).
+private struct ToolConsumableToolRow: Decodable {
+    let tool: Tool?
+
+    enum CodingKeys: String, CodingKey {
+        case tool = "tools"
+    }
+}
+
 // MARK: - Consumable links
 
 /// Write access for managing which consumables/parts a tool uses, gated
@@ -432,6 +445,24 @@ extension ToolsService {
             .eq("tool_id", value: toolID.uuidString)
             .execute()
             .value
+    }
+
+    /// The tools that use a given consumable/part — the reverse of
+    /// `fetchToolConsumables`. Powers the "Used in Tools" section on a
+    /// consumable's detail screen, so a part can jump back to the machines
+    /// that need it (mirrors the web app's inventory "Used in tools").
+    /// Sorted by tool name client-side, since PostgREST can't order a parent
+    /// list by a column on an embedded resource.
+    static func fetchToolsUsing(consumableTypeID: UUID) async throws -> [Tool] {
+        let rows: [ToolConsumableToolRow] = try await SupabaseManager.shared.client
+            .from("tool_consumables")
+            .select("tools(*)")
+            .eq("consumable_type_id", value: consumableTypeID.uuidString)
+            .execute()
+            .value
+        return rows
+            .compactMap(\.tool)
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
     /// Links a consumable type to a tool, returning the new join row (joined

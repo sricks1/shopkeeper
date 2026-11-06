@@ -27,6 +27,11 @@ struct InventoryDetailView: View {
     @State private var orderConfirmation: OrderConfirmation?
     @State private var orderErrorMessage: String?
     @State private var successCount = 0
+    /// Tools that use this consumable — the part→tool half of two-way
+    /// navigation. Loaded separately from `entry` (which the inventory list
+    /// seeds locally) and left empty on failure rather than surfacing a second
+    /// error for a secondary affordance.
+    @State private var usedInTools: [Tool] = []
 
     init(entry: InventoryEntry) {
         _entry = State(initialValue: entry)
@@ -78,10 +83,33 @@ struct InventoryDetailView: View {
                     Text(notes)
                 }
             }
+
+            // Part → tool: the machines this consumable is assigned to, each
+            // pushing its tool detail. Hidden entirely when nothing links here.
+            if !usedInTools.isEmpty {
+                Section("Used in Tools") {
+                    ForEach(usedInTools) { tool in
+                        NavigationLink {
+                            ToolDetailView(toolID: tool.id, displayName: tool.name)
+                        } label: {
+                            HStack {
+                                Text(tool.name)
+                                Spacer(minLength: 12)
+                                StatusBadge(
+                                    displayName: tool.status.displayName,
+                                    symbolName: tool.status.symbolName,
+                                    colorToken: tool.status.colorToken
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
         .listStyle(.insetGrouped)
         .navigationTitle(entry.consumableType.name)
         .navigationBarTitleDisplayMode(.inline)
+        .task(id: entry.consumableTypeId) { await loadUsedInTools() }
         .sensoryFeedback(.success, trigger: successCount)
         .toolbar {
             if session.canManageTools {
@@ -217,6 +245,14 @@ struct InventoryDetailView: View {
             isUpdatingOrder = false
             orderErrorMessage = "Couldn't mark that received. Check your connection and try again."
         }
+    }
+
+    /// Loads the tools that use this consumable for the "Used in Tools"
+    /// section. Keyed on `consumableTypeId`, so it runs once per consumable
+    /// and not again when a stock change rebuilds `entry` with the same id.
+    /// Best-effort: a failure just leaves the section hidden.
+    private func loadUsedInTools() async {
+        usedInTools = (try? await ToolsService.fetchToolsUsing(consumableTypeID: entry.consumableTypeId)) ?? []
     }
 
     /// Rebuilds `entry` around the stock row the service just wrote and
