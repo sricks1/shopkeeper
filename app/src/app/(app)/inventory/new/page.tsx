@@ -5,10 +5,10 @@ import NewConsumableForm from "./NewConsumableForm";
 
 export default async function NewConsumablePage() {
   const supabase = await createClient();
-  const { data: categories } = await supabase
-    .from("consumable_categories")
-    .select("value, label")
-    .order("label");
+  const [{ data: categories }, { data: tools }] = await Promise.all([
+    supabase.from("consumable_categories").select("value, label").order("label"),
+    supabase.from("tools").select("id, name").order("name"),
+  ]);
 
   return (
     <div className="px-4 pb-4 pt-4">
@@ -20,7 +20,7 @@ export default async function NewConsumablePage() {
       <p className="mb-6 text-sm text-zinc-500">
         Creates a new part type and adds it to inventory.
       </p>
-      <NewConsumableForm categories={categories ?? []} />
+      <NewConsumableForm categories={categories ?? []} tools={tools ?? []} />
     </div>
   );
 }

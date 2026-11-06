@@ -491,6 +491,19 @@ extension ToolsService {
             .execute()
     }
 
+    /// Removes a tool↔consumable link by the (tool, consumable) pair rather
+    /// than the join-row id. Used when managing links from the consumable
+    /// side (`ConsumableFormView`), where the caller knows the tool id but
+    /// not the `tool_consumables.id`.
+    static func unlinkConsumable(toolID: UUID, consumableTypeID: UUID) async throws {
+        try await SupabaseManager.shared.client
+            .from("tool_consumables")
+            .delete()
+            .eq("tool_id", value: toolID.uuidString)
+            .eq("consumable_type_id", value: consumableTypeID.uuidString)
+            .execute()
+    }
+
     /// Updates just the `notes` on an existing link.
     static func updateConsumableLinkNotes(id: UUID, notes: String?) async throws -> ToolConsumableDetail {
         try await SupabaseManager.shared.client
