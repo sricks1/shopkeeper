@@ -4,6 +4,7 @@ import { ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import CategoryPicker, { type CategoryOption } from "@/components/CategoryPicker";
+import ToolMultiSelect, { type ToolOption } from "@/components/inventory/ToolMultiSelect";
 import PhotoUploader, { type ExistingPhoto, type PhotoSelection } from "@/components/PhotoUploader";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
@@ -20,6 +21,8 @@ interface EditConsumableFormProps {
   consumableTypeId: string;
   categories: CategoryOption[];
   existingPhotos: ExistingPhoto[];
+  tools: ToolOption[];
+  initialToolIds: string[];
   initial: {
     name: string;
     kind: ConsumableKind;
@@ -35,10 +38,16 @@ export default function EditConsumableForm({
   consumableTypeId,
   categories,
   existingPhotos,
+  tools,
+  initialToolIds,
   initial,
 }: EditConsumableFormProps) {
   const router = useRouter();
   const [name, setName] = useState(initial.name);
+  const [toolIds, setToolIds] = useState<string[]>(initialToolIds);
+  // Baseline the save diffs against. Updated after each successful save so a
+  // second save in the same session only writes what actually changed.
+  const [savedToolIds, setSavedToolIds] = useState<string[]>(initialToolIds);
   const [kind, setKind] = useState<ConsumableKind>(initial.kind);
   const [category, setCategory] = useState(initial.category);
   const [sku, setSku] = useState(initial.sku ?? "");
@@ -84,11 +93,32 @@ export default function EditConsumableForm({
         photo_urls: photoUrls,
       })
       .eq("id", consumableTypeId);
-    setIsSaving(false);
     if (err) {
+      setIsSaving(false);
       setError(err.message);
       return;
     }
+
+    // Reconcile tool links against what was last saved: insert newly checked
+    // tools, delete unchecked ones. Diffed (not cleared-and-rewritten) so a
+    // no-change save writes nothing.
+    const toAdd = toolIds.filter((id) => !savedToolIds.includes(id));
+    const toRemove = savedToolIds.filter((id) => !toolIds.includes(id));
+    if (toAdd.length > 0) {
+      await supabase
+        .from("tool_consumables")
+        .insert(toAdd.map((toolId) => ({ tool_id: toolId, consumable_type_id: consumableTypeId })));
+    }
+    if (toRemove.length > 0) {
+      await supabase
+        .from("tool_consumables")
+        .delete()
+        .eq("consumable_type_id", consumableTypeId)
+        .in("tool_id", toRemove);
+    }
+    setSavedToolIds(toolIds);
+
+    setIsSaving(false);
     setSuccess("Saved.");
     router.refresh();
     setTimeout(() => setSuccess(null), 2000);
@@ -148,6 +178,10 @@ export default function EditConsumableForm({
       </Field>
 
       <PhotoUploader max={MAX_PHOTOS} existing={existingPhotos} onChange={setPhotos} />
+
+      <Field label="Used in tools">
+        <ToolMultiSelect tools={tools} value={toolIds} onChange={setToolIds} />
+      </Field>
 
       <Button onClick={handleSave} disabled={isSaving} className="w-full">
         {isSaving ? "Saving…" : "Save Details"}

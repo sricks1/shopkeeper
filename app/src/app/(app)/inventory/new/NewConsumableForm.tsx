@@ -4,6 +4,7 @@ import { ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import CategoryPicker, { type CategoryOption } from "@/components/CategoryPicker";
+import ToolMultiSelect, { type ToolOption } from "@/components/inventory/ToolMultiSelect";
 import PhotoUploader, { type PhotoSelection } from "@/components/PhotoUploader";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
@@ -17,9 +18,16 @@ import { toHref } from "@/lib/utils";
 
 const MAX_PHOTOS = 5;
 
-export default function NewConsumableForm({ categories }: { categories: CategoryOption[] }) {
+export default function NewConsumableForm({
+  categories,
+  tools,
+}: {
+  categories: CategoryOption[];
+  tools: ToolOption[];
+}) {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [toolIds, setToolIds] = useState<string[]>([]);
   const [kind, setKind] = useState<Enums<"consumable_kind">>("consumable");
   const [category, setCategory] = useState<string>(categories[0]?.value ?? "other");
   const [sku, setSku] = useState("");
@@ -70,7 +78,16 @@ export default function NewConsumableForm({ categories }: { categories: Category
       return;
     }
 
-    // 3. Upload any photos, then record their paths on the consumable type.
+    // 3. Link the selected tools. Best-effort, like tag-linking on tasks:
+    // the consumable + its stock row already exist (the part that matters),
+    // and any missed links can be fixed from either side afterward.
+    if (toolIds.length > 0) {
+      await supabase
+        .from("tool_consumables")
+        .insert(toolIds.map((toolId) => ({ tool_id: toolId, consumable_type_id: ct.id })));
+    }
+
+    // 4. Upload any photos, then record their paths on the consumable type.
     if (photos.newFiles.length > 0) {
       const paths = await uploadPhotos(supabase, photos.newFiles, `consumables/${ct.id}`);
       if (paths.length > 0) {
@@ -152,6 +169,10 @@ export default function NewConsumableForm({ categories }: { categories: Category
           onChange={(e) => setNotes(e.target.value)}
           placeholder="OEM spec, don't substitute…"
         />
+      </Field>
+
+      <Field label="Used in tools" hint="Link the tools this part is for — optional">
+        <ToolMultiSelect tools={tools} value={toolIds} onChange={setToolIds} />
       </Field>
 
       <PhotoUploader max={MAX_PHOTOS} onChange={setPhotos} />

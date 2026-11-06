@@ -37,6 +37,14 @@ struct ConsumableFormView: View {
     @State private var isSubmitting = false
     @State private var errorMessage: String?
 
+    /// All tools, for the "Used in Tools" picker, and the subset this
+    /// consumable is linked to (pre-checked in edit mode).
+    @State private var allTools: [Tool] = []
+    @State private var selectedToolIDs: Set<UUID> = []
+    /// Set once the consumable row is created/updated, so a retry after a
+    /// link-reconcile failure reuses it instead of creating a second one.
+    @State private var savedConsumable: ConsumableType?
+
     private let maxPhotos = 3
 
     init(existingConsumable: ConsumableType? = nil, onSaved: @escaping (ConsumableType) -> Void) {
@@ -85,6 +93,30 @@ struct ConsumableFormView: View {
                         .lineLimit(3...6)
                 }
 
+                Section("Used in Tools") {
+                    if allTools.isEmpty {
+                        Text("No tools to link yet.")
+                            .foregroundStyle(.secondary)
+                    } else {
+                        ForEach(allTools) { tool in
+                            Button {
+                                toggleTool(tool.id)
+                            } label: {
+                                HStack {
+                                    Text(tool.name)
+                                        .foregroundStyle(.primary)
+                                    Spacer()
+                                    if selectedToolIDs.contains(tool.id) {
+                                        Image(systemName: "checkmark")
+                                            .fontWeight(.semibold)
+                                            .foregroundStyle(Color.accentColor)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 ConsumableFormPhotoSection(keptPhotos: $keptPhotos, newPhotos: $newPhotos, maxPhotos: maxPhotos)
 
                 if let errorMessage {
@@ -111,6 +143,7 @@ struct ConsumableFormView: View {
         .task {
             await loadCategories()
             await loadExistingPhotos()
+            await loadTools()
         }
     }
 
@@ -141,7 +174,9 @@ struct ConsumableFormView: View {
 
         do {
             let saved: ConsumableType
-            if let existingConsumable {
+            if let already = savedConsumable {
+                saved = already
+            } else if let existingConsumable {
                 saved = try await InventoryService.updateConsumableType(
                     id: existingConsumable.id,
                     name: trimmedName,
@@ -166,10 +201,36 @@ struct ConsumableFormView: View {
                     photos: newPhotos
                 )
             }
+            savedConsumable = saved
+            try await reconcileToolLinks(consumableTypeID: saved.id)
             onSaved(saved)
             dismiss()
         } catch {
             errorMessage = "Couldn't save the consumable. Check your connection and try again."
+        }
+    }
+
+    private func toggleTool(_ id: UUID) {
+        if selectedToolIDs.contains(id) {
+            selectedToolIDs.remove(id)
+        } else {
+            selectedToolIDs.insert(id)
+        }
+    }
+
+    /// Syncs `tool_consumables` for this consumable to match `selectedToolIDs`.
+    /// Re-reads the current links first so it writes only real differences —
+    /// which also makes a retry after a partial failure safe (no double
+    /// insert). The tool side uses the same join; the two stay consistent.
+    private func reconcileToolLinks(consumableTypeID: UUID) async throws {
+        let current = Set(
+            try await ToolsService.fetchToolsUsing(consumableTypeID: consumableTypeID).map(\.id)
+        )
+        for toolID in selectedToolIDs.subtracting(current) {
+            try await ToolsService.linkConsumable(toolID: toolID, consumableTypeID: consumableTypeID)
+        }
+        for toolID in current.subtracting(selectedToolIDs) {
+            try await ToolsService.unlinkConsumable(toolID: toolID, consumableTypeID: consumableTypeID)
         }
     }
 
@@ -192,6 +253,17 @@ struct ConsumableFormView: View {
     private func loadExistingPhotos() async {
         guard let paths = existingConsumable?.photoPaths, !paths.isEmpty else { return }
         keptPhotos = await ToolsService.resolvedPhotos(paths: paths, kind: .consumableType)
+    }
+
+    /// Loads the tool list for the picker and, in edit mode, pre-checks the
+    /// tools this consumable is already linked to. Best-effort: a failure
+    /// leaves the picker empty rather than blocking the whole form.
+    private func loadTools() async {
+        allTools = (try? await ToolsService.fetchTools()) ?? []
+        if let existingConsumable {
+            let linked = (try? await ToolsService.fetchToolsUsing(consumableTypeID: existingConsumable.id)) ?? []
+            selectedToolIDs = Set(linked.map(\.id))
+        }
     }
 }
 
