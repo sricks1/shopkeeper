@@ -6,6 +6,18 @@ export function slugify(name: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+/**
+ * A slug is one or more runs of lowercase letters and digits joined by single
+ * hyphens. It lands in /tools/[slug] and /t/[slug] (the QR codes), so anything
+ * else — a slash, above all — breaks routing. The same pattern is enforced by
+ * the tools_slug_format CHECK constraint and mirrored in ToolFormView.swift.
+ */
+export const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
+export function isValidSlug(slug: string): boolean {
+  return SLUG_PATTERN.test(slug);
+}
+
 export function formatDate(iso: string | null | undefined): string {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("en-US", {
