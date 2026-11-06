@@ -71,6 +71,7 @@
 		D3910B2AAED716076A9EB263 /* ToolConsumablesEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E505796AA5C40A203C5F4920 /* ToolConsumablesEditorView.swift */; };
 		D42D7F2D260F9942EA4AE019 /* NotificationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB814781EFF0DD6921B8D6AE /* NotificationsService.swift */; };
 		D4351172B32823139EF974C8 /* MaintenanceTaskRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7692048590978A8F1EAD99F6 /* MaintenanceTaskRow.swift */; };
+		D4B551AC0450424D5916656F /* ConsumableInventoryLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40551C797DC95F759FEEF786 /* ConsumableInventoryLink.swift */; };
 		D70A4D16813FD9304771121E /* ToolConsumable.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAE4AF4AA925DA4EEFCBD116 /* ToolConsumable.swift */; };
 		DD128D51433134568EDB8B6A /* ToolDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1B7C2ED12BB8BFC68E1D13 /* ToolDetailView.swift */; };
 		DDD9FF3F8BD8FA2B380A9FD1 /* InventoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8790A7F8617CBCCA71A0DE6 /* InventoryListView.swift */; };
@@ -102,6 +103,7 @@
 		3797F3629CE1E52516797247 /* Repair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Repair.swift; sourceTree = "<group>"; };
 		396BEAF6242FBCA8D2B6227A /* ShopKeeper.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ShopKeeper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E9D1A0C0F7CA2C1EA2E20C9 /* NotificationsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsListView.swift; sourceTree = "<group>"; };
+		40551C797DC95F759FEEF786 /* ConsumableInventoryLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsumableInventoryLink.swift; sourceTree = "<group>"; };
 		4349B6CBC749697222A326A4 /* IssuesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssuesService.swift; sourceTree = "<group>"; };
 		43CF9971CAB910CA6058761F /* OrderRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderRow.swift; sourceTree = "<group>"; };
 		44529CCAB07A24BE02068AEB /* Tool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tool.swift; sourceTree = "<group>"; };
@@ -259,6 +261,7 @@
 			children = (
 				A024E6C3A00BED1BCC3447C4 /* ConsumableFormPhotoSection.swift */,
 				0D9772BF8A816F98A854EB70 /* ConsumableFormView.swift */,
+				40551C797DC95F759FEEF786 /* ConsumableInventoryLink.swift */,
 				C8F9A5788A19317E268265FD /* InventoryDetailView.swift */,
 				B8790A7F8617CBCCA71A0DE6 /* InventoryListView.swift */,
 				4AC9DB5DEFC05B794B87FD36 /* OrderFormView.swift */,
@@ -501,6 +504,7 @@
 				1570422F252461CF023D43E1 /* ConsumableCategory.swift in Sources */,
 				CE1A64397D554E5CFDDF606C /* ConsumableFormPhotoSection.swift in Sources */,
 				983271FE77A7D42FF6E4447D /* ConsumableFormView.swift in Sources */,
+				D4B551AC0450424D5916656F /* ConsumableInventoryLink.swift in Sources */,
 				97D9B0BD0410EB49A7365210 /* ConsumableType.swift in Sources */,
 				FA954F04B2A70F9B2B05FAFD /* DataScannerRepresentable.swift in Sources */,
 				57C94A8434D974F0ABBA1A37 /* DeepLink.swift in Sources */,

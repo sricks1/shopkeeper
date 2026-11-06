@@ -31,6 +31,22 @@ enum InventoryService {
             $0.consumableType.name.localizedStandardCompare($1.consumableType.name) == .orderedAscending
         }
     }
+
+    /// The stock entry for a single consumable type, or `nil` if it has no
+    /// `inventory_items` row yet. Lets a tool's parts list jump straight to a
+    /// consumable's detail screen (see `ConsumableInventoryLink`). Fetched as
+    /// a limited list rather than `.single()` so the no-row case returns `nil`
+    /// instead of throwing.
+    static func fetchEntry(consumableTypeID: UUID) async throws -> InventoryEntry? {
+        let entries: [InventoryEntry] = try await SupabaseManager.shared.client
+            .from("inventory_items")
+            .select("*, consumable_types(*)")
+            .eq("consumable_type_id", value: consumableTypeID.uuidString)
+            .limit(1)
+            .execute()
+            .value
+        return entries.first
+    }
 }
 
 /// An `inventory_items` row joined with its `consumable_types` catalog row,
