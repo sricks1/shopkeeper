@@ -90,7 +90,8 @@ struct NotificationsListView: View {
                         }
                     }
             }
-            .listStyle(.plain)
+            .listStyle(.insetGrouped)
+            .brandList()
             .refreshable {
                 await load()
             }
@@ -163,15 +164,14 @@ private struct NotificationRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(presentation.title)
-                    .font(.body)
-                    .fontWeight(notification.isAcknowledged ? .regular : .semibold)
+                    .font(.rubik(.body, weight: notification.isAcknowledged ? .regular : .semibold))
 
                 Text(presentation.subtitle)
-                    .font(.subheadline)
+                    .font(.rubik(.subheadline))
                     .foregroundStyle(.secondary)
 
                 Text(notification.createdAt.formatted(.relative(presentation: .named)))
-                    .font(.caption)
+                    .font(.rubik(.caption))
                     .foregroundStyle(.secondary)
             }
 

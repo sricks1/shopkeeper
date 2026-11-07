@@ -82,10 +82,11 @@ struct MaintenanceTaskFormView: View {
                     Section {
                         Text(errorMessage)
                             .foregroundStyle(.red)
-                            .font(.footnote)
+                            .font(.rubik(.footnote))
                     }
                 }
             }
+            .brandList()
             .navigationTitle(existingTask == nil ? "Add Task" : "Edit Task")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

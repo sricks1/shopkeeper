@@ -96,11 +96,11 @@ struct ToolFormView: View {
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                         Text("Used in QR codes — lowercase letters, numbers, hyphens only")
-                            .font(.caption)
+                            .font(.rubik(.caption))
                             .foregroundStyle(.secondary)
                         if slugEdited, !trimmedSlug.isEmpty, !isSlugValid {
                             Text("Only lowercase letters, numbers, and hyphens are allowed.")
-                                .font(.caption)
+                                .font(.rubik(.caption))
                                 .foregroundStyle(.red)
                         }
                     }
@@ -132,10 +132,11 @@ struct ToolFormView: View {
                     Section {
                         Text(errorMessage)
                             .foregroundStyle(.red)
-                            .font(.footnote)
+                            .font(.rubik(.footnote))
                     }
                 }
             }
+            .brandList()
             .navigationTitle(existingTool == nil ? "Add Tool" : "Edit Tool")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

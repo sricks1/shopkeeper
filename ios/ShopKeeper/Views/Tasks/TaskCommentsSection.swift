@@ -47,13 +47,13 @@ struct TaskCommentsSection: View {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         Text(authorName(for: comment))
-                            .font(.subheadline.weight(.medium))
+                            .font(.rubik(.subheadline, weight: .medium))
                         Text(comment.createdAt.formatted(.relative(presentation: .named)))
-                            .font(.caption)
+                            .font(.rubik(.caption))
                             .foregroundStyle(.secondary)
                     }
                     Text(comment.body)
-                        .font(.body)
+                        .font(.rubik(.body))
                 }
                 .padding(.vertical, 2)
             }
@@ -89,7 +89,7 @@ struct TaskCommentsSection: View {
                     ProgressView()
                 } else {
                     Image(systemName: "arrow.up.circle.fill")
-                        .font(.title2)
+                        .font(.rubik(.title2))
                 }
             }
             .buttonStyle(.plain)

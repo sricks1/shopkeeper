@@ -211,7 +211,8 @@ struct InventoryListView: View {
                 InventoryRow(entry: entry)
             }
         }
-        .listStyle(.plain)
+        .listStyle(.insetGrouped)
+        .brandList()
         .refreshable {
             await load()
         }
@@ -229,7 +230,7 @@ struct InventoryListView: View {
     private var refreshFailureBanner: some View {
         if errorMessage != nil && !entries.isEmpty {
             Label("Couldn't refresh. Pull down to try again.", systemImage: "wifi.exclamationmark")
-                .font(.caption)
+                .font(.rubik(.caption))
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.horizontal)
@@ -267,15 +268,15 @@ private struct InventoryRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(entry.consumableType.name)
-                .font(.headline)
+                .font(.rubik(.headline))
 
             Text("\(entry.consumableType.category.capitalized) · \(entry.consumableType.kind.displayName)")
-                .font(.subheadline)
+                .font(.rubik(.subheadline))
                 .foregroundStyle(.secondary)
 
             if let vendor = entry.consumableType.vendor {
                 Text(vendor)
-                    .font(.caption)
+                    .font(.rubik(.caption))
                     .foregroundStyle(.secondary)
             }
 

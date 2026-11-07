@@ -97,6 +97,7 @@ struct TaskDetailView: View {
                 )
             }
             .listStyle(.insetGrouped)
+            .brandList()
             .refreshable {
                 await load()
             }
@@ -120,7 +121,7 @@ struct TaskDetailView: View {
         Section {
             VStack(alignment: .leading, spacing: 10) {
                 Text(task.name)
-                    .font(.title2.bold())
+                    .font(.rubik(.title2, weight: .bold))
 
                 HStack(spacing: 12) {
                     Menu {
@@ -163,7 +164,7 @@ struct TaskDetailView: View {
                 }
                 if task.isOverdue {
                     Label("Overdue", systemImage: "calendar.badge.exclamationmark")
-                        .font(.caption)
+                        .font(.rubik(.caption))
                         .foregroundStyle(.red)
                 }
             }

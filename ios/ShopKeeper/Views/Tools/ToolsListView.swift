@@ -30,7 +30,16 @@ struct ToolsListView: View {
         NavigationStack(path: $path) {
             content
                 .navigationTitle("Tools")
-                .searchable(text: $searchText, prompt: "Search tools")
+                // This screen is the one tab root with `.searchable` at the
+                // title level; with the default drawer placement the large
+                // "Tools" title collapsed and never showed. Pinning the
+                // search drawer always-visible keeps the large title stable.
+                .navigationBarTitleDisplayMode(.large)
+                .searchable(
+                    text: $searchText,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: "Search tools"
+                )
                 .navigationDestination(for: ToolRoute.self) { route in
                     ToolDetailView(toolID: route.toolID, displayName: route.displayName)
                 }
@@ -105,7 +114,8 @@ struct ToolsListView: View {
                     ToolRow(tool: tool)
                 }
             }
-            .listStyle(.plain)
+            .listStyle(.insetGrouped)
+            .brandList()
             .refreshable {
                 await load()
             }
@@ -160,11 +170,11 @@ private struct ToolRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(tool.name)
-                .font(.headline)
+                .font(.rubik(.headline))
 
             if let subtitle = manufacturerModel {
                 Text(subtitle)
-                    .font(.subheadline)
+                    .font(.rubik(.subheadline))
                     .foregroundStyle(.secondary)
             }
 

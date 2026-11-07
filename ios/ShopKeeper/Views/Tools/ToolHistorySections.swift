@@ -20,13 +20,13 @@ struct ToolConsumablesSection: View {
                     } label: {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(consumable.consumableType.name)
-                                .font(.body)
+                                .font(.rubik(.body))
                             Text(consumable.consumableType.category)
-                                .font(.caption)
+                                .font(.rubik(.caption))
                                 .foregroundStyle(.secondary)
                             if let notes = consumable.notes, !notes.isEmpty {
                                 Text(notes)
-                                    .font(.caption)
+                                    .font(.rubik(.caption))
                                     .foregroundStyle(.secondary)
                             }
                         }
@@ -52,7 +52,7 @@ struct ToolIssuesSection: View {
                     } label: {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(issue.title)
-                                .font(.body)
+                                .font(.rubik(.body))
                             HStack(spacing: 12) {
                                 StatusBadge(
                                     displayName: issue.severity.displayName,
@@ -66,7 +66,7 @@ struct ToolIssuesSection: View {
                                 )
                             }
                             Text(issue.createdAt.formatted(.relative(presentation: .named)))
-                                .font(.caption)
+                                .font(.rubik(.caption))
                                 .foregroundStyle(.secondary)
                         }
                         .padding(.vertical, 2)
@@ -91,9 +91,9 @@ struct ToolRepairsSection: View {
                     } label: {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(repair.description)
-                                .font(.body)
+                                .font(.rubik(.body))
                             Text(repair.createdAt.formatted(.relative(presentation: .named)))
-                                .font(.caption)
+                                .font(.rubik(.caption))
                                 .foregroundStyle(.secondary)
                         }
                         .padding(.vertical, 2)

@@ -42,6 +42,11 @@ targets:
       path: Generated-Info.plist
       properties:
         CFBundleDisplayName: ShopKeeper
+        UIAppFonts:
+          - Rubik-Regular.ttf
+          - Rubik-Medium.ttf
+          - Rubik-SemiBold.ttf
+          - Rubik-Bold.ttf
         SupabaseURL: $(SUPABASE_URL)
         SupabaseAnonKey: $(SUPABASE_ANON_KEY)
         UILaunchScreen: {}

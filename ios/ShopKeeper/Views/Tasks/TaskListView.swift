@@ -139,7 +139,7 @@ struct TaskListView: View {
     private var fallbackCaption: some View {
         if isShowingTeamFallback {
             Text("Showing team tasks until your profile loads")
-                .font(.caption)
+                .font(.rubik(.caption))
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal)
@@ -208,7 +208,8 @@ struct TaskListView: View {
                 }
             }
         }
-        .listStyle(.plain)
+        .listStyle(.insetGrouped)
+        .brandList()
         .refreshable {
             await reload(clearing: false)
         }

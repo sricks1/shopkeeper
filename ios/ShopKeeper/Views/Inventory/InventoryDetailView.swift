@@ -107,6 +107,7 @@ struct InventoryDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .brandList()
         .navigationTitle(entry.consumableType.name)
         .navigationBarTitleDisplayMode(.inline)
         .task(id: entry.consumableTypeId) { await loadUsedInTools() }
@@ -145,7 +146,7 @@ struct InventoryDetailView: View {
         Section {
             if let confirmation = orderConfirmation?.label {
                 Label(confirmation.title, systemImage: confirmation.symbolName)
-                    .font(.headline)
+                    .font(.rubik(.headline))
                     .foregroundStyle(confirmation.style)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
@@ -172,7 +173,7 @@ struct InventoryDetailView: View {
                         .disabled(isUpdatingOrder)
 
                         Text(onOrderCaption)
-                            .font(.caption)
+                            .font(.rubik(.caption))
                             .foregroundStyle(.secondary)
                     }
                 }

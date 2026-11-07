@@ -123,10 +123,11 @@ struct ConsumableFormView: View {
                     Section {
                         Text(errorMessage)
                             .foregroundStyle(.red)
-                            .font(.footnote)
+                            .font(.rubik(.footnote))
                     }
                 }
             }
+            .brandList()
             .navigationTitle(existingConsumable == nil ? "Add Consumable" : "Edit Consumable")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
