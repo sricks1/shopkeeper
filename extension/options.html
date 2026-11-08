@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Add to ShopKeeper — Options</title>
+    <style>
+      body { font: 14px system-ui, sans-serif; margin: 16px; min-width: 360px; color: #27272a; }
+      label { display: block; font-weight: 600; margin-bottom: 4px; }
+      input { width: 100%; box-sizing: border-box; padding: 6px 8px; font: inherit; }
+      p { color: #71717a; margin: 4px 0 12px; }
+      button { padding: 6px 14px; font: inherit; }
+      #status { margin-left: 8px; color: #15803d; }
+    </style>
+  </head>
+  <body>
+    <form id="options">
+      <label for="baseUrl">ShopKeeper address</label>
+      <input id="baseUrl" type="text" inputmode="url" placeholder="https://shopkeeper.thejoinery.club" />
+      <p>Where the "Add Consumable" form opens. Use http://localhost:3000 to test against a local dev server.</p>
+      <button type="submit">Save</button><span id="status"></span>
+    </form>
+    <script type="module" src="dist/options.js"></script>
+  </body>
+</html>

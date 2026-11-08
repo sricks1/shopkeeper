@@ -18,22 +18,29 @@ import { toHref } from "@/lib/utils";
 
 const MAX_PHOTOS = 5;
 
+/** Initial field values, e.g. from the Chrome extension's query params. */
+export type ConsumablePrefill = Partial<
+  Record<"name" | "sku" | "vendor" | "vendor_url" | "notes", string>
+>;
+
 export default function NewConsumableForm({
   categories,
   tools,
+  prefill = {},
 }: {
   categories: CategoryOption[];
   tools: ToolOption[];
+  prefill?: ConsumablePrefill;
 }) {
   const router = useRouter();
-  const [name, setName] = useState("");
+  const [name, setName] = useState(prefill.name ?? "");
   const [toolIds, setToolIds] = useState<string[]>([]);
   const [kind, setKind] = useState<Enums<"consumable_kind">>("consumable");
   const [category, setCategory] = useState<string>(categories[0]?.value ?? "other");
-  const [sku, setSku] = useState("");
-  const [vendor, setVendor] = useState("");
-  const [vendorUrl, setVendorUrl] = useState("");
-  const [notes, setNotes] = useState("");
+  const [sku, setSku] = useState(prefill.sku ?? "");
+  const [vendor, setVendor] = useState(prefill.vendor ?? "");
+  const [vendorUrl, setVendorUrl] = useState(prefill.vendor_url ?? "");
+  const [notes, setNotes] = useState(prefill.notes ?? "");
   const [photos, setPhotos] = useState<PhotoSelection>({ keptPaths: [], newFiles: [] });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

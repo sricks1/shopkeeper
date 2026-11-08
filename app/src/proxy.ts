@@ -44,7 +44,10 @@ export async function proxy(request: NextRequest) {
   if (!user && !isPublic) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
-    loginUrl.searchParams.set("next", pathname);
+    // Keep the query string so deep links (e.g. the Chrome extension's
+    // prefilled /inventory/new?name=…) survive a trip through login.
+    loginUrl.search = "";
+    loginUrl.searchParams.set("next", pathname + request.nextUrl.search);
     return NextResponse.redirect(loginUrl);
   }
 
