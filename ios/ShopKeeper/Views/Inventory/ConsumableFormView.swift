@@ -18,7 +18,15 @@ import UIKit
 /// enforces the write server-side regardless.
 struct ConsumableFormView: View {
     let existingConsumable: ConsumableType?
+    /// Starting values for a new consumable (ignored when editing) — set by
+    /// the share extension. When present, the form also checks for parts
+    /// that already match its SKU or link.
+    let prefill: ConsumablePrefill?
     var onSaved: (ConsumableType) -> Void
+    /// Overrides Cancel. The share extension hosts this form as its root
+    /// view, where `dismiss` has nothing to dismiss; it passes a closure that
+    /// ends the extension request instead.
+    var onCancel: (() -> Void)?
 
     @Environment(\.dismiss) private var dismiss
 
@@ -44,25 +52,48 @@ struct ConsumableFormView: View {
     /// Set once the consumable row is created/updated, so a retry after a
     /// link-reconcile failure reuses it instead of creating a second one.
     @State private var savedConsumable: ConsumableType?
+    /// Existing parts matching the prefill's SKU or link — a nudge against
+    /// adding the same blade twice (PRD §11.2), not a block.
+    @State private var possibleDuplicates: [ConsumableType] = []
 
     private let maxPhotos = 3
 
-    init(existingConsumable: ConsumableType? = nil, onSaved: @escaping (ConsumableType) -> Void) {
+    init(
+        existingConsumable: ConsumableType? = nil,
+        prefill: ConsumablePrefill? = nil,
+        onSaved: @escaping (ConsumableType) -> Void,
+        onCancel: (() -> Void)? = nil
+    ) {
         self.existingConsumable = existingConsumable
+        self.prefill = existingConsumable == nil ? prefill : nil
         self.onSaved = onSaved
+        self.onCancel = onCancel
 
-        _name = State(initialValue: existingConsumable?.name ?? "")
+        let seed = self.prefill
+        _name = State(initialValue: existingConsumable?.name ?? seed?.name ?? "")
         _category = State(initialValue: existingConsumable?.category ?? "")
         _kind = State(initialValue: existingConsumable?.kind ?? .consumable)
-        _sku = State(initialValue: existingConsumable?.sku ?? "")
-        _vendor = State(initialValue: existingConsumable?.vendor ?? "")
-        _vendorURL = State(initialValue: existingConsumable?.vendorURL ?? "")
-        _notes = State(initialValue: existingConsumable?.notes ?? "")
+        _sku = State(initialValue: existingConsumable?.sku ?? seed?.sku ?? "")
+        _vendor = State(initialValue: existingConsumable?.vendor ?? seed?.vendor ?? "")
+        _vendorURL = State(initialValue: existingConsumable?.vendorURL ?? seed?.vendorURL ?? "")
+        _notes = State(initialValue: existingConsumable?.notes ?? seed?.notes ?? "")
     }
 
     var body: some View {
         NavigationStack {
             Form {
+                if !possibleDuplicates.isEmpty {
+                    Section {
+                        ForEach(possibleDuplicates) { match in
+                            Text(match.name)
+                        }
+                    } header: {
+                        Label("Already in inventory?", systemImage: "exclamationmark.triangle")
+                    } footer: {
+                        Text("These share its SKU or link. Cancel if it's one of them.")
+                    }
+                }
+
                 Section("Consumable") {
                     TextField("Name", text: $name)
 
@@ -132,8 +163,10 @@ struct ConsumableFormView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                        .disabled(isSubmitting)
+                    Button("Cancel") {
+                        if let onCancel { onCancel() } else { dismiss() }
+                    }
+                    .disabled(isSubmitting)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     submitButton
@@ -145,6 +178,7 @@ struct ConsumableFormView: View {
             await loadCategories()
             await loadExistingPhotos()
             await loadTools()
+            await loadPossibleDuplicates()
         }
     }
 
@@ -254,6 +288,15 @@ struct ConsumableFormView: View {
     private func loadExistingPhotos() async {
         guard let paths = existingConsumable?.photoPaths, !paths.isEmpty else { return }
         keptPhotos = await ToolsService.resolvedPhotos(paths: paths, kind: .consumableType)
+    }
+
+    /// Best-effort: a failed lookup just means no warning.
+    private func loadPossibleDuplicates() async {
+        guard let prefill else { return }
+        possibleDuplicates = (try? await InventoryService.findPossibleDuplicates(
+            sku: prefill.sku,
+            vendorURL: prefill.vendorURL
+        )) ?? []
     }
 
     /// Loads the tool list for the picker and, in edit mode, pre-checks the

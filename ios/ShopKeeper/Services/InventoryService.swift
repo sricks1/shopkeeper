@@ -108,6 +108,44 @@ extension InventoryService {
             .execute()
             .value
     }
+
+    /// Existing consumable types that look like the one being added: same SKU
+    /// (case-insensitive), same vendor link ignoring its query string, or the
+    /// same Amazon ASIN anywhere in the link. Mirrors
+    /// `findPossibleDuplicates` in the web app's `/inventory/new/page.tsx` —
+    /// change one, change the other.
+    static func findPossibleDuplicates(sku: String?, vendorURL: String?) async throws -> [ConsumableType] {
+        // PostgREST `or=` syntax: double-quote values so commas and parens in
+        // URLs don't split the filter list; `*` is the ilike wildcard.
+        func quote(_ value: String) -> String {
+            let escaped = value
+                .replacingOccurrences(of: "\\", with: "\\\\")
+                .replacingOccurrences(of: "\"", with: "\\\"")
+            return "\"\(escaped)\""
+        }
+
+        var filters: [String] = []
+        if let sku = sku?.trimmingCharacters(in: .whitespacesAndNewlines), !sku.isEmpty {
+            filters.append("sku.ilike.\(quote(sku))")
+        }
+        if let vendorURL = vendorURL?.trimmingCharacters(in: .whitespacesAndNewlines), !vendorURL.isEmpty {
+            var base = String(vendorURL.prefix { $0 != "?" && $0 != "#" })
+            while base.hasSuffix("/") { base.removeLast() }
+            if !base.isEmpty { filters.append("vendor_url.ilike.\(quote(base + "*"))") }
+            if let asin = ConsumablePrefill.asin(in: vendorURL) {
+                filters.append("vendor_url.ilike.\(quote("*\(asin)*"))")
+            }
+        }
+        guard !filters.isEmpty else { return [] }
+
+        return try await SupabaseManager.shared.client
+            .from("consumable_types")
+            .select()
+            .or(filters.joined(separator: ","))
+            .limit(5)
+            .execute()
+            .value
+    }
 }
 
 // MARK: - Create / edit

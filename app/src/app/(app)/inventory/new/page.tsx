@@ -72,6 +72,8 @@ type Supabase = Awaited<ReturnType<typeof createClient>>;
 // cheap insurance against the duplicate-consumable problem (PRD §11.2).
 // Stored links are whatever was pasted (often with ?ref_=… tracking), so URLs
 // match by prefix without the query string, and Amazon links by ASIN.
+// Mirrored by `InventoryService.findPossibleDuplicates` in the iOS app —
+// change one, change the other.
 async function findPossibleDuplicates(supabase: Supabase, prefill: ConsumablePrefill) {
   const filters: string[] = [];
   // PostgREST .or() syntax: quote values so commas/parens in URLs don't break
