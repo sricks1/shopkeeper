@@ -20,26 +20,20 @@ struct ToolsListView: View {
     @State private var tools: [Tool] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
-    @State private var searchText = ""
     @State private var path: [ToolRoute] = []
     @State private var isShowingScanner = false
     @State private var isShowingDeepLinkNotFoundAlert = false
     @State private var isShowingAddTool = false
+    @State private var isSearchPresented = false
 
     var body: some View {
         NavigationStack(path: $path) {
             content
                 .navigationTitle("Tools")
-                // This screen is the one tab root with `.searchable` at the
-                // title level; with the default drawer placement the large
-                // "Tools" title collapsed and never showed. Pinning the
-                // search drawer always-visible keeps the large title stable.
                 .navigationBarTitleDisplayMode(.large)
-                .searchable(
-                    text: $searchText,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: "Search tools"
-                )
+                // No `.searchable` here on purpose — it would park a search bar
+                // in the layout and rob the large title. Search is the toolbar
+                // glass, which presents `EntitySearchSheet`.
                 .navigationDestination(for: ToolRoute.self) { route in
                     ToolDetailView(toolID: route.toolID, displayName: route.displayName)
                 }
@@ -58,6 +52,13 @@ struct ToolsListView: View {
                             } label: {
                                 Label("Add Tool", systemImage: "plus")
                             }
+                        }
+                    }
+                    ToolbarItem(placement: .primaryAction) {
+                        Button {
+                            isSearchPresented = true
+                        } label: {
+                            Label("Search", systemImage: "magnifyingglass")
                         }
                     }
                 }
@@ -80,17 +81,56 @@ struct ToolsListView: View {
                 Task { await load() }
             }
         }
+        .sheet(isPresented: $isSearchPresented) {
+            EntitySearchSheet(
+                prompt: "Search tools",
+                items: tools,
+                matches: { tool, query in
+                    tool.name.localizedStandardContains(query)
+                        || (tool.manufacturer?.localizedStandardContains(query) ?? false)
+                        || (tool.model?.localizedStandardContains(query) ?? false)
+                },
+                row: { tool in
+                    NavigationLink(value: ToolRoute(toolID: tool.id, displayName: tool.name)) {
+                        ToolRow(tool: tool)
+                    }
+                },
+                destination: { (route: ToolRoute) in
+                    ToolDetailView(toolID: route.toolID, displayName: route.displayName)
+                }
+            )
+        }
         .alert("No tool matches that code", isPresented: $isShowingDeepLinkNotFoundAlert) {
             Button("OK", role: .cancel) {}
         }
     }
 
-    @ViewBuilder
+    // The List is always the root view, even while loading or empty — loading
+    // and empty states render as an overlay on top of it. Swapping the root
+    // between a ProgressView and the List breaks the large title: the nav bar
+    // never re-attaches to the new scroll view, so the big title reserves its
+    // space but never draws. Keeping one stable scroll view fixes it.
     private var content: some View {
+        List(tools) { tool in
+            NavigationLink(value: ToolRoute(toolID: tool.id, displayName: tool.name)) {
+                ToolRow(tool: tool)
+            }
+        }
+        .listStyle(.insetGrouped)
+        .brandList()
+        .refreshable {
+            await load()
+        }
+        .overlay { statusOverlay }
+    }
+
+    @ViewBuilder
+    private var statusOverlay: some View {
         if isLoading {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if let errorMessage {
+                .background(Color.brandGround)
+        } else if let errorMessage, tools.isEmpty {
             ContentUnavailableView {
                 Label("Couldn't Load Tools", systemImage: "exclamationmark.triangle")
             } description: {
@@ -100,34 +140,14 @@ struct ToolsListView: View {
                     Task { await load() }
                 }
             }
-        } else if filteredTools.isEmpty && !searchText.isEmpty {
-            ContentUnavailableView.search(text: searchText)
+            .background(Color.brandGround)
         } else if tools.isEmpty {
             ContentUnavailableView {
                 Label("No Tools Yet", systemImage: "wrench.and.screwdriver")
             } description: {
                 Text("Tools added to the shop will show up here.")
             }
-        } else {
-            List(filteredTools) { tool in
-                NavigationLink(value: ToolRoute(toolID: tool.id, displayName: tool.name)) {
-                    ToolRow(tool: tool)
-                }
-            }
-            .listStyle(.insetGrouped)
-            .brandList()
-            .refreshable {
-                await load()
-            }
-        }
-    }
-
-    private var filteredTools: [Tool] {
-        guard !searchText.isEmpty else { return tools }
-        return tools.filter { tool in
-            tool.name.localizedStandardContains(searchText)
-                || (tool.manufacturer?.localizedStandardContains(searchText) ?? false)
-                || (tool.model?.localizedStandardContains(searchText) ?? false)
+            .background(Color.brandGround)
         }
     }
 

@@ -112,6 +112,7 @@ private struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.large)
         }
     }
 }

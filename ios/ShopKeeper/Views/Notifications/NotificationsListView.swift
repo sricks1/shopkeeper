@@ -39,6 +39,7 @@ struct NotificationsListView: View {
         NavigationStack {
             content
                 .navigationTitle("Notifications")
+                .navigationBarTitleDisplayMode(.large)
                 .navigationDestination(for: NotificationTaskRoute.self) { route in
                     // Acknowledging here rather than from a
                     // `simultaneousGesture` on the link: a tap gesture
@@ -57,12 +58,36 @@ struct NotificationsListView: View {
         }
     }
 
-    @ViewBuilder
+    /// The List stays the root — loading and empty states overlay it rather
+    /// than replacing it, so the large title keeps its scroll view and
+    /// actually draws. (A swapped-out root reserves the title's space blank.)
     private var content: some View {
+        List(notifications) { notification in
+            row(for: notification)
+                .swipeActions(edge: .trailing) {
+                    if !notification.isAcknowledged {
+                        Button("Acknowledge") {
+                            Task { await acknowledge(notification) }
+                        }
+                        .tint(.accentColor)
+                    }
+                }
+        }
+        .listStyle(.insetGrouped)
+        .brandList()
+        .refreshable {
+            await load()
+        }
+        .overlay { statusOverlay }
+    }
+
+    @ViewBuilder
+    private var statusOverlay: some View {
         if isLoading {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if let errorMessage {
+                .background(Color.brandGround)
+        } else if let errorMessage, notifications.isEmpty {
             ContentUnavailableView {
                 Label("Couldn't Load Notifications", systemImage: "exclamationmark.triangle")
             } description: {
@@ -72,29 +97,14 @@ struct NotificationsListView: View {
                     Task { await load() }
                 }
             }
+            .background(Color.brandGround)
         } else if notifications.isEmpty {
             ContentUnavailableView {
                 Label("No Notifications", systemImage: "bell")
             } description: {
                 Text("Reorder alerts, tool-down reports, and task updates will show up here.")
             }
-        } else {
-            List(notifications) { notification in
-                row(for: notification)
-                    .swipeActions(edge: .trailing) {
-                        if !notification.isAcknowledged {
-                            Button("Acknowledge") {
-                                Task { await acknowledge(notification) }
-                            }
-                            .tint(.accentColor)
-                        }
-                    }
-            }
-            .listStyle(.insetGrouped)
-            .brandList()
-            .refreshable {
-                await load()
-            }
+            .background(Color.brandGround)
         }
     }
 

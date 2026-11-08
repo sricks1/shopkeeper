@@ -47,10 +47,10 @@ struct TaskListView: View {
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var statusErrorMessage: String?
-    @State private var searchText = ""
     // Reached by the extension in TaskListView+DeepLink.swift, hence not private.
     @State var path: [TaskRoute] = []
     @State private var isShowingNewTask = false
+    @State private var isSearchPresented = false
     /// A deep-linked task we couldn't open. Kept (rather than dropped on
     /// the floor) so the alert's Retry has something to retry — the most
     /// likely cause is a dropped connection, not a deleted row.
@@ -64,18 +64,32 @@ struct TaskListView: View {
         NavigationStack(path: $path) {
             content
                 .navigationTitle("Tasks")
-                .searchable(text: $searchText, prompt: "Search tasks")
-                .safeAreaInset(edge: .top) { scopePicker }
+                .navigationBarTitleDisplayMode(.large)
+                // No `.searchable` — search is the toolbar glass presenting
+                // `EntitySearchSheet`. See `ToolsListView` for why.
                 .safeAreaInset(edge: .bottom) { fallbackCaption }
                 .navigationDestination(for: TaskRoute.self) { route in
                     TaskDetailView(taskID: route.taskID, title: route.title)
                 }
                 .toolbar {
+                    // Scope toggle in the nav bar's principal slot, not a
+                    // pinned top inset — the inset steals the large title's
+                    // space. In the bar it stays pinned and the title works.
+                    ToolbarItem(placement: .principal) {
+                        scopePicker
+                    }
                     ToolbarItem(placement: .primaryAction) {
                         Button {
                             isShowingNewTask = true
                         } label: {
                             Label("New Task", systemImage: "plus")
+                        }
+                    }
+                    ToolbarItem(placement: .primaryAction) {
+                        Button {
+                            isSearchPresented = true
+                        } label: {
+                            Label("Search", systemImage: "magnifyingglass")
                         }
                     }
                 }
@@ -103,6 +117,25 @@ struct TaskListView: View {
                 Task { await reload(clearing: false) }
             }
         }
+        .sheet(isPresented: $isSearchPresented) {
+            EntitySearchSheet(
+                prompt: "Search tasks",
+                items: tasks,
+                matches: { task, query in
+                    task.name.localizedStandardContains(query)
+                        || (task.notes?.localizedStandardContains(query) ?? false)
+                        || (task.tool?.name.localizedStandardContains(query) ?? false)
+                },
+                row: { task in
+                    NavigationLink(value: TaskRoute(taskID: task.id, title: task.name)) {
+                        TaskRow(task: task, assigneeName: task.assignedTo.flatMap { staffNames[$0] })
+                    }
+                },
+                destination: { (route: TaskRoute) in
+                    TaskDetailView(taskID: route.taskID, title: route.title)
+                }
+            )
+        }
         .alert("Couldn't Open Task", isPresented: $isShowingDeepLinkAlert) {
             Button("Retry") {
                 Task { await retryUnresolvedTask() }
@@ -128,8 +161,6 @@ struct TaskListView: View {
             }
         }
         .pickerStyle(.segmented)
-        .padding(.horizontal)
-        .padding(.bottom, 8)
     }
 
     /// Shown only while Mine is selected but unanswerable — see
@@ -147,12 +178,21 @@ struct TaskListView: View {
         }
     }
 
-    @ViewBuilder
+    /// The List stays the root — loading and empty states overlay it rather
+    /// than replacing it. Swapping the root out for a ProgressView breaks the
+    /// large title, which then reserves space but never draws.
     private var content: some View {
+        taskList
+            .overlay { statusOverlay }
+    }
+
+    @ViewBuilder
+    private var statusOverlay: some View {
         if isLoading {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if let errorMessage {
+                .background(Color.brandGround)
+        } else if let errorMessage, tasks.isEmpty {
             ContentUnavailableView {
                 Label("Couldn't Load Tasks", systemImage: "exclamationmark.triangle")
             } description: {
@@ -162,16 +202,14 @@ struct TaskListView: View {
                     Task { await reload(clearing: true) }
                 }
             }
-        } else if filteredTasks.isEmpty && !searchText.isEmpty {
-            ContentUnavailableView.search(text: searchText)
+            .background(Color.brandGround)
         } else if tasks.isEmpty {
             ContentUnavailableView {
                 Label("Nothing on the Board", systemImage: "checklist")
             } description: {
                 Text(activeListScope == .team ? "The board is clear." : "Nothing assigned to you right now.")
             }
-        } else {
-            taskList
+            .background(Color.brandGround)
         }
     }
 
@@ -234,21 +272,11 @@ struct TaskListView: View {
         )
     }
 
-    private var filteredTasks: [StaffTask] {
-        guard !searchText.isEmpty else { return tasks }
-        return tasks.filter { task in
-            task.name.localizedStandardContains(searchText)
-                || (task.notes?.localizedStandardContains(searchText) ?? false)
-                || (task.tool?.name.localizedStandardContains(searchText) ?? false)
-        }
-    }
-
     /// Board order, empty sections dropped. Re-derived from `tasks`, which
     /// is why replacing a row in place is enough to move it into Done.
     private var groupedTasks: [TaskStatusGroup] {
-        let matching = filteredTasks
-        return TaskStatus.boardOrder.compactMap { status in
-            let rows = matching.filter { $0.status == status }
+        TaskStatus.boardOrder.compactMap { status in
+            let rows = tasks.filter { $0.status == status }
             return rows.isEmpty ? nil : TaskStatusGroup(status: status, tasks: rows)
         }
     }

@@ -48,6 +48,7 @@
 		7462F835E88CAF0D33FC4CE1 /* ToolFormPhotoSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BB4A243C9C739D2F545CC7F /* ToolFormPhotoSection.swift */; };
 		74DF2B99D865A204B29FC051 /* RepairConsumablesSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DEA245E8762D21607FFAF97 /* RepairConsumablesSection.swift */; };
 		7EA2419C2CCE17B62156D5B1 /* TaskComment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D88C83F8A4147B56ABF6210 /* TaskComment.swift */; };
+		83F65872285555493E80027E /* EntitySearchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849AAE5FE8D18C02B1D1667C /* EntitySearchSheet.swift */; };
 		854004C0A3DB83C3221520E7 /* InventoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6655B5BF42D908F51CF42DD6 /* InventoryService.swift */; };
 		8BE02373B71BBF3468A20229 /* LogRepairView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00354A7FD44B679426FE82B /* LogRepairView.swift */; };
 		8D27E1F8E87CA89FA784B3D2 /* IssuesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4349B6CBC749697222A326A4 /* IssuesService.swift */; };
@@ -136,6 +137,7 @@
 		7A808049E66A5DCD4FF34E7A /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		7B4E4A7BC0985A4B3A3F3273 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		7D6B1408AA3FF18CA57C4A36 /* RepairDetailSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepairDetailSections.swift; sourceTree = "<group>"; };
+		849AAE5FE8D18C02B1D1667C /* EntitySearchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntitySearchSheet.swift; sourceTree = "<group>"; };
 		84D5292550FC53E5AA5130A0 /* OrdersListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersListView.swift; sourceTree = "<group>"; };
 		85812E3762C3FB57C3BA50C8 /* RepairDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepairDetailView.swift; sourceTree = "<group>"; };
 		88D9E9107EE99EA7EA296C1C /* TaskFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskFormView.swift; sourceTree = "<group>"; };
@@ -369,6 +371,7 @@
 			children = (
 				AA6EB851052DC449469C8FA2 /* ColorToken.swift */,
 				B295F0AC92A6B28400B1F62E /* EntityPhotoThumbnail.swift */,
+				849AAE5FE8D18C02B1D1667C /* EntitySearchSheet.swift */,
 				EBC2150FC1C56806284A0961 /* Font+Rubik.swift */,
 				935A213482A05CC654468639 /* StatusBadge.swift */,
 				B5E7842B284F54B0223E7229 /* Theme.swift */,
@@ -545,6 +548,7 @@
 				FB17D8C22270E0A043498848 /* DeepLinkRouter.swift in Sources */,
 				FAAEAB193EDBED9FC240FB8B /* EntityPhoto.swift in Sources */,
 				BAB8D3C34308E10E0C2F80B5 /* EntityPhotoThumbnail.swift in Sources */,
+				83F65872285555493E80027E /* EntitySearchSheet.swift in Sources */,
 				045014F0ABDFF58CDBE230C7 /* Font+Rubik.swift in Sources */,
 				F0DA1AF6D27F6ED74B9BB020 /* InventoryDetailView.swift in Sources */,
 				1DAA03DAAB45C592823FE7F0 /* InventoryItem.swift in Sources */,

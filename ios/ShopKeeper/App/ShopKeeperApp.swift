@@ -32,20 +32,29 @@ struct ShopKeeperApp: App {
 /// sitting in default grey. Done once, globally, via the UIKit appearance
 /// proxies.
 private func configureBarAppearance() {
-    let nav = UINavigationBarAppearance()
-    nav.configureWithOpaqueBackground()
-    nav.backgroundColor = .brandGroundUI
-    nav.titleTextAttributes = [
+    let titleAttributes: [NSAttributedString.Key: Any] = [
         .foregroundColor: UIColor.brandTitleUI,
         .font: UIFont.rubik(17, weight: .semibold),
     ]
-    nav.largeTitleTextAttributes = [
+    let largeTitleAttributes: [NSAttributedString.Key: Any] = [
         .foregroundColor: UIColor.brandTitleUI,
         .font: UIFont.rubik(32, weight: .bold),
     ]
+
+    // IMPORTANT: use the *default* (translucent) background, not
+    // `configureWithOpaqueBackground()`. Under iOS 26's Liquid Glass, forcing
+    // an opaque nav-bar background suppresses the large title entirely — the
+    // title's space is reserved but nothing draws. The translucent bar blurs
+    // the warm cream content beneath it, so the chrome still reads cream while
+    // large titles work (this is how Reminders behaves).
+    let nav = UINavigationBarAppearance()
+    nav.configureWithDefaultBackground()
+    nav.titleTextAttributes = titleAttributes
+    nav.largeTitleTextAttributes = largeTitleAttributes
+
     UINavigationBar.appearance().standardAppearance = nav
-    UINavigationBar.appearance().scrollEdgeAppearance = nav
     UINavigationBar.appearance().compactAppearance = nav
+    UINavigationBar.appearance().scrollEdgeAppearance = nav
 
     let tab = UITabBarAppearance()
     tab.configureWithOpaqueBackground()
