@@ -26,16 +26,16 @@ not a strict restatement of the PRD's phased rollout.
 
 ## In flight
 
-- **Tool slug validation (#12, `fix/validate-tool-slug`, worktree `../shopkeeper-slug`):** rejects malformed slugs on web, iOS, and with a `tools_slug_format` CHECK constraint, after a pasted Festool URL broke the Rotex's pages on 2026-10-18. Rebased onto `main` 2026-11-07 (one conflict in `ToolFormView.swift`: kept the new error copy in Rubik). Lint, typecheck, and the 14 tests pass; the iOS app builds. All 32 live tool slugs still pass the constraint (re-checked 2026-11-07). Its migration is **not applied**; it needs Steven's go-ahead.
+Nothing on a branch. `main` is the only branch.
 
 ## Needs Steven
 
-- **Slug constraint migration (#12):** approve applying `20261018000001_tools_slug_format_check.sql` to production. Apply it before or right after merging #12, so the constraint isn't left out of sync with the code.
 - **Organizer pool model:** ranked worklist or triage inbox? (Leaning inbox, since the kanban already covers the ranked view.) This blocks the sort-order rework in Phase 3.
 - **Member tool-status board:** is it ShopKeeper's (Phase 6 below) or the Woody member PWA's "Today" board? Pick one owner.
 
 ## Recently done
 
+- 2026-11-07: Reject malformed tool slugs on web and iOS, backed by the `tools_slug_format` CHECK constraint (applied to production) (#12)
 - 2026-11-07: iOS "Share to ShopKeeper" extension for Safari and the Amazon app (#18)
 - 2026-11-07: iOS Modern Craftsman visual refresh: Rubik, large titles, toolbar search sheet (#16)
 - 2026-11-07: Chrome extension that prefills Add Consumable from a product page (#17)
