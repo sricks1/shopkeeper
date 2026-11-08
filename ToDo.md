@@ -4,7 +4,9 @@
 - [x] "To Buy" badge on the Organize-view task card (amber shopping-cart chip,
       shown when a task is linked to a consumable). Merged to main, live.
 
-## Round one — built locally (not yet committed/merged)
+## Round one — merged to main (June 2026)
+
+> Current state lives in `STATUS.md`. This file is the design log for the organizer rework.
 
 ### Personal-task creation (currently missing entirely)
 - [x] Wire up creating a task as `personal` scope. The new-task form now has a

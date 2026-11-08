@@ -2,6 +2,15 @@
 
 Instructions for Claude Code working on this repository.
 
+## Status tracking (read first)
+
+`STATUS.md` is where this project stands. Sessions are disposable; that file is not. Steven opens a fresh session most of the time and won't remember which old one had the context, so the file has to carry it.
+
+- **Start of every session:** read `STATUS.md` before doing anything else. If what Steven asks for conflicts with it, say so.
+- **Every commit that finishes, starts, or changes a piece of work updates `STATUS.md` in the same commit.** There is no reliable "end of session" — Steven usually just walks away — so tie the update to the commit, not to goodbye.
+- **Before stopping with work unfinished or uncommitted** (blocked, waiting on Steven, hit a wall), write it under *In flight* with what's left and what it needs, and commit that even if the code isn't done.
+- **Keep it current, not historical.** Finished items move to *Recently done* with a date and fall off after a few weeks; git log is the history. Update the *Last updated* line every time.
+
 ## Project summary
 
 ShopKeeper is a tool maintenance and consumables inventory system for The Joinery, LLC. It tracks powered shop tools, logs issues and repairs against them, and manages consumable parts inventory with automatic reorder alerts. Used by shop staff (Steven, Flash, Eric) on mobile and desktop.
@@ -14,7 +23,7 @@ See `PRD.md` for full requirements.
 - **Production services:** Mac mini M4 at Steven's home office runs persistent services.
 - **Database:** Supabase, hosted. **There is ONE project, and it is production.** `app/.env.local` and `app/.env.production` both point at it — the split exists for build configuration, not for isolation. This is deliberate: only Steven and Flash use the system.
 - **Therefore local development writes to live shop data.** There is no throwaway database. `supabase/seed.sql` is a 42-line stub and does NOT reflect what is in the project; the ~29 tools, staff, issues, and tasks in there are real records the shop depends on. Do not create test records, and never assume "it's just dev" because a file is named `.env.local`. If you need to exercise a write path, ask first and clean up after.
-- **Deployment target:** TBD frontend hosting (likely Vercel or Cloudflare Pages).
+- **Deployment target:** Vercel, serving `https://shopkeeper.thejoinery.club`. Every PR gets a Vercel preview build, and that build is the CI gate.
 
 **Never run migrations or schema changes against production Supabase without Steven's explicit approval in the current turn.** "Yes to the plan" from an earlier message does not count. Ask again before applying.
 
