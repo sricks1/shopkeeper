@@ -26,11 +26,11 @@ not a strict restatement of the PRD's phased rollout.
 
 ## In flight
 
-- **Tool slug validation (#12, `fix/validate-tool-slug`, worktree `../shopkeeper-slug`):** rejects malformed slugs on web, iOS, and with a `tools_slug_format` CHECK constraint, after a pasted Festool URL broke the Rotex's pages on 2026-10-18. Now conflicts with `main` (the iOS visual refresh touched `ToolFormView.swift`), so it needs a rebase. Its migration is **not applied**: it needs Steven's go-ahead, and the existing rows need re-checking against the constraint first, since tools have been added since the October check.
+- **Tool slug validation (#12, `fix/validate-tool-slug`, worktree `../shopkeeper-slug`):** rejects malformed slugs on web, iOS, and with a `tools_slug_format` CHECK constraint, after a pasted Festool URL broke the Rotex's pages on 2026-10-18. Rebased onto `main` 2026-11-07 (one conflict in `ToolFormView.swift`: kept the new error copy in Rubik). Lint, typecheck, and the 14 tests pass; the iOS app builds. All 32 live tool slugs still pass the constraint (re-checked 2026-11-07). Its migration is **not applied**; it needs Steven's go-ahead.
 
 ## Needs Steven
 
-- **Slug constraint migration (#12):** approve applying `20261018000001_tools_slug_format_check.sql` to production once the branch is rebased.
+- **Slug constraint migration (#12):** approve applying `20261018000001_tools_slug_format_check.sql` to production. Apply it before or right after merging #12, so the constraint isn't left out of sync with the code.
 - **Organizer pool model:** ranked worklist or triage inbox? (Leaning inbox, since the kanban already covers the ranked view.) This blocks the sort-order rework in Phase 3.
 - **Member tool-status board:** is it ShopKeeper's (Phase 6 below) or the Woody member PWA's "Today" board? Pick one owner.
 
