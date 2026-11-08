@@ -12,6 +12,8 @@ tags:
   - biome
   - pnpm
   - pwa
+  - swift
+  - swiftui
 ---
 
 # ShopKeeper — Build Status
@@ -20,23 +22,26 @@ Tool maintenance and consumables inventory system for The Joinery, LLC.
 Phases below are inferred from the git history, migrations, and source tree —
 not a strict restatement of the PRD's phased rollout.
 
-**Last updated:** 2026-09-28
+**Last updated:** 2026-11-07
 
 ## In flight
 
-Nothing known on `main`. Five old feature branches (`feat/link-tasks-to-tools`, `feat/inventory-vendor-url`, `feat/organizer-task-creation-filters`, `feat/to-buy-badge`, `feat/task-organizer-tags-priority`) are already merged and can be deleted.
+- **Tool slug validation (#12, `fix/validate-tool-slug`, worktree `../shopkeeper-slug`):** rejects malformed slugs on web, iOS, and with a `tools_slug_format` CHECK constraint, after a pasted Festool URL broke the Rotex's pages on 2026-10-18. Now conflicts with `main` (the iOS visual refresh touched `ToolFormView.swift`), so it needs a rebase. Its migration is **not applied**: it needs Steven's go-ahead, and the existing rows need re-checking against the constraint first, since tools have been added since the October check.
 
 ## Needs Steven
 
+- **Slug constraint migration (#12):** approve applying `20261018000001_tools_slug_format_check.sql` to production once the branch is rebased.
 - **Organizer pool model:** ranked worklist or triage inbox? (Leaning inbox, since the kanban already covers the ranked view.) This blocks the sort-order rework in Phase 3.
 - **Member tool-status board:** is it ShopKeeper's (Phase 6 below) or the Woody member PWA's "Today" board? Pick one owner.
-- **Deployment target:** `CLAUDE.md` still says TBD, but `ToDo.md` treats Vercel as the build gate. Confirm Vercel and update `CLAUDE.md`.
 
 ## Recently done
 
+- 2026-11-07: iOS "Share to ShopKeeper" extension for Safari and the Amazon app (#18)
+- 2026-11-07: iOS Modern Craftsman visual refresh: Rubik, large titles, toolbar search sheet (#16)
+- 2026-11-07: Chrome extension that prefills Add Consumable from a product page (#17)
+- 2026-11-06: Link tools to a consumable from the inventory form, web and iOS (#15)
+- 2026-11-06: Parts & consumables on the tool page, with two-way navigation on iOS (#13, #14)
 - 2026-09-21: Notify owner and shop master when something needs ordering (#11)
-- 2026-09-16: Web app installable as a PWA (#10)
-- 2026-09-11: Native iOS companion, phase 2 (#9)
 
 ## Phase 1 — Backend foundation
 
@@ -58,6 +63,7 @@ Nothing known on `main`. Five old feature branches (`feat/link-tasks-to-tools`, 
 - [x] Report-issue flow with photo upload
 - [x] Log-repair flow with consumable picker (drives inventory decrement)
 - [x] Inventory management and tool–consumable linking
+- [x] Parts & consumables on the tool page; link tools from the inventory form (2026-11-06)
 - [x] Notifications page, nav badge, and email Edge Function
 - [x] PWA manifest, service worker, and icons
 - [x] UI/branding design pass and mobile layout fixes
@@ -83,6 +89,7 @@ Nothing known on `main`. Five old feature branches (`feat/link-tasks-to-tools`, 
 - [x] Two-way sync between order status and inventory stock status
 - [x] Auto-hide received orders 5 days after receipt
 - [x] Promote a normal task to a loose order
+- [x] Capture a consumable from a product page: Chrome extension (web) and share extension (iOS) (2026-11-07)
 - [ ] Settle the "ranked worklist vs. triage inbox" model for the organizer pool
 - [ ] Record-purchase / receive flow polish for multi-SKU orders
 
@@ -98,5 +105,6 @@ Nothing known on `main`. Five old feature branches (`feat/link-tasks-to-tools`, 
 - [ ] Native iOS app (SwiftUI) on the shared Supabase backend — **in progress**, deliberately moved ahead of Phase 5 (2026-08-18); scope in `docs/ios-phase1.md`
   - [x] Phase 1: auth, tools, QR, report issue, log repair, inventory, maintenance
   - [x] Phase 2 (2026-09-11): Tasks tab (Mine/Team, detail, comments, create), "Order this" from inventory, Orders board, loose orders, task deep links + notification tap-through — the shop-floor slice only; kanban/organizer stay on the web. Scope in `docs/ios-phase2.md`
+  - [x] Since phase 2 (2026-11-06/07): tool ↔ parts navigation, Modern Craftsman visual refresh (Rubik, large titles, toolbar search), "Share to ShopKeeper" extension
 - [ ] Member-facing read-only tool status board
 - [ ] Photo-based issue reports with tool recognition (stretch)
