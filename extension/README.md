@@ -28,7 +28,8 @@ extension's card.
 ## Settings
 
 Right-click the icon → **Options** to set the ShopKeeper address. It defaults
-to `http://localhost:3000` until the web app is deployed.
+to production, `https://shopkeeper.thejoinery.club`; set it to
+`http://localhost:3000` to test against a local dev server.
 
 ## What it reads
 

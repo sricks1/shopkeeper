@@ -1,6 +1,6 @@
-// Where ShopKeeper lives. Defaults to the local dev server until the web app
-// is deployed; change it from the extension's Options page.
-export const DEFAULT_BASE_URL = "http://localhost:3000";
+// Where ShopKeeper lives. Point it at a local dev server (e.g.
+// http://localhost:3000) from the extension's Options page when testing.
+export const DEFAULT_BASE_URL = "https://shopkeeper.thejoinery.club";
 
 const KEY = "baseUrl";
 
