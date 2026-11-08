@@ -118,3 +118,6 @@ targets:
             NSExtensionActivationRule:
               NSExtensionActivationSupportsWebURLWithMaxCount: 1
               NSExtensionActivationSupportsWebPageWithMaxCount: 1
+              # The Amazon app shares plain text ("Title https://a.co/d/…"),
+              # not a URL item; ShareModel pulls the link out of the text.
+              NSExtensionActivationSupportsText: true
