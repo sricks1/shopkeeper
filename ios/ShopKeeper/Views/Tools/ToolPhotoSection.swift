@@ -21,6 +21,11 @@ struct ToolPhotoSection: View {
                             .frame(maxWidth: .infinity)
                             .frame(height: 200)
                             .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .strokeBorder(Color.brandHairline)
+                            )
                     case .empty:
                         ProgressView()
                             .frame(maxWidth: .infinity, minHeight: 120)
@@ -31,7 +36,8 @@ struct ToolPhotoSection: View {
                     }
                 }
             }
-            .listRowInsets(EdgeInsets())
+            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 4, trailing: 16))
+            .listRowBackground(Color.clear)
         }
     }
 }

@@ -1,32 +1,5 @@
 import SwiftUI
 
-/// Which rows `InventoryListView` shows, driven by the filter menu in the
-/// toolbar.
-enum InventoryStockFilter: String, CaseIterable, Identifiable {
-    case all
-    case inStock
-    case onOrder
-
-    var id: String { rawValue }
-
-    var displayName: String {
-        switch self {
-        case .all: return "All"
-        case .inStock: return StockStatus.inStock.displayName
-        case .onOrder: return StockStatus.onOrder.displayName
-        }
-    }
-
-    /// `nil` means "don't filter" (the `.all` case).
-    var stockStatus: StockStatus? {
-        switch self {
-        case .all: return nil
-        case .inStock: return .inStock
-        case .onOrder: return .onOrder
-        }
-    }
-}
-
 /// The two halves of the Inventory tab, mirroring the web's
 /// `InventoryViewToggle`: what's on the shelf, and what's on its way.
 enum InventorySegment: String, CaseIterable, Identifiable {
@@ -43,8 +16,8 @@ enum InventorySegment: String, CaseIterable, Identifiable {
     }
 }
 
-/// The Inventory tab: every consumable/part's stock state, searchable and
-/// filterable by stock status, plus the Orders board as a second segment —
+/// The Inventory tab: every consumable/part's stock state, searchable from
+/// the toolbar glass, plus the Orders board as a second segment —
 /// the same information architecture as the web app, where orders live
 /// under Inventory rather than under Tasks.
 ///
@@ -63,28 +36,18 @@ struct InventoryListView: View {
     @State private var entries: [InventoryEntry] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
-    @State private var searchText = ""
-    @State private var stockFilter: InventoryStockFilter = .all
     @State private var isAddingConsumable = false
     @State private var isAddingOrder = false
     @State private var ordersReloadTrigger = 0
+    @State private var isSearchPresented = false
 
     var body: some View {
         NavigationStack {
             segmentedContent
                 .navigationTitle("Inventory")
+                .navigationBarTitleDisplayMode(.large)
                 .navigationDestination(for: InventoryEntry.self) { entry in
                     InventoryDetailView(entry: entry)
-                }
-                .safeAreaInset(edge: .top) {
-                    Picker("View", selection: $segment) {
-                        ForEach(InventorySegment.allCases) { option in
-                            Text(option.displayName).tag(option)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal)
-                    .padding(.bottom, 8)
                 }
                 .toolbar {
                     toolbarContent
@@ -99,26 +62,39 @@ struct InventoryListView: View {
                         ordersReloadTrigger += 1
                     }
                 }
-                // The search field belongs to Stock alone, so a query left
-                // behind there must not silently filter nothing on the way
-                // out — and must not be waiting, stale, on the way back.
-                .onChange(of: segment) {
-                    if segment == .orders {
-                        searchText = ""
-                    }
+                .sheet(isPresented: $isSearchPresented) {
+                    EntitySearchSheet(
+                        prompt: "Search inventory",
+                        items: entries,
+                        matches: { entry, query in
+                            let type = entry.consumableType
+                            return type.name.localizedStandardContains(query)
+                                || (type.sku?.localizedStandardContains(query) ?? false)
+                                || (type.vendor?.localizedStandardContains(query) ?? false)
+                        },
+                        row: { entry in
+                            NavigationLink(value: entry) {
+                                InventoryRow(entry: entry)
+                            }
+                        },
+                        destination: { (entry: InventoryEntry) in
+                            InventoryDetailView(entry: entry)
+                        }
+                    )
                 }
         }
     }
 
-    /// Search belongs to the stock list alone, so `.searchable` is applied
-    /// inside the branch rather than to the whole stack — the Orders board
-    /// has its own sections and no search field.
+    /// Search belongs to the stock list alone — its toolbar glass is only in
+    /// the `.stock` toolbar branch, and the Orders board has its own sections.
     @ViewBuilder
     private var segmentedContent: some View {
         switch segment {
         case .stock:
             content
-                .searchable(text: $searchText, prompt: "Search inventory")
+                // No `.searchable` — search is the toolbar glass presenting
+                // `EntitySearchSheet`. See `ToolsListView` for why.
+                //
                 // Stock loads from here rather than from a `.task` on the
                 // whole tab: reopening the app straight into the Orders
                 // segment shouldn't fetch the shelf at all, and returning
@@ -138,19 +114,21 @@ struct InventoryListView: View {
 
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        switch segment {
-        case .stock:
-            ToolbarItem(placement: .primaryAction) {
-                Menu {
-                    Picker("Stock Status", selection: $stockFilter) {
-                        ForEach(InventoryStockFilter.allCases) { filter in
-                            Text(filter.displayName).tag(filter)
-                        }
-                    }
-                } label: {
-                    Label("Filter", systemImage: "line.3.horizontal.decrease.circle\(stockFilter == .all ? "" : ".fill")")
+        // The segment toggle lives in the nav bar's principal slot rather than
+        // a pinned top inset: a `safeAreaInset(.top)` above the list steals the
+        // large title's space (it renders in the wrong place and only on
+        // overscroll). In the bar it stays pinned through scroll and the large
+        // title works below it. Outside the switch so it shows for both halves.
+        ToolbarItem(placement: .principal) {
+            Picker("View", selection: $segment) {
+                ForEach(InventorySegment.allCases) { option in
+                    Text(option.displayName).tag(option)
                 }
             }
+            .pickerStyle(.segmented)
+        }
+        switch segment {
+        case .stock:
             if session.canManageTools {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
@@ -158,6 +136,13 @@ struct InventoryListView: View {
                     } label: {
                         Label("Add Consumable", systemImage: "plus")
                     }
+                }
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    isSearchPresented = true
+                } label: {
+                    Label("Search", systemImage: "magnifyingglass")
                 }
             }
         case .orders:
@@ -175,11 +160,34 @@ struct InventoryListView: View {
         }
     }
 
-    @ViewBuilder
+    /// The List is always the root — loading, error, and empty states render
+    /// as an overlay on top of it rather than replacing it. Swapping the root
+    /// out for a ProgressView breaks the large title (the nav bar never
+    /// re-attaches to the real scroll view), so the big title reserves its
+    /// space but never draws.
     private var content: some View {
+        List(entries) { entry in
+            NavigationLink(value: entry) {
+                InventoryRow(entry: entry)
+            }
+        }
+        .listStyle(.insetGrouped)
+        .brandList()
+        .refreshable {
+            await load()
+        }
+        .safeAreaInset(edge: .bottom) {
+            refreshFailureBanner
+        }
+        .overlay { statusOverlay }
+    }
+
+    @ViewBuilder
+    private var statusOverlay: some View {
         if isLoading && entries.isEmpty {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.brandGround)
         } else if let errorMessage, entries.isEmpty {
             ContentUnavailableView {
                 Label("Couldn't Load Inventory", systemImage: "exclamationmark.triangle")
@@ -190,33 +198,14 @@ struct InventoryListView: View {
                     Task { await load() }
                 }
             }
-        } else if filteredEntries.isEmpty && (!searchText.isEmpty || stockFilter != .all) {
-            ContentUnavailableView.search(text: searchText)
+            .background(Color.brandGround)
         } else if entries.isEmpty {
             ContentUnavailableView {
                 Label("No Inventory Yet", systemImage: "shippingbox")
             } description: {
                 Text("Consumables and parts added to the catalog will show up here.")
             }
-        } else {
-            stockList
-        }
-    }
-
-    /// The rows themselves, plus the one thing a background refresh has to
-    /// be able to say for itself when it fails — see `refreshFailureBanner`.
-    private var stockList: some View {
-        List(filteredEntries) { entry in
-            NavigationLink(value: entry) {
-                InventoryRow(entry: entry)
-            }
-        }
-        .listStyle(.plain)
-        .refreshable {
-            await load()
-        }
-        .safeAreaInset(edge: .bottom) {
-            refreshFailureBanner
+            .background(Color.brandGround)
         }
     }
 
@@ -229,25 +218,13 @@ struct InventoryListView: View {
     private var refreshFailureBanner: some View {
         if errorMessage != nil && !entries.isEmpty {
             Label("Couldn't refresh. Pull down to try again.", systemImage: "wifi.exclamationmark")
-                .font(.caption)
+                .font(.rubik(.caption))
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.horizontal)
                 .padding(.vertical, 6)
                 .background(.bar)
         }
-    }
-
-    private var filteredEntries: [InventoryEntry] {
-        entries
-            .filter { stockFilter.stockStatus == nil || $0.stockStatus == stockFilter.stockStatus }
-            .filter { entry in
-                guard !searchText.isEmpty else { return true }
-                let type = entry.consumableType
-                return type.name.localizedStandardContains(searchText)
-                    || (type.sku?.localizedStandardContains(searchText) ?? false)
-                    || (type.vendor?.localizedStandardContains(searchText) ?? false)
-            }
     }
 
     private func load() async {
@@ -267,15 +244,15 @@ private struct InventoryRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(entry.consumableType.name)
-                .font(.headline)
+                .font(.rubik(.headline))
 
             Text("\(entry.consumableType.category.capitalized) · \(entry.consumableType.kind.displayName)")
-                .font(.subheadline)
+                .font(.rubik(.subheadline))
                 .foregroundStyle(.secondary)
 
             if let vendor = entry.consumableType.vendor {
                 Text(vendor)
-                    .font(.caption)
+                    .font(.rubik(.caption))
                     .foregroundStyle(.secondary)
             }
 

@@ -32,6 +32,7 @@ struct IssueDetailView: View {
                 IssuePhotosSection(photos: detail.photos)
             }
             .listStyle(.insetGrouped)
+            .brandList()
             .refreshable {
                 await load()
             }

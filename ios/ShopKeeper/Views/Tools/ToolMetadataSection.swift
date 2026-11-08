@@ -7,29 +7,24 @@ import SwiftUI
 struct ToolMetadataSection: View {
     let tool: Tool
 
+    // Name, maker/model and status now live in the hero header, so this is
+    // the remaining descriptive fields only — hidden entirely when the tool
+    // has none, rather than showing an empty "Details" card.
+    private var hasAnyDetail: Bool {
+        tool.toolType != nil
+            || tool.serial != nil
+            || tool.location != nil
+            || tool.purchaseDateValue != nil
+            || tool.manualURL != nil
+            || (tool.notes?.isEmpty == false)
+    }
+
     var body: some View {
-        Section("Details") {
-            // A plain HStack, not LabeledContent: LabeledContent with a custom
-            // (non-Text) content view renders an oversized row here, which is
-            // what left a large blank gap under Status on every tool.
-            HStack {
-                Text("Status")
-                Spacer(minLength: 12)
-                StatusBadge(
-                    displayName: tool.status.displayName,
-                    symbolName: tool.status.symbolName,
-                    colorToken: tool.status.colorToken
-                )
-            }
-            if let manufacturer = tool.manufacturer {
-                LabeledContent("Manufacturer", value: manufacturer)
-            }
-            if let model = tool.model {
-                LabeledContent("Model", value: model)
-            }
-            if let toolType = tool.toolType {
-                LabeledContent("Type", value: toolType.capitalized)
-            }
+        if hasAnyDetail {
+            Section("Details") {
+                if let toolType = tool.toolType {
+                    LabeledContent("Type", value: toolType.capitalized)
+                }
             if let serial = tool.serial {
                 LabeledContent("Serial", value: serial)
             }
@@ -51,12 +46,13 @@ struct ToolMetadataSection: View {
             if let notes = tool.notes, !notes.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Notes")
-                        .font(.caption)
+                        .font(.rubik(.caption))
                         .foregroundStyle(.secondary)
                     Text(notes)
                 }
                 .padding(.vertical, 2)
             }
+        }
         }
     }
 }

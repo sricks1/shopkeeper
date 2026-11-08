@@ -83,6 +83,7 @@ struct TaskFormView: View {
                 detailsSection
                 visibilitySection
             }
+            .brandList()
             .navigationTitle(existingTask == nil ? "New Task" : "Edit Task")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

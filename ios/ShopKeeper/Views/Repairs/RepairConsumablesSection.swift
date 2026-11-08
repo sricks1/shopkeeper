@@ -24,7 +24,7 @@ struct RepairConsumablesSection: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(consumable.consumableType.name)
                     Text(consumable.consumableType.category)
-                        .font(.caption)
+                        .font(.rubik(.caption))
                         .foregroundStyle(.secondary)
                 }
             }
@@ -35,7 +35,7 @@ struct RepairConsumablesSection: View {
                     value: quantityBinding(for: typeID, current: quantity),
                     in: 1...99
                 )
-                .font(.footnote)
+                .font(.rubik(.footnote))
             }
         }
         .padding(.vertical, 2)

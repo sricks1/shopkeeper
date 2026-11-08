@@ -22,7 +22,7 @@ struct TaskRow: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(task.name)
-                    .font(.headline)
+                    .font(.rubik(.headline))
                 if task.priority == .high {
                     StatusBadge(
                         displayName: task.priority.displayName,
@@ -44,7 +44,7 @@ struct TaskRow: View {
                         Label(task.scope.displayName, systemImage: "lock")
                     }
                 }
-                .font(.subheadline)
+                .font(.rubik(.subheadline))
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
             }
@@ -54,7 +54,7 @@ struct TaskRow: View {
                     dateNeeded.formatted(date: .abbreviated, time: .omitted),
                     systemImage: task.isOverdue ? "calendar.badge.exclamationmark" : "calendar"
                 )
-                .font(.caption)
+                .font(.rubik(.caption))
                 .foregroundStyle(task.isOverdue ? Color.red : Color.secondary)
             }
         }

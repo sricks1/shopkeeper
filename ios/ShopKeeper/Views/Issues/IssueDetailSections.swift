@@ -9,7 +9,7 @@ struct IssueHeaderSection: View {
         Section {
             VStack(alignment: .leading, spacing: 8) {
                 Text(issue.title)
-                    .font(.headline)
+                    .font(.rubik(.headline))
                 HStack(spacing: 12) {
                     StatusBadge(
                         displayName: issue.severity.displayName,
@@ -24,7 +24,7 @@ struct IssueHeaderSection: View {
                 }
                 if let description = issue.description, !description.isEmpty {
                     Text(description)
-                        .font(.subheadline)
+                        .font(.rubik(.subheadline))
                         .foregroundStyle(.secondary)
                 }
             }

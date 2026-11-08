@@ -50,10 +50,11 @@ struct ReportIssueView: View {
                     Section {
                         Text(errorMessage)
                             .foregroundStyle(.red)
-                            .font(.footnote)
+                            .font(.rubik(.footnote))
                     }
                 }
             }
+            .brandList()
             .navigationTitle("Report Issue")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

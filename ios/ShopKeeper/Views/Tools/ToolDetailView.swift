@@ -88,6 +88,7 @@ struct ToolDetailView: View {
         if let detail {
             List {
                 ToolPhotoSection(photo: detail.photos.first)
+                ToolHeaderSection(tool: detail.tool)
                 ToolStatusBannerSection(tool: detail.tool)
                 ToolPrimaryActionsSection(
                     onReportIssue: { isReportingIssue = true },
@@ -107,7 +108,7 @@ struct ToolDetailView: View {
                             }
                         } label: {
                             Label("Manage Consumables & Parts", systemImage: "wrench.adjustable")
-                                .font(.subheadline)
+                                .font(.rubik(.subheadline))
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -136,7 +137,7 @@ struct ToolDetailView: View {
                         } icon: {
                             Image(systemName: "wrench.and.screwdriver")
                         }
-                        .font(.subheadline)
+                        .font(.rubik(.subheadline))
                         .foregroundStyle(.secondary)
                     }
                 }
@@ -154,7 +155,7 @@ struct ToolDetailView: View {
                         isAddingTask = true
                     } label: {
                         Label("Add Task", systemImage: "checklist")
-                            .font(.subheadline)
+                            .font(.rubik(.subheadline))
                             .foregroundStyle(.secondary)
                     }
                     .accessibilityHint("Create a task linked to \(displayName)")
@@ -163,6 +164,7 @@ struct ToolDetailView: View {
                 ToolRepairsSection(repairs: detail.recentRepairs)
             }
             .listStyle(.insetGrouped)
+            .brandList()
             .refreshable {
                 await load()
             }

@@ -50,11 +50,12 @@ struct ToolConsumablesEditorView: View {
                 Section {
                     Text(errorMessage)
                         .foregroundStyle(.red)
-                        .font(.footnote)
+                        .font(.rubik(.footnote))
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .brandList()
         .navigationTitle("Consumables & Parts")
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $searchText, prompt: "Search catalog")
@@ -86,13 +87,13 @@ struct ToolConsumablesEditorView: View {
     private func linkedRow(_ detail: ToolConsumableDetail) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(detail.consumableType.name)
-                .font(.body)
+                .font(.rubik(.body))
             Text(detail.consumableType.category)
-                .font(.caption)
+                .font(.rubik(.caption))
                 .foregroundStyle(.secondary)
             if let notes = detail.notes, !notes.isEmpty {
                 Text(notes)
-                    .font(.caption)
+                    .font(.rubik(.caption))
                     .foregroundStyle(.secondary)
             }
         }
@@ -128,7 +129,7 @@ struct ToolConsumablesEditorView: View {
                     Text(consumable.name)
                         .foregroundStyle(.primary)
                     Text(consumable.category)
-                        .font(.caption)
+                        .font(.rubik(.caption))
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
