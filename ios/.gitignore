@@ -1,5 +1,7 @@
 Secrets.xcconfig
 build/
+build-device/
+build-sim/
 DerivedData/
 *.xcuserdatad/
 xcuserdata/
