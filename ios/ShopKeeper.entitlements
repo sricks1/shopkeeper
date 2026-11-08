@@ -6,5 +6,9 @@
 	<array>
 		<string>applinks:shopkeeper.thejoinery.club</string>
 	</array>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)club.thejoinery.shopkeeper.shared</string>
+	</array>
 </dict>
 </plist>

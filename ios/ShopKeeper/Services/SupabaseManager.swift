@@ -30,7 +30,26 @@ final class SupabaseManager: @unchecked Sendable {
             fatalError(Self.missingCredentialsMessage(for: "SupabaseAnonKey"))
         }
 
-        client = SupabaseClient(supabaseURL: url, supabaseKey: anonKey)
+        // The session lives in a shared keychain access group so the "Share to
+        // ShopKeeper" extension (a separate process) sees the same login.
+        // The group comes from Info.plist, filled in at build time with the
+        // team prefix: `$(AppIdentifierPrefix)club.thejoinery.shopkeeper.shared`.
+        // Both targets list it under `keychain-access-groups` in their
+        // entitlements. Moving here from the default (group-less) item logs
+        // everyone out once after this update; accepted, no migration.
+        let accessGroup = Bundle.main.object(forInfoDictionaryKey: "KeychainAccessGroup") as? String
+        client = SupabaseClient(
+            supabaseURL: url,
+            supabaseKey: anonKey,
+            options: SupabaseClientOptions(
+                auth: .init(
+                    storage: KeychainLocalStorage(
+                        service: "supabase.gotrue.swift",
+                        accessGroup: accessGroup.flatMap { $0.isEmpty ? nil : $0 }
+                    )
+                )
+            )
+        )
     }
 
     private static func missingCredentialsMessage(for key: String) -> String {
