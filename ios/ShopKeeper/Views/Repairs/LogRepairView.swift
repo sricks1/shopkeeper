@@ -57,10 +57,11 @@ struct LogRepairView: View {
                     Section {
                         Text(errorMessage)
                             .foregroundStyle(.red)
-                            .font(.footnote)
+                            .font(.rubik(.footnote))
                     }
                 }
             }
+            .brandList()
             .navigationTitle("Log Repair")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

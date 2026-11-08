@@ -9,15 +9,15 @@ struct RepairHeaderSection: View {
         Section {
             VStack(alignment: .leading, spacing: 8) {
                 Text(repair.description)
-                    .font(.headline)
+                    .font(.rubik(.headline))
                 if let laborMinutes = repair.laborMinutes {
                     Label("\(laborMinutes) min", systemImage: "clock")
-                        .font(.subheadline)
+                        .font(.rubik(.subheadline))
                         .foregroundStyle(.secondary)
                 }
                 if let notes = repair.notes, !notes.isEmpty {
                     Text(notes)
-                        .font(.subheadline)
+                        .font(.rubik(.subheadline))
                         .foregroundStyle(.secondary)
                 }
             }

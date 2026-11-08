@@ -1,7 +1,10 @@
 import SwiftUI
 
-/// Consumables/parts assigned to this tool. Read-only here — assigning
-/// consumables to a tool is a management action, not part of this screen.
+/// Consumables/parts assigned to this tool. Each row taps through to that
+/// consumable's inventory detail (via `ConsumableInventoryLink`, which
+/// resolves the stock row on demand) — the tool→part half of two-way
+/// navigation. Assigning/unassigning parts is still a separate management
+/// action, reached from the "Manage Consumables & Parts" row.
 struct ToolConsumablesSection: View {
     let consumables: [ToolConsumableDetail]
 
@@ -9,19 +12,26 @@ struct ToolConsumablesSection: View {
         if !consumables.isEmpty {
             Section("Consumables & Parts") {
                 ForEach(consumables) { consumable in
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(consumable.consumableType.name)
-                            .font(.body)
-                        Text(consumable.consumableType.category)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        if let notes = consumable.notes, !notes.isEmpty {
-                            Text(notes)
-                                .font(.caption)
+                    NavigationLink {
+                        ConsumableInventoryLink(
+                            consumableTypeID: consumable.consumableTypeId,
+                            name: consumable.consumableType.name
+                        )
+                    } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(consumable.consumableType.name)
+                                .font(.rubik(.body))
+                            Text(consumable.consumableType.category)
+                                .font(.rubik(.caption))
                                 .foregroundStyle(.secondary)
+                            if let notes = consumable.notes, !notes.isEmpty {
+                                Text(notes)
+                                    .font(.rubik(.caption))
+                                    .foregroundStyle(.secondary)
+                            }
                         }
+                        .padding(.vertical, 2)
                     }
-                    .padding(.vertical, 2)
                 }
             }
         }
@@ -42,7 +52,7 @@ struct ToolIssuesSection: View {
                     } label: {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(issue.title)
-                                .font(.body)
+                                .font(.rubik(.body))
                             HStack(spacing: 12) {
                                 StatusBadge(
                                     displayName: issue.severity.displayName,
@@ -56,7 +66,7 @@ struct ToolIssuesSection: View {
                                 )
                             }
                             Text(issue.createdAt.formatted(.relative(presentation: .named)))
-                                .font(.caption)
+                                .font(.rubik(.caption))
                                 .foregroundStyle(.secondary)
                         }
                         .padding(.vertical, 2)
@@ -81,9 +91,9 @@ struct ToolRepairsSection: View {
                     } label: {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(repair.description)
-                                .font(.body)
+                                .font(.rubik(.body))
                             Text(repair.createdAt.formatted(.relative(presentation: .named)))
-                                .font(.caption)
+                                .font(.rubik(.caption))
                                 .foregroundStyle(.secondary)
                         }
                         .padding(.vertical, 2)

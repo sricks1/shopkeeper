@@ -15,12 +15,22 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { IssueStatusBadge, SeverityBadge, ToolStatusBadge } from "@/components/StatusBadge";
+import KindChip from "@/components/inventory/KindChip";
+import {
+  IssueStatusBadge,
+  SeverityBadge,
+  StockStatusBadge,
+  ToolStatusBadge,
+} from "@/components/StatusBadge";
 import { buttonClasses } from "@/components/ui/Button";
 import { canManageTools, getCurrentStaff } from "@/lib/auth";
+import type { ConsumableKind } from "@/lib/consumables";
 import { signedPhotoUrls } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/server";
+import type { Enums } from "@/lib/types/database.types";
 import { formatDate, timeAgo } from "@/lib/utils";
+
+type StockStatus = Enums<"stock_status">;
 
 export default async function ToolDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -31,7 +41,12 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
 
   if (!tool) notFound();
 
-  const [{ data: issues }, { data: repairs }, { data: maintenanceTasks }] = await Promise.all([
+  const [
+    { data: issues },
+    { data: repairs },
+    { data: maintenanceTasks },
+    { data: toolConsumables },
+  ] = await Promise.all([
     supabase
       .from("issues")
       .select("id, title, severity, status, created_at")
@@ -49,7 +64,47 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
       .select("id, description, interval_days, last_performed_at")
       .eq("tool_id", tool.id)
       .order("created_at"),
+    // Parts/consumables used on this tool, with each one's inventory record
+    // so the row can link straight to the consumable's detail page.
+    supabase
+      .from("tool_consumables")
+      .select(
+        "consumable_type_id, consumable_types(id, name, kind, inventory_items(id, stock_status))",
+      )
+      .eq("tool_id", tool.id),
   ]);
+
+  type PartRow = {
+    typeId: string;
+    invId: string | null;
+    name: string;
+    kind: ConsumableKind;
+    stock: StockStatus | null;
+  };
+  const parts: PartRow[] = (toolConsumables ?? [])
+    .flatMap((tc) => {
+      const ct = tc.consumable_types as {
+        id: string;
+        name: string;
+        kind: ConsumableKind;
+        inventory_items:
+          | { id: string; stock_status: StockStatus }[]
+          | { id: string; stock_status: StockStatus }
+          | null;
+      } | null;
+      if (!ct) return [];
+      const inv = Array.isArray(ct.inventory_items) ? ct.inventory_items[0] : ct.inventory_items;
+      return [
+        {
+          typeId: ct.id,
+          invId: inv?.id ?? null,
+          name: ct.name,
+          kind: ct.kind,
+          stock: inv?.stock_status ?? null,
+        },
+      ];
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   function getTaskStatus(task: { interval_days: number | null; last_performed_at: string | null }) {
     if (!task.last_performed_at) return "never";
@@ -216,6 +271,43 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
           <span className="whitespace-nowrap">QR</span>
         </a>
       </div>
+
+      {/* Parts & Consumables — what this tool uses, each linking to its
+          inventory record. Read-only for everyone; owner/shop_master edit the
+          links via the "Parts" button above. Mirrors inventory's "Used in tools". */}
+      <section className="mb-5">
+        <h2 className="mb-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-400">
+          <span className="h-px flex-1 bg-zinc-200" />
+          Parts &amp; Consumables
+          <span className="h-px flex-1 bg-zinc-200" />
+        </h2>
+        {!parts.length ? (
+          <p className="rounded-card bg-white p-4 text-sm text-zinc-400 ring-1 ring-zinc-200">
+            No parts linked{canManageTools(staff?.role) ? " — use “Parts” above to add some." : "."}
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {parts.map((p) => (
+              <li key={p.typeId}>
+                <Link
+                  href={p.invId ? `/inventory/${p.invId}` : `/inventory/new?consumable=${p.typeId}`}
+                  className="flex items-center gap-3 rounded-card bg-white px-3.5 py-2.5 shadow-sm ring-1 ring-zinc-200 transition-colors active:bg-zinc-50"
+                >
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100">
+                    <Package size={15} className="text-zinc-500" />
+                  </div>
+                  <span className="min-w-0 flex-1 truncate text-sm font-semibold text-zinc-800">
+                    {p.name}
+                  </span>
+                  {p.kind === "part" && <KindChip kind={p.kind} />}
+                  {p.stock && <StockStatusBadge status={p.stock} />}
+                  <ChevronRight size={14} className="shrink-0 text-zinc-300" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       {/* Maintenance summary */}
       {maintenanceTasks &&

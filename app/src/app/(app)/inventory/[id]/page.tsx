@@ -59,6 +59,11 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
     .select("tool_id, tools(id, name, slug, status)")
     .eq("consumable_type_id", ct.id);
 
+  // The full tool list + currently-linked ids drive the edit form's tool
+  // picker, so links can be managed from the consumable side too.
+  const { data: allTools } = await supabase.from("tools").select("id, name").order("name");
+  const linkedToolIds = (linkedTools ?? []).map((tc) => tc.tool_id);
+
   return (
     <div className="px-4 pb-4 pt-4">
       <Link href="/inventory" className="mb-4 flex items-center gap-1 text-sm text-zinc-500">
@@ -115,6 +120,8 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
           consumableTypeId={ct.id}
           categories={categoryList}
           existingPhotos={existingPhotos}
+          tools={allTools ?? []}
+          initialToolIds={linkedToolIds}
           initial={{
             name: ct.name,
             kind: ct.kind,

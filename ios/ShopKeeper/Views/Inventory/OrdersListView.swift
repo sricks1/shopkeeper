@@ -85,7 +85,8 @@ struct OrdersListView: View {
                 }
             }
         }
-        .listStyle(.plain)
+        .listStyle(.insetGrouped)
+        .brandList()
         .refreshable {
             await load()
         }

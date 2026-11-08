@@ -20,10 +20,10 @@ struct OrderRow: View {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(order.name)
-                    .font(.headline)
+                    .font(.rubik(.headline))
 
                 Text(subtitle)
-                    .font(.subheadline)
+                    .font(.rubik(.subheadline))
                     .foregroundStyle(.secondary)
 
                 if let dateNeeded = order.dateNeededValue {
@@ -31,7 +31,7 @@ struct OrderRow: View {
                         dateNeeded.formatted(date: .abbreviated, time: .omitted),
                         systemImage: isOverdue ? "calendar.badge.exclamationmark" : "calendar"
                     )
-                    .font(.caption)
+                    .font(.rubik(.caption))
                     .foregroundStyle(isOverdue ? Color.red : Color.secondary)
                 }
             }
@@ -43,7 +43,7 @@ struct OrderRow: View {
 
                 if order.priority == .high {
                     Image(systemName: TaskPriority.high.symbolName)
-                        .font(.caption)
+                        .font(.rubik(.caption))
                         .foregroundStyle(.red)
                         .accessibilityLabel("High priority")
                 }

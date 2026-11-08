@@ -32,6 +32,7 @@ struct RepairDetailView: View {
                 RepairPhotosSection(photos: detail.photos)
             }
             .listStyle(.insetGrouped)
+            .brandList()
             .refreshable {
                 await load()
             }

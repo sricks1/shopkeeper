@@ -38,12 +38,21 @@ targets:
     dependencies:
       - package: Supabase
         product: Supabase
+      - target: ShopKeeperShare
+        embed: true
     info:
       path: Generated-Info.plist
       properties:
         CFBundleDisplayName: ShopKeeper
+        UIAppFonts:
+          - Rubik-Regular.ttf
+          - Rubik-Medium.ttf
+          - Rubik-SemiBold.ttf
+          - Rubik-Bold.ttf
         SupabaseURL: $(SUPABASE_URL)
         SupabaseAnonKey: $(SUPABASE_ANON_KEY)
+        # Shared with ShopKeeperShare so both see one login; see SupabaseManager.
+        KeychainAccessGroup: $(AppIdentifierPrefix)club.thejoinery.shopkeeper.shared
         UILaunchScreen: {}
         NSCameraUsageDescription: ShopKeeper uses the camera to photograph tool issues and to scan the QR labels on shop machines.
         NSPhotoLibraryUsageDescription: ShopKeeper attaches photos from your library to issue reports.
@@ -53,3 +62,62 @@ targets:
           - CFBundleURLName: club.thejoinery.shopkeeper
             CFBundleURLSchemes:
               - shopkeeper
+
+  # "Share to ShopKeeper": share a product from Safari or the Amazon app and
+  # get the Add Consumable form, prefilled. Compiles the app's Models,
+  # Services and the consumable form directly rather than through a shared
+  # framework; the extension is the only other consumer.
+  ShopKeeperShare:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: ShopKeeperShare
+      - path: ShopKeeper/Models
+      - path: ShopKeeper/Services
+      - path: ShopKeeper/Views/Components
+      - path: ShopKeeper/Views/Inventory/ConsumableFormView.swift
+      - path: ShopKeeper/Views/Inventory/ConsumableFormPhotoSection.swift
+      - path: ShopKeeper/Resources/Fonts
+        buildPhase: resources
+      - path: ShopKeeper/Resources/Assets.xcassets
+    configFiles:
+      Debug: Secrets.Debug.xcconfig
+      Release: Secrets.Release.xcconfig
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: club.thejoinery.shopkeeper.share
+        DEVELOPMENT_TEAM: 9R99EUR743
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SWIFT_VERSION: "6.0"
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGN_ENTITLEMENTS: ShopKeeperShare/ShopKeeperShare.entitlements
+        APPLICATION_EXTENSION_API_ONLY: YES
+    dependencies:
+      - package: Supabase
+        product: Supabase
+    info:
+      path: ShopKeeperShare/Generated-Info.plist
+      properties:
+        CFBundleDisplayName: ShopKeeper
+        UIAppFonts:
+          - Rubik-Regular.ttf
+          - Rubik-Medium.ttf
+          - Rubik-SemiBold.ttf
+          - Rubik-Bold.ttf
+        SupabaseURL: $(SUPABASE_URL)
+        SupabaseAnonKey: $(SUPABASE_ANON_KEY)
+        KeychainAccessGroup: $(AppIdentifierPrefix)club.thejoinery.shopkeeper.shared
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
+          NSExtensionAttributes:
+            # Safari runs this on the page first; see ShareScrape.js.
+            NSExtensionJavaScriptPreprocessingFile: ShareScrape
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsWebURLWithMaxCount: 1
+              NSExtensionActivationSupportsWebPageWithMaxCount: 1
+              # The Amazon app shares plain text ("Title https://a.co/d/…"),
+              # not a URL item; ShareModel pulls the link out of the text.
+              NSExtensionActivationSupportsText: true

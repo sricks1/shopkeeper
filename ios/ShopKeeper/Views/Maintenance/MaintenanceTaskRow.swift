@@ -17,7 +17,7 @@ struct MaintenanceTaskRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(task.description)
-                        .font(.body)
+                        .font(.rubik(.body))
                         .foregroundStyle(.primary)
                     if task.isOverdue {
                         StatusBadge(displayName: "Overdue", symbolName: "exclamationmark.triangle.fill", colorToken: "red")
@@ -25,16 +25,16 @@ struct MaintenanceTaskRow: View {
                 }
 
                 Text(task.intervalDescription)
-                    .font(.caption)
+                    .font(.rubik(.caption))
                     .foregroundStyle(.secondary)
 
                 Text(task.statusDescription)
-                    .font(.caption)
+                    .font(.rubik(.caption))
                     .foregroundStyle(task.isOverdue ? .red : .secondary)
 
                 if let notes = task.notes, !notes.isEmpty {
                     Text(notes)
-                        .font(.caption)
+                        .font(.rubik(.caption))
                         .foregroundStyle(.secondary)
                         .italic()
                 }

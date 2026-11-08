@@ -87,7 +87,7 @@ struct MaintenanceListView: View {
                     Section {
                         Text(errorMessage)
                             .foregroundStyle(.red)
-                            .font(.footnote)
+                            .font(.rubik(.footnote))
                     }
                 }
                 Section {
@@ -104,6 +104,7 @@ struct MaintenanceListView: View {
                 }
             }
             .listStyle(.insetGrouped)
+            .brandList()
             .refreshable {
                 await load()
             }

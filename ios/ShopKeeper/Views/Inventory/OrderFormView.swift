@@ -41,6 +41,7 @@ struct OrderFormView: View {
                     Text("For something the shop doesn't keep in the inventory catalog — shop soap, a one-off part. Anything that *is* in the catalog should be re-ordered from its inventory page instead, so its stock status stays in sync.")
                 }
             }
+            .brandList()
             .navigationTitle("New Order")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
