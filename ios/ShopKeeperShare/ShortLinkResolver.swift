@@ -8,8 +8,11 @@ enum ShortLinkResolver {
     static func resolve(_ url: URL) async -> URL? {
         guard SharedProductParser.isAmazonShortLink(url) else { return nil }
 
-        var request = URLRequest(url: url, timeoutInterval: 8)
-        request.httpMethod = "HEAD"
+        // GET, not HEAD: a.co didn't redirect HEAD requests on a real device
+        // (the share came through with the short link unresolved). The body
+        // fetched is only the short-link server's tiny 30x response, since
+        // the redirect onward is refused below.
+        let request = URLRequest(url: url, timeoutInterval: 8)
         let stopper = RedirectStopper()
         _ = try? await URLSession.shared.data(for: request, delegate: stopper)
         return stopper.lastRedirect
