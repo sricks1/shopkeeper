@@ -55,6 +55,7 @@ struct ConsumableFormView: View {
     /// Existing parts matching the prefill's SKU or link — a nudge against
     /// adding the same blade twice (PRD §11.2), not a block.
     @State private var possibleDuplicates: [ConsumableType] = []
+    @State private var isConfirmingDuplicate = false
 
     private let maxPhotos = 3
 
@@ -84,13 +85,8 @@ struct ConsumableFormView: View {
             Form {
                 if !possibleDuplicates.isEmpty {
                     Section {
-                        ForEach(possibleDuplicates) { match in
-                            Text(match.name)
-                        }
-                    } header: {
-                        Label("Already in inventory?", systemImage: "exclamationmark.triangle")
-                    } footer: {
-                        Text("These share its SKU or link. Cancel if it's one of them.")
+                        duplicateWarning
+                            .listRowBackground(Color.brandOrange.opacity(0.18))
                     }
                 }
 
@@ -182,15 +178,54 @@ struct ConsumableFormView: View {
         }
     }
 
+    /// Filled card at the top of the form, the first thing seen when the
+    /// share sheet opens. A section header was too easy to miss.
+    private var duplicateWarning: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label {
+                Text(possibleDuplicates.count == 1 ? "Already in inventory" : "Possibly already in inventory")
+                    .font(.rubik(.headline, weight: .semibold))
+            } icon: {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(Color.brandOrange)
+            }
+
+            ForEach(possibleDuplicates) { match in
+                Text("• \(match.name)")
+                    .font(.rubik(.subheadline, weight: .medium))
+            }
+
+            Text("Same SKU or link as what you're adding. Cancel if it's the same part.")
+                .font(.rubik(.footnote))
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 4)
+    }
+
     @ViewBuilder
     private var submitButton: some View {
         if isSubmitting {
             ProgressView()
         } else {
             Button(existingConsumable == nil ? "Add" : "Save") {
-                Task { await submit() }
+                // A likely duplicate takes a second, deliberate tap.
+                if possibleDuplicates.isEmpty {
+                    Task { await submit() }
+                } else {
+                    isConfirmingDuplicate = true
+                }
             }
             .disabled(!canSubmit)
+            .confirmationDialog(
+                "This looks like a part you already have.",
+                isPresented: $isConfirmingDuplicate,
+                titleVisibility: .visible
+            ) {
+                Button("Add Anyway") { Task { await submit() } }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text(possibleDuplicates.map(\.name).joined(separator: "\n"))
+            }
         }
     }
 
